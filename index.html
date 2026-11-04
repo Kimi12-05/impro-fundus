@@ -499,8 +499,8 @@ SCREENS.vorgaben = () => {
     body:`<div class="wrap"><div class="wraptabs">${kats.map(k=>`<button class="${k===UI.voKat?'on':''}" onclick="UI.voKat='${esc(k)}';UI.voEig='';render()">${esc(k)}</button>`).join('')}</div>
     ${eigs.length > 1 ? `<div class="chips"><button class="chip ${UI.voEig===''?'on':''}" onclick="UI.voEig='';render()">Alle</button>${eigs.map(e=>`<button class="chip ${UI.voEig===e?'on':''}" onclick="UI.voEig='${esc(e)}';render()">${esc(e)}</button>`).join('')}</div>` : ''}
     ${liste.length ? liste.map(v => leiter()
-      ? `<button class="row" style="min-height:0" onclick="go('spielEdit',{id:'${v.id}',art:'vorgabe'})"><div class="grow">${esc(v.titel)}</div><span class="chev">›</span></button>`
-      : `<div class="row" style="min-height:0"><div class="grow">${esc(v.titel)}</div></div>`).join('') : '<p class="empty">Noch keine Vorgaben in dieser Kategorie.</p>'}</div>`,
+      ? `<button class="row" style="min-height:0" onclick="go('spielEdit',{id:'${v.id}',art:'vorgabe'})"><div class="grow">${esc(v.titel)}${v.ablauf?`<div class="s">${esc(v.ablauf)}</div>`:''}</div><span class="chev">›</span></button>`
+      : `<div class="row" style="min-height:0"><div class="grow">${esc(v.titel)}${v.ablauf?`<div class="s">${esc(v.ablauf)}</div>`:''}</div></div>`).join('') : '<p class="empty">Noch keine Vorgaben in dieser Kategorie.</p>'}</div>`,
     cta: leiter()
       ? `<button class="btn red" onclick="go('spielEdit',{art:'vorgabe',kat:'${esc(UI.voKat)}'})">${IC.plus} Vorgabe hinzufügen</button>`
       : `<button class="btn red" onclick="go('vorschlag',{art:'vorgabe',kat:'${esc(UI.voKat)}'})">${IC.plus} Vorschlag für Vorgabe einreichen</button>`};
@@ -517,7 +517,8 @@ SCREENS.spielEdit = c => {
     body:`<div class="wrap">
     <p class="label">Kategorie</p><select class="field" id="sKat">${kats.map(k=>`<option ${k===v.kat?'selected':''}>${esc(k)}</option>`).join('')}</select>
     ${vor ? `<p class="label">Text der Vorgabe</p><textarea class="field" id="sTitel" style="min-height:80px">${esc(v.titel)}</textarea>
-      <p class="label">Eigenschaften (mit Komma trennen)</p><input class="field" id="sEig" value="${esc(v.eig)}" placeholder="z. B. körperlich, sprachlich">`
+      <p class="label">Hinweise (optional)</p><textarea class="field" id="sHinw" style="min-height:80px">${esc(v.ablauf)}</textarea>
+      <p class="label">Gruppe / Eigenschaft (mit Komma trennen)</p><input class="field" id="sEig" value="${esc(v.eig)}" placeholder="z. B. körperlich, sprachlich">`
     : `<p class="label">Titel</p><input class="field" id="sTitel" value="${esc(v.titel)}">
       <p class="label">Teilnehmer (z. B. 2 oder 2–6, bei Warm-Up leer)</p><input class="field" id="sTn" value="${esc(v.tn)}">
       <p class="label">Dauer in Minuten (optional)</p><input class="field" id="sDauer" inputmode="numeric" value="${esc(v.dauer)}">
@@ -529,7 +530,7 @@ SCREENS.spielEdit = c => {
 async function spielSpeichern(id, art){
   const titel = ($('#sTitel').value || '').trim(); if(!titel) return toast('Bitte einen Text eingeben');
   const eintrag = {id, art, kat:$('#sKat').value, titel};
-  if(art === 'vorgabe'){ eintrag.eig = ($('#sEig').value || '').trim(); }
+  if(art === 'vorgabe'){ eintrag.eig = ($('#sEig').value || '').trim(); eintrag.ablauf = ($('#sHinw').value || '').trim(); }
   else { eintrag.tn = $('#sTn').value.trim(); eintrag.dauer = $('#sDauer').value.trim(); eintrag.level = $('#sLevel').value; eintrag.ablauf = $('#sAblauf').value; }
   const r = await api('spielSpeichern', {eintrag});
   if(!r.ok) return toast(r.msg);
