@@ -448,10 +448,36 @@ SCREENS.ueDetail = c => {
     right: leiter() ? `<button class="ib" onclick="go('spielEdit',{id:'${u.id}',art:'uebung'})" aria-label="Bearbeiten">${IC.pencil}</button>` : '',
     body:`<div class="wrap"><div class="hero">${esc(u.titel)}</div>
     ${stats.length ? `<div class="stats">${stats.map(s=>`<div class="stat"><div class="k">${s[0]}</div><div class="v">${esc(s[1])}</div></div>`).join('')}</div>` : ''}
+    ${u.titel.indexOf('Tod in einer Minute') === 0 ? `<p class="label">Timer</p><div class="chips">${[[60,'1 Min'],[30,'30 Sek'],[15,'15 Sek'],[5,'5 Sek'],[1,'1 Sek']].map(z=>`<button class="chip" style="font-size:16px;padding:10px 16px" onclick="timerStart(${z[0]})">⏱ ${z[1]}</button>`).join('')}</div>` : ''}
     <p class="label">Ablauf</p>
     <p class="prose">${u.ablauf ? esc(u.ablauf) : '<span class="empty">Noch kein Ablauf eingetragen.</span>'}</p>
     ${p.ausgefallen ? '' : `<p class="label">Dein Wunsch für die Probe am ${dKurz(p.datum)}</p>${wunschKnoepfe(u.id, p.id)}`}</div>`};
 };
+
+/* ----- Timer ----- */
+let TIMER = null, AUDIO = null;
+function timerStop(){ if(TIMER){ clearInterval(TIMER); TIMER = null; } }
+function zeitText(s){ const m = Math.floor(s/60); return m + ':' + String(s % 60).padStart(2,'0'); }
+function timerStart(sek){
+  timerStop();
+  try { AUDIO = AUDIO || new (window.AudioContext || window.webkitAudioContext)(); if(AUDIO.state === 'suspended') AUDIO.resume(); } catch(e){}
+  sheet(`<div style="text-align:center"><div class="muted">Timer</div>
+    <div id="tZahl" style="font-size:96px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1;margin:10px 0">${zeitText(sek)}</div>
+    <div id="tInfo" class="muted">läuft …</div></div>
+    <button class="btn red" onclick="timerStart(${sek})">Neu starten</button>
+    <button class="btn" onclick="timerStop();closeSheet()">Schließen</button>`);
+  const ende = Date.now() + sek*1000;
+  TIMER = setInterval(() => {
+    const z = $('#tZahl'); if(!z){ timerStop(); return; }
+    const rest = Math.max(0, ende - Date.now());
+    z.textContent = zeitText(Math.ceil(rest/1000));
+    if(rest <= 0){
+      timerStop(); z.textContent = 'Zeit!'; z.style.color = 'var(--red)'; $('#tInfo').textContent = 'vorbei';
+      try { navigator.vibrate && navigator.vibrate([300,100,300]); } catch(e){}
+      try { if(AUDIO){ const o = AUDIO.createOscillator(), g = AUDIO.createGain(); o.frequency.value = 880; g.gain.value = 0.3; o.connect(g); g.connect(AUDIO.destination); o.start(); o.stop(AUDIO.currentTime + 0.7); } } catch(e){}
+    }
+  }, 100);
+}
 
 /* ----- Vorgaben ----- */
 SCREENS.vorgaben = () => {
