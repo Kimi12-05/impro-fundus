@@ -1,0 +1,9 @@
+{
+  "name": "Improtheater des Theater Brand",
+  "short_name": "Impro",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#d81b23",
+  "icons": [{"src": "icon.png", "sizes": "180x180", "type": "image/png"}]
+}
