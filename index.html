@@ -403,7 +403,7 @@ async function planToggle(probeId, spielId){
 
 /* ----- Übungen ----- */
 const UE_KATS = ['2er','3er','Gruppe','Warm-Up'];
-const VO_KATS = ['Ticks','Tätigkeiten','Phobien','Orte','Rekorde','Hobbys','Genre','Gefühle','Beziehungen','Berufe'];
+const VO_KATS = ['Ticks','Tätigkeiten','Phobien','Orte','Rekorde','Hobbys','Genre','Gefühle','Beziehungen','Berufe','Persönlichkeiten'];
 const istVorgabe = s => s.art === 'vorgabe';
 function katListe(fest, vorgabe){
   const extra = [...new Set(D.spiele.filter(s => istVorgabe(s) === vorgabe).map(s => s.kat))].filter(k => k && !fest.includes(k));
