@@ -223,7 +223,15 @@ function render(){
     </div></nav>` : '';
   const cta = r.cta ? `<div class="cta">${r.cta}</div>` : '';
   $('#app').innerHTML = kopf + `<main>${r.body}</main>` + cta + nav;
-  if(c.s === 'login') setTimeout(() => { const n = $('#loginName'), pn = $('#loginPin'); if(n && n.value && pn) pn.focus(); }, 60);
+  if(c.s === 'login') setTimeout(() => {
+    const n = $('#loginName'), pn = $('#loginPin');
+    if(!(n && n.value && pn)) return;
+    pn.focus();
+    // iPhone öffnet die Tastatur nur nach einer Berührung: darum öffnet ein Tipp irgendwo auf die freie Fläche das Zahlenfeld
+    const tipp = e => { const p2 = $('#loginPin'); if(p2 && !e.target.closest('input,button,a,.sheet')) p2.focus(); };
+    document.removeEventListener('touchend', window._pinTipp);
+    window._pinTipp = tipp; document.addEventListener('touchend', tipp);
+  }, 60);
 }
 
 /* ===== Sheets & PIN ===== */
