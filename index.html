@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-title" content="Impro">
 <meta name="theme-color" content="#d81b23">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon.png">
+<link rel="apple-touch-icon" href="../icon.png">
 <title>Improtheater des Theater Brand</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
@@ -108,6 +108,24 @@ nav.bar .home{width:64px;height:64px;min-width:0;border-radius:50%;background:va
 .lplus{position:absolute;right:8px;top:9px;width:38px;height:38px;border-radius:12px;border:0;background:none;font-size:28px;line-height:1;color:var(--muted)}
 .lgo{width:56px;height:56px;border:2px solid #b9c3bf;border-radius:14px;background:#fff;display:grid;place-items:center;flex:none;padding:0}
 .lgo img{width:38px;height:auto}
+
+/* ---- Computer-Ansicht: obere Reiterleiste statt unterer Navi ---- */
+.topnav{display:none}
+@media (min-width:900px){
+  body.nos,body.nos #app{overflow:visible;height:auto}
+  #app{max-width:1100px;padding-bottom:60px}
+  nav.bar{display:none}
+  header.home{display:none}
+  .topnav{display:flex;position:sticky;top:0;z-index:7;background:var(--bg);border-bottom:1px solid var(--line);align-items:stretch;gap:4px;padding:0 24px;height:64px}
+  .topnav .brand{font-weight:700;font-size:19px;align-self:center;margin-right:28px;white-space:nowrap}
+  .topnav button{padding:0 16px;color:var(--muted);font-size:16px;border-bottom:3px solid transparent;margin-bottom:-1px}
+  .topnav button:hover{color:var(--fg)}
+  .topnav button.on{color:var(--red);border-bottom-color:var(--red);font-weight:600}
+  .topnav .sp{flex:1}
+  .cta{position:static;max-width:none;padding:0 0 24px}
+  .linkbar{left:auto;right:24px;bottom:24px;justify-content:flex-end;gap:16px}
+  .linkbar a{width:48px;height:48px}
+}
 </style>
 </head>
 <body>
@@ -222,7 +240,8 @@ function render(){
         : `<button class="${c.s==='profil'?'on':''}" onclick="tab('profil')" aria-label="Mein Profil">${IC.person}Profil${leiter()&&D.vorschlaege.length?`<span class="dot">${D.vorschlaege.length}</span>`:''}</button>`}
     </div></nav>` : '';
   const cta = r.cta ? `<div class="cta">${r.cta}</div>` : '';
-  $('#app').innerHTML = kopf + `<main>${r.body}</main>` + cta + nav;
+  const oben = SESSION && D ? `<nav class="topnav"><span class="brand">Improtheater Brand</span>${[['home','Start'],['uebungen','Übungen'],['vorgaben','Vorgaben'],['probenListe','Bisherige Proben'],['teilnehmer','Teilnehmer'],['profil','Profil']].map(([k,l]) => `<button class="${c.s===k?'on':''}" onclick="tab('${k}')">${l}</button>`).join('')}<span class="sp"></span></nav>` : '';
+  $('#app').innerHTML = oben + kopf + `<main>${r.body}</main>` + cta + nav;
   if(c.s === 'login') setTimeout(() => {
     const n = $('#loginName'), pn = $('#loginPin');
     if(!(n && n.value && pn)) return;
