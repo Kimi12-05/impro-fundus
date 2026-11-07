@@ -155,222 +155,275 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
 <nav class="bottom" id="bottom" aria-label="Schnellmenü"></nav>
 
 <script>
-const DATA={"items": [{"id": "u1", "cat": "szenen", "sub": "sprache", "title": "Grommolo Übersetzer", "ex": 3, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "Eine Person spricht ganz normales Deutsch.\n\nDie zweite Person kommt aus dem Gromolo-Land und spricht nur Gromolo (eine frei erfundene Fantasiesprache).\n\nDie dritte Person ist der Übersetzer und übersetzt hin und her.\n\nIhr spielt zusammen eine improvisierte Szene. Der Gromolo-Sprecher nutzt viel Mimik und Gestik."}, {"id": "u2", "cat": "szenen", "sub": "sprache", "title": "Grommolo Switch", "ex": 2, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "Zwei Spieler beginnen eine normale Szene mit deutsch. Wenn der Spielleiter ein Zeichen gibt, also z.B. klatscht, müssen sie sofort, also ohne Unterbrechung/Sprechpause in Gromolo (Kauderwelsch) wechseln. Klatscht der Spielleiter nach wenigen Sekunden erneut, geht es wieder zurück auf deutsch usw. immer hin und her. Diese Wechsel müssen wie selbstverständlich im Sprechfluss und ohne jegliche Hervorhebung passieren.\n\nDer Switch kann beliebig oft stattfinden, die Dauer der Gromolo/deutsch-Parts darf unterschiedlich lang sein. Auch während der Gromolophase muss die Szene weiterlaufen. Wichtig ist auch, dass die einzelnen Phasen (deutsch/Gromolo) nicht zu lang sind und gegen Ende der Szene zunehmend kürzer werden."}, {"id": "u3", "cat": "szenen", "sub": "figuren", "title": "Drei Tote", "ex": null, "von": 3, "bis": 4, "level": "Fortgeschritten", "ab": "Drei (oder vier) Spieler stellen sich in einer Reihe auf die Bühne und für jeden wird vom Publikum eine Todesart abgefragt. Die Spieler stellen nun die Toten dar, die erzählen, wie es zu ihrem Tod gekommen ist. Ziel ist, dass alle zur gleichen Zeit am gleichen Ort sterben.\n\nAlle Spieler drehen sich jetzt um und stehen mit dem Rücken zum Publikum. Der Erste dreht sich um und stellt seine Figur kurz vor. Dann dreht er sich wieder um und der nächste stellt sich vor bis alle einmal durch sind. In dieser ersten Runde soll einfach nur der Charakter der Figur definiert werden. Die Figuren können miteinander verwandt sein, sie können aber auch völlig unabhängig voneinander sein.\n\nIn der zweiten Runde wird der Ort eingeführt, es drehen sich wieder alle nacheinander um und erzählen. Der erste Spieler führt mit seiner Erzählung den Ort ein, die anderen übernehmen den Ort. Im besten Falle sind am Ende der Runde alle an einem Ort und können in der dritten und letzten Runde alle erzählen, wie sie gestorben sind."}, {"id": "u4", "cat": "szenen", "sub": "sprache", "title": "Letztes Wort, erstes Wort", "ex": 2, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "An diesem Spiel sind zwei Spieler beteiligt. Es wird eine beliebige Vorgabe eingeholt. Das Besondere ist, dass im Dialog der beiden das jeweils letzte Wort des einen Spielers das erste des anderen sein muss.\n\nBeispiel:\n\nA: Wie komme ich denn zum Bahnhof?\n\nB: Bahnhof — lassen sie mich überlegen. Sie gehen erst nach links, dann liegt auf der rechten Seite eine Treppe, die gehen sie hoch.\n\nA: Hoch gelegen der Bahnhof, was?\n\nB: Was meinen sie, wie mich das immer anstrengt.\n\nusw."}, {"id": "u5", "cat": "szenen", "sub": "sprache", "title": "ABC Spiel", "ex": 2, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "Basisspiel\n\nDas jeweils erste Wort im Dialog beginnt mit dem nächsten Buchstaben im Alphabet. Das Spiel geht bis der Buchstabe „Z“ erreicht ist. Das ABC-Spiel ist daher auch unter dem Namen Alphabetspiel bekannt.\n\nBeispiel:\n\nErster Spieler: „Abends bekomme ich immer Hunger. Das ist nicht gut für meine Figur!“\n\nZweiter Spieler: „Besonders lecker finde ich Schnitzel.“\n\nErster Spieler: „Currywurst esse ich lieber. Am Besten mit Pommes.“\n\nusw.\n\nVariante 2:\n\nJeder Satz beginnt mit dem nächsten Buchstaben."}, {"id": "u6", "cat": "szenen", "sub": "sprache", "title": "Drei Regeln", "ex": null, "von": 2, "bis": 3, "level": "Fortgeschritten", "ab": "Der Moderator fragt drei personenbezogene Regeln ab, die die Spieler in der Szene beachten sollen. Zum Beispiel, dass sie nur einen Arm haben, kein Wort sprechen dürfen, das ein „s“ enthält und verliebt sein sollen.\n\nGegebenenfalls kann man auch gezielt abfragen: Also z.B. nach körperlicher Besonderheit – welchen Buchstaben weglassen (es empfiehlt sich, keine Vokale zu nehmen, also gleich nach Konsonanten zu fragen)? – welches Gefühl?\n\nRegeln:\n\n1. Jeder Satz muss als Frage enden. Beispiel: „Der Peter geht jetzt in die Küche, oder?“\n\n2. Jeder Satz beginnt mit „Und dann“. Beispiel: „Und dann greift der Bernd zur Tasse.“\n\n3. Sie dürfen die Wörter „Nein“, „nicht“, „kein“, „nichts“, „niemals“ etc. nicht benutzen. (keine Verneinungen) Beispiel: Statt „Ich habe keinen Hunger“ musst du eher sagen „Ich bin satt.“\n\n4. Sie sprechen nur in der dritten Person über sich selbst. Beispiel: „Die Anna freut sich sehr.“ statt „Ich freue mich sehr.“\n\n5. Jede Aussage muss übertrieben höflich und formell sein. Beispiel: „Verehrteste Kollegin, dürfte ich mir erlauben, Ihnen mitzuteilen, dass es mir eine außerordentliche Freude bereitet…?“\n\n6. Jeder Satz muss eine Metapher enthalten. Beispiel: „Das Herz des Thomas ist ein brodelnder Vulkan.“ / „Die Anna ist ein leuchtender Stern in der Dunkelheit.“\n\n7. Jeder Satz muss einen Vergleich enthalten. Beispiel: „Der Bernd läuft schnell wie ein gehetzter Hase.“ / „Ihr Lächeln ist warm wie die Sonne.“\n\n8. Jeder Satz muss mit „Plötzlich“ beginnen. Beispiel: „Plötzlich betritt der Klaus den Raum.“ / „Plötzlich spürt sie große Freude.“\n\n9. Jeder Satz muss exakt vier Wörter lang sein. Beispiel: „Der Max öffnet die Tür.“ / „Anna nimmt den Apfel jetzt.“\n\n10. Man darf keine Artikel verwenden. (der, die, das, ein, eine, dem, den etc.) Beispiel: „Max öffnet Tür langsam.“ / „Anna trinkt Kaffee gerne.“\n\n11. Ein bestimmter Buchstabe ist verboten. (das Publikum legt vorher einen Buchstaben fest, z. B. „R“) Beispiel (bei Verbot von „R“): Die Spieler müssen Wörter finden, in denen dieser Buchstabe nicht vorkommt. Statt „Tür“ könnte man z. B. sagen „Zugang“ oder „Eingang“. Statt „Fenster“ könnte man „Scheibe“ oder „Glas“ sagen."}, {"id": "u7", "cat": "szenen", "sub": "replay", "title": "Tod in einer Minute (30, 15, 10, 5)", "ex": 2, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "Tod in einer Minute ist eine Variante des Spiels „Halbwertszeit“.\n\nZwei Spieler beginnen eine Szene (evtl. mit Vorgaben des Publikums) bei der innerhalb einer Minute eine der beiden Figuren sterben muss. Nun wird die selbe Szene wiederholt, jedoch wird jetzt nur noch eine halbe Minute gespielt. Dann 15 Sekunden, 8, 4, 2, 1 Sekunden."}, {"id": "u8", "cat": "szenen", "sub": "replay", "title": "Gefühlsreplay", "ex": null, "von": 2, "bis": 3, "level": "Fortgeschritten", "ab": "Mit Vorgabe einer alltäglichen Handlung (oder etwas anderes) wird von zwei bis drei Spielern eine kurze Szene gespielt.\n\nDiese wird danach zwei oder dreimal verschieden gefühlsbetont wiederholt (Replay).\n\nDabei ist die Wahl der Gefühle dem Publikum überlassen, man sollte aber möglichst gegensätzliche Gefühle wählen.\n\nBeispiel für Gefühle: verliebt, wütend, müde, durchgedreht, albern…"}, {"id": "u9", "cat": "szenen", "sub": "replay", "title": "Genrereplay", "ex": null, "von": 2, "bis": 3, "level": "Fortgeschritten", "ab": "Deine Genre Replay Liste:\n\n1. Seifenoper\nÜbertrieben dramatisches Daily Soap-Feeling.\nTipps: Starke Emotionen, lange dramatische Pausen, viel Seufzen, dramatische Kopfbewegungen, übertriebene Liebes- oder Hass-Erklärungen. Sprich sehr affektiert und laut.\n\n2. Shakespeare-Drama\nKlassisches Theater im Stil von Shakespeare.\nTipps: Verwende altertümliche, poetische Sprache („Oh holde Maid!“, „Weh mir!“). Sprich theatralisch, mit großen Gesten und viel Pathos. Stehe würdevoll und dramatisch.\n\n3. Musical\nAlles wird gesungen statt gesprochen.\nTipps: Singt eure Dialoge (auch improvisiert). Übertreibt die Melodie und Emotion. Macht große Musical-Gesten mit den Armen. Ihr könnt auch zusammen im Chor singen.\n\n4. Stummfilm\nKein gesprochenes Wort – nur Mimik und Gestik.\nTipps: Übertriebene, cartoonartige Gesichtsausdrücke und Bewegungen. Macht alles sehr groß. Ihr könnt Zwischentitel andeuten (z. B. mit imaginären Tafeln).\n\n5. Reality-TV\nKünstlich aufgeheizte Realityshow.\nTipps: Sprecht direkt in die (imaginäre) Kamera, dramatisiert alles extrem, verwendet Phrasen wie „Ich kann nicht glauben, dass du das gemacht hast!“, viel Genervt-Sein und künstliche Tränen.\n\n6. Talkshow\nEine Person ist Moderator, die andere der Gast.\nTipps: Der Moderator stellt übertriebene Fragen und reagiert begeistert/schockiert. Der Gast erzählt dramatisch oder arrogant. Viel Blickkontakt zum Publikum.\n\n7. Kinderfernsehen\nFröhliches, einfaches und naives Kinderprogramm.\nTipps: Sehr hohe, fröhliche Stimmen, einfache Sprache, viel Lächeln und Begeisterung. Macht große, langsame Gesten und erklärt alles überdeutlich.\n\n8. Erstes Date\nSchüchternes, peinliches oder aufgeregtes erstes Treffen.\nTipps: Stottern, lange Pausen, nervöses Lachen, sich verhaspeln, Komplimente, die schiefgehen. Viel Körpersprache (Hände knetschen, Haare hinters Ohr streichen).\n\n9. Comedy (Sitcom-Stil)\nLeichte, witzige amerikanische Comedyserie.\nTipps: Schnelle Dialoge, Pointen, übertriebene Reaktionen, Slapstick-Elemente und viel Timing. Schaut das Publikum an, wenn ein Witz kommt.\n\n10. Horror\nGruselig und bedrohlich.\nTipps: Flüstert viel, macht lange Pausen, sprecht langsam und unheimlich. Nutzt tiefe Stimmen, starre Blicke und langsame, bedrohliche Bewegungen.\n\n11. Krimi\nSpannender Detektiv- oder Verhör-Stil.\nTipps: Misstrauische Blicke, harte, kurze Sätze, viel Andeutungen („Ich weiß, was du getan hast…“). Eine Person kann der Ermittler, die andere der Verdächtige sein.\n\n12. Opa (Alte-Leute-Stil)\nZwei alte Omas oder Opas im Gespräch.\nTipps: Sprecht langsam, nuschelt etwas, verwendet alte Ausdrücke („Früher war alles besser…“). Krummen Rücken, zittrige Bewegungen, meckern und jammern viel.\n\n13. Bollywood\nEmotionales, dramatisches indisches Kino.\nTipps: Sehr große Emotionen, dramatische Gesten, viel Pathos und Leidenschaft. Singt zwischendurch kurz (oder tut so), sprecht gefühlvoll und übertrieben."}, {"id": "u10", "cat": "szenen", "sub": "sprache", "title": "Gebärdendolmetscher", "ex": 3, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "In der Szene wird eine beliebige Interviewsituation dargestellt, beispielsweise wird ein Experte zu einem bestimmten Thema befragt. Das Besondere ist, dass ein dritter Spieler das Erzählte für Gehörlose „übersetzt“ und die entsprechenden passenden Gesten, Gesichtsausdrücke und Bewegungen macht.\n\nDas Spiel steht und fällt mit dem Körpereinsatz und Einfallsreichtum des Gebärdendolmetschers, der im Wesentlichen den Fokus hat."}, {"id": "u11", "cat": "szenen", "sub": "replay", "title": "Aus der Sicht von", "ex": 3, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "Ein Replayspiel mit 3 Spielern. Man beginnt mit einer neutralen Szene, die relativ kurz sein sollte. Die Figuren sollten klar dargestellt sein. Wenn die Szene beendet ist, wird sie wiederholt aus der Sicht eines der drei Spieler. Das heißt, dass die anderen zwei versuchen, die Weltsicht, die Wahrnehmungen und Empfindungen dieser Figur, so wie sie sie aus ihrem Spielen in der ersten Szene wahrgenommen haben (ggf. nur aus Andeutungen), größer bzw. deutlicher zu machen. Wenn z.B. in der Anfangsszene die Mutter der Tochter streng verboten hat, nach 23 Uhr nach Hause zu kommen und die Spieler merkten, dass die Tochter das gemein und streng fand, dann könnte die Mutter in der Folgeszene, in der die Tochter „bespielt“ wird, ihre Figur strenger und gemeiner anlegen als in der Ausgangsszene. Entsprechend wird in Bezug auf die anderen zwei Spieler verfahren."}, {"id": "u12", "cat": "grundlagen", "sub": "jaund", "title": "Akzeptieren", "ex": null, "von": 2, "bis": 3, "level": "Fortgeschritten", "ab": "2–3 Personen\n\nIhr spielt eine normale improvisierte Szene.\n\nWichtigste Regel: Alles, was der andere sagt oder vorschlägt, musst du sofort akzeptieren und darauf aufbauen.\n\nKein „Nein“, kein Ablehnen, kein Korrigieren.\n\nImmer „Ja, und…“\n\nZiel: Gemeinsam eine verrückte, stimmige Szene erschaffen."}, {"id": "u13", "cat": "grundlagen", "sub": "jaund", "title": "Au Ja!", "ex": 2, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "2 Personen\n\nBeide stehen nebeneinander vor dem Publikum und beginnen gemeinsam, eine Tätigkeit auszuführen (z.B. Kuchen backen, ein Regal aufbauen, ein Auto reparieren).\n\nJeder Satz beginnt mit „Au ja, und dann…“. Nach dem „Au ja, und dann“ folgt eine Beschreibung, was als nächstes getan wird. Die Tätigkeit wird auch tatsächlich pantomimisch ausgeführt.\n\nBeispiel:\n\nA: „Au ja, und dann holen wir die Eier aus dem Kühlschrank.“\n\nB: „Au ja, und dann schlagen wir die Eier in die Schüssel.“\n\nA: „Au ja, und dann rühren wir den Teig.“\n\nusw.\n\nDie Sätze müssen also logisch aufeinander aufbauen."}, {"id": "u14", "cat": "grundlagen", "sub": "erzaehlen", "title": "Geschichten gleichzeitig erzählen", "ex": 2, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "Eine Übung für zwei Spieler.\n\nBeide beginnen gleichzeitig mit dem ersten Satz ihrer Geschichte.\n\nDann erzählt Spieler 1 die Geschichte von Spieler 2 weiter, indem er mit dem zweiten Satz der Geschichte von Spieler 2 fortfährt. Gleichzeitig erzählt Spieler 2 den zweiten Satz der Geschichte von Spieler 1 weiter.\n\nSpieler 1: „Es war einmal ein kleiner Marienkäfer.“\nGleichzeitig sagt Spieler 2: „Es war Thomas Geburtstag und er hatte seinen einzigen Freund eingeladen.“\n\nDann\nSpieler 1: „Sein Freund hatte ihm als Geschenk 2 Flugtickets nach Mallorca mitgebracht.“\nGleichzeitig sagt Spieler 2: „Der Marienkäfer lebte zusammen mit seinen Geschwistern auf einem kleinen Blatt…“\n\nSo geht es nun immer hin und her. Die Sätze sollten möglichst kurz sein, damit das gleichzeitige Erzählen ausbalanciert ist.\n\nDiese Übung erfordert gutes Zuhören und sofortiges Behaupten."}, {"id": "u15", "cat": "szenen", "sub": "wechsel", "title": "Orte Switch", "ex": 2, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "2 Personen + Moderator\n\nZwei Spieler improvisieren eine Szene an einem bestimmten Ort.\n\nDer Moderator ruft zwischendurch „Switch!“ und nennt einen neuen Ort (z. B. „Switch – ihr seid jetzt auf dem Mond!“ oder „Switch – ihr seid jetzt im Supermarkt!“).\n\nDie Spieler müssen sofort an dem neuen Ort weiterspielen und improvisieren, warum sie plötzlich dort sind und wie die Szene dort weitergeht.\n\nZiel: Schnelle, kreative Ortswechsel mit lustigen Übergängen."}, {"id": "u16", "cat": "szenen", "sub": "replay", "title": "Day before – Day after", "ex": 2, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "2 Personen\n\nEine alltägliche oder absurde Situation wird zweimal gespielt: einmal als „Tag davor“ und einmal als „Tag danach“.\n\nBeispiel: Ein Paar streitet sich über eine Urlaubsreise. Die erste Szene zeigt die Planung, die zweite die Rückkehr.\n\nDer Fokus liegt darauf, wie sich Beziehungen, Stimmung und Details verändert haben."}, {"id": "u17", "cat": "warmup", "sub": "rhythmus", "title": "Big Booty", "ex": null, "von": 4, "bis": 12, "level": "Einsteiger", "ab": "Big Booty ist so ein Aufwärm-Klassiker, der von außen total albern aussieht und einen drinnen trotzdem ganz schön schwitzen lässt. Im Grunde ist es ein Sprech-Rhythmus-Spiel, bei dem man kurz seine eigene Nummer sagt, dann jemand anderen aufruft, und das alles im Takt der Gruppe. Klingt einfach. Ist es nicht.\n\nWir stellen uns im Kreis auf und nummerieren uns durch. Der erste ist Big Booty, danach kommen Number 1, Number 2, Number 3 und so weiter. Big Booty gibt das Tempo vor, der Rest hält es. Wer dran ist, ruft im Takt erst sich selbst, dann denjenigen, an den er die heiße Kartoffel weiterreicht.\n\nGeht so:\n\nAlle: Big Booty, Big Booty, Big Booty — ooooh yeah\nBig Booty: Big Booty → Number 4\nNumber 4: Number 4 → Big Booty\nBig Booty: Big Booty → Number 2\nNumber 2: Number 2 → Number 3\n\nAlle: Aiaiai!"}, {"id": "u18", "cat": "warmup", "sub": "geschichten", "title": "4-Satzgeschichte", "ex": 4, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "Die Spieler stellen sich im Kreis oder in einer Reihe auf, um kurze Geschichten zu erzählen.\n\nDabei sagt jeder Spieler jeweils nur einen Satz.\n\nDie 4 Sätze sind nach dem Modell aufgebaut:\n\nEinleitung/Routine => Problem => Lösung => Moral\n\nDabei beginnt Spieler 1 mit dem Einleitungssatz, z.B.:\n\n„Es war einmal in Japan, da zog ein junger Samurai in seinen ersten großen Kampf.“\n\nSpieler 2 etabliert jetzt in seinem Satz das Problem, z.B.:\n\n„Der Samurai hatte jedoch große Angst vor dem Tod, bettelte um Gnade und ergab sich seinem Gegner und wurde daraufhin von allen verachtet und mit Schande bedacht.“\n\nSpieler 3 etabliert jetzt in seinem Satz die Lösung, z.B.:\n\n„Bis er als alter Samurai der durch die Erfahrung sehr viel gelernt und die Angst komplett verloren hatte, erneut auf seinen früheren Gegner traf und ihn schließlich doch noch besiegte.“\n\nSpieler 4 fasst jetzt die „Moral der Geschichte“ zusammen, z.B.:\n\n„Und die Moral von der Geschichte: Wer immer wieder aufsteht, wenn er hinfällt, wird irgendwann erfolgreich sein.“\n\nDiese Übung eignet sich gut um ein beliebtes Grundmuster des Geschichtenerzählens zu trainieren und dabei in einem Satz auf den Punkt zu kommen."}, {"id": "u19", "cat": "grundlagen", "sub": "jaund", "title": "Ja, genau und dann …", "ex": 2, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "Zwei Spieler stehen vor dem Publikum, ein dritter sitzt am Bühnenrand.\n\nA und B stehen nebeneinander und erzählen gemeinsam eine Geschichte. Jeder Satz beginnt mit „Ja genau und dann“. A und B steigern sich in die Geschichte hinein.\n\nA: „Ja genau und dann sind wir durch den Wald gelaufen.“ (A und B gehen auf der Stelle)\n\nB: „Ja genau und dann haben wir ein Geräusch gehört.“ (A und B halten inne)\n\nA: „Ja genau und dann haben wir uns umgeschaut.“ (A und B schauen sich um)\n\nA: „Ja genau und dann haben wir ein Handy auf dem Boden gesehen.“ (A und B schauen nach unten und bücken sich)\n\nA: „Ja genau und dann haben wir das Handy aufgehoben.“ (A und B bücken sich)\n\nusw.\n\nDie Sätze müssen logisch aufeinander aufbauen. Wichtig ist, dass A und B die Handlungen, die sie beschreiben, auch pantomimisch ausführen."}, {"id": "u20", "cat": "grundlagen", "sub": "gegen", "title": "Ja, aber …", "ex": 2, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "Bei dieser Übung finden sich die Spieler in Paaren zusammen und führen nun einen Dialog. A macht einen Vorschlag, während B einen Grund findet, den Vorschlag nicht umsetzen zu müssen. Sein Satz beginnt dabei mit „Ja, aber“. Anschließend macht B einen neuen Vorschlag, sodass sich nun A eine Ausrede ausdenken muss.\n\nA: „Lass uns doch gemeinsam die schwere Kiste vom Schrank holen.“\n\nB: „Ja, aber ich habe es doch so schlimm mit dem Rücken. Lass uns lieber ins Schwimmbad gehen.“\n\nA: „Ja aber ich kann doch gar nicht schwimmen…“\n\nBei der Übung geht es darum zu trainieren nicht mit „Nein“ zu antworten und damit komplett zu blocken, sondern stattdessen einen Gegenvorschlag zu machen und seinem Mitspieler Alternativen anzubieten. Auf diese Weise wird die Szene am Leben erhalten, gleichzeitig kann der Spieler unangenehmen Vorschlägen aus dem Weg gehen."}, {"id": "u21", "cat": "szenen", "sub": "wechsel", "title": "Freeze", "ex": 3, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "Zwei Spieler spielen eine Szene. Ein dritter Spieler steht neben der Bühne und ruft jederzeit „Freeze!“. Daraufhin müssen die beiden Spieler sofort in ihrer Bewegung erstarren. Der Spielleiter tippt einen der beiden Spieler an, der sich daraufhin aus der Szene herausnimmt. Der Spielleiter übernimmt dessen Position und Körperhaltung und beginnt eine komplett neue Szene, in der die verbliebene Person mitspielen muss.\n\nWichtig: Die neue Szene sollte möglichst wenig mit der vorherigen zu tun haben. Die erstarrte Haltung des ausgetauschten Spielers muss als Ausgangspunkt für die neue Szene genutzt werden. Die Spieler sollten sich gegenseitig gut beobachten und schnell reagieren."}, {"id": "u22", "cat": "warmup", "sub": "geschichten", "title": "Einwortgeschichte", "ex": null, "von": 4, "bis": 8, "level": "Einsteiger", "ab": "4–8 Personen (im Kreis)\n\nReihum wird immer nur ein Wort gesagt. Gemeinsam entsteht so eine Geschichte.\n\nBeispiel:\n\nA: „Es“ – B: „war“ – C: „einmal“ – D: „ein“ – A: „kleiner“ – B: „Drache“ …\n\nWichtig: Immer nur ein Wort pro Person, kein Satz. Wer dran ist, sagt sofort ein Wort, ohne lange nachzudenken. Am Ende soll die Geschichte einen Abschluss finden.\n\nZiel: Gemeinsames Erzählen, Fokus und schnelles Reagieren."}, {"id": "u23", "cat": "szenen", "sub": "figuren", "title": "Erfinder-Talkshow", "ex": 2, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "2 Personen\n\nEin Spieler ist der Talkshow-Moderator, der andere ist ein verrückter Erfinder.\n\nDer Erfinder präsentiert stolz seine neueste, total abgedrehte Erfindung (z. B. eine Sockenanzziehmaschine, einen Schuhbinden-Roboter oder eine Krawatten-Bindemaschine).\n\nDer Moderator stellt neugierige und überraschte Fragen, der Erfinder erklärt und demonstriert seine Erfindung enthusiastisch.\n\nZiel: Lustige, übertriebene Präsentation einer sinnlosen Erfindung."}, {"id": "u24", "cat": "szenen", "sub": "figuren", "title": "Whose Line is it anyways", "ex": null, "von": 2, "bis": 3, "level": "Fortgeschritten", "ab": ""}, {"id": "u25", "cat": "grundlagen", "sub": "jaund", "title": "Ja und", "ex": 2, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "2 Personen\n\nEin Spieler macht einen Vorschlag oder eine Aussage. Der andere antwortet immer mit „Ja, und …“ und ergänzt eine neue Information.\n\nBeispiel:\n\nA: „Wir fahren jetzt in den Urlaub.“\n\nB: „Ja, und wir haben schon gepackt.“\n\nZiel: Gemeinsam eine Szene aufbauen, ohne zu blocken."}, {"id": "u26", "cat": "szenen", "sub": "figuren", "title": "Experte", "ex": 2, "von": null, "bis": null, "level": "Fortgeschritten", "ab": "2 Personen (mit Moderator)\n\nEin Moderator stellt den Experten Fragen zu einem völlig absurden Thema (z. B. „Wie züchtet man unsichtbare Elefanten?“).\n\nDie Experten antworten möglichst überzeugend und detailliert, als wüssten sie alles.\n\nZiel: Sicheres Auftreten, absurde Details, Spaß am Erfinden."}, {"id": "u27", "cat": "warmup", "sub": "rhythmus", "title": "Trainings", "ex": null, "von": 2, "bis": 6, "level": "Einsteiger", "ab": ""}, {"id": "u28", "cat": "szenen", "sub": "figuren", "title": "Wie war das nochmal?", "ex": null, "von": 2, "bis": 4, "level": "Fortgeschritten", "ab": ""}, {"id": "u29", "cat": "warmup", "sub": "rhythmus", "title": "Toaster-Spiel", "ex": null, "von": 4, "bis": 8, "level": "Einsteiger", "ab": "Toaster, James Bond, Waschmaschine, Mixer"}, {"id": "u30", "cat": "warmup", "sub": "rhythmus", "title": "Wachsmaske", "ex": null, "von": 4, "bis": 8, "level": "Einsteiger", "ab": "Wachsmaske, Whiskey-Mixer, Messwechsel"}, {"id": "u31", "cat": "warmup", "sub": "material", "title": "Die 10 Gebote", "ex": null, "von": 2, "bis": 4, "level": "Fortgeschritten", "ab": "1. Du sollst keine anderen Götter haben neben mir.\n\n2. Du sollst den Namen des Herrn, deines Gottes, nicht missbrauchen.\n\n3. Du sollst den Feiertag heiligen.\n\n4. Du sollst deinen Vater und deine Mutter ehren.\n\n5. Du sollst nicht töten.\n\n6. Du sollst nicht ehebrechen.\n\n7. Du sollst nicht stehlen.\n\n8. Du sollst nicht falsch Zeugnis reden wider deinen Nächsten.\n\n9. Du sollst nicht begehren deines Nächsten Haus.\n\n10. Du sollst nicht begehren deines Nächsten Weib, Knecht, Magd, Vieh noch alles, was dein Nächster hat."}], "v": {"Ticks": [{"t": "Schnipst ständig mit den Fingern", "e": ["körperlich"]}, {"t": "Wackelt permanent mit einem Bein", "e": ["körperlich"]}, {"t": "Reibt sich dauernd die Hände, als wäre ihm kalt", "e": ["körperlich"]}, {"t": "Stottert stark (besonders bei bestimmten Buchstaben)", "e": ["sprachlich"]}, {"t": "Vergisst ständig, was er/sie gerade sagen wollte", "e": ["sprachlich"]}, {"t": "Wiederholt die letzten zwei Wörter des Gegenübers", "e": ["sprachlich"]}, {"t": "Spricht immer in der dritten Person von sich selbst", "e": ["sprachlich"]}, {"t": "Spricht nur in Reimen", "e": ["sprachlich"]}], "Tätigkeiten": [{"t": "Etwas reparieren", "e": ["handwerklich"]}, {"t": "Etwas auf einem Flohmarkt verkaufen", "e": ["alltag"]}, {"t": "Heiratsantrag üben", "e": ["privat"]}, {"t": "Vorstellungsgespräch üben", "e": ["beruflich"]}, {"t": "Streit mit dem Nachbarn", "e": ["privat"]}, {"t": "Yoga machen", "e": ["alltag"]}, {"t": "Jemandem die Bedienung eines Gerätes erklären", "e": ["beruflich"]}, {"t": "Sich beim Kundendienst beschweren", "e": ["beruflich"]}, {"t": "IKEA-Möbel zusammenbauen", "e": ["handwerklich"]}, {"t": "Blumen gießen", "e": ["alltag"]}, {"t": "Zähne putzen", "e": ["alltag"]}, {"t": "Wäsche falten", "e": ["alltag"]}, {"t": "Fenster putzen", "e": ["alltag"]}, {"t": "Schuhe binden", "e": ["alltag"]}, {"t": "Zeitung lesen", "e": ["alltag"]}, {"t": "Etwas suchen", "e": ["alltag"]}], "Phobien": [{"t": "Klaustrophobie / Angst vor engen Räumen", "e": ["Phobie"]}, {"t": "Höhenangst", "e": ["Phobie"]}, {"t": "Angst vor Clowns", "e": ["Phobie"]}, {"t": "Undrophobie – panische Angst vor dem Wort „und“", "e": ["Phobie"]}, {"t": "Stiftkappenphobie – Angst davor, dass die Kappe eines Stiftes verloren geht", "e": ["Phobie"]}, {"t": "Namensphobie – Angst vor dem eigenen Namen", "e": ["Phobie"]}, {"t": "Kleptomanie", "e": ["Manie"]}, {"t": "Pyromanie", "e": ["Manie"]}, {"t": "Mythomanie (zwanghaftes Lügen)", "e": ["Manie"]}, {"t": "Zwanghaftes Zählen", "e": ["Manie"]}, {"t": "Zwanghaftes Ordnen und Sortieren", "e": ["Manie"]}, {"t": "Größenwahn (Megalomanie)", "e": ["Manie"]}], "Orte": [{"t": "Im Supermarkt", "e": ["Innen"]}, {"t": "Am Bahnsteig", "e": ["Außen"]}, {"t": "Im Wartezimmer beim Arzt", "e": ["Innen"]}, {"t": "In einer Bankfiliale", "e": ["Innen"]}, {"t": "In einer Autowerkstatt", "e": ["Innen"]}, {"t": "In einem Café", "e": ["Innen"]}, {"t": "In einem Fahrstuhl", "e": ["Innen", "eng"]}, {"t": "Auf einem Friedhof", "e": ["Außen"]}, {"t": "In einer Bibliothek", "e": ["Innen", "still"]}, {"t": "Im Polizeirevier", "e": ["Innen"]}, {"t": "In einer Waschküche", "e": ["Innen"]}, {"t": "Am Flughafen", "e": ["Außen"]}, {"t": "In der Apotheke", "e": ["Innen"]}, {"t": "Vor einer Mauer", "e": ["Außen"]}, {"t": "Unter einer Brücke", "e": ["Außen"]}, {"t": "In einem leeren Raum", "e": ["Innen", "still"]}, {"t": "Auf einer Treppe", "e": ["Außen"]}, {"t": "In einer Warteschlange", "e": ["Außen"]}, {"t": "Vor einem Schaufenster", "e": ["Außen"]}, {"t": "Neben einem Zaun", "e": ["Außen"]}, {"t": "Hinter einer Tür", "e": ["Innen"]}], "Rekorde": [{"t": "Längste Zeit auf einem Bein stehen", "e": ["körperlich"]}, {"t": "Längste Zeit ohne zu blinzeln", "e": ["körperlich"]}, {"t": "Längstes ununterbrochenes Lächeln", "e": ["körperlich"]}, {"t": "Längste Zeit auf Zehenspitzen stehen", "e": ["körperlich"]}, {"t": "Mit so vielen Dingen jonglierend wie möglich", "e": ["körperlich"]}], "Hobbys": [{"t": "Stricken", "e": ["drinnen"]}, {"t": "Schach spielen", "e": ["drinnen"]}, {"t": "Modellbau", "e": ["drinnen"]}, {"t": "Gärtnern", "e": ["draußen"]}, {"t": "Klettern", "e": ["draußen"]}, {"t": "Im Chor singen", "e": ["sozial"]}, {"t": "Fotografieren", "e": ["draußen"]}, {"t": "Töpfern", "e": ["drinnen"]}, {"t": "Radfahren", "e": ["draußen"]}, {"t": "Angeln", "e": ["draußen"]}, {"t": "Briefmarken sammeln", "e": ["drinnen"]}, {"t": "Kochen", "e": ["drinnen"]}, {"t": "Wandern", "e": ["draußen"]}, {"t": "Tanzen", "e": ["sozial"]}, {"t": "Kalligrafie", "e": ["drinnen"]}], "Genre": [{"t": "Krimi", "e": ["klassisch"]}, {"t": "Horror", "e": ["klassisch"]}, {"t": "Fantasy", "e": ["klassisch"]}, {"t": "Western", "e": ["klassisch"]}, {"t": "Drama", "e": ["klassisch"]}, {"t": "Musical", "e": ["modern"]}, {"t": "Detektivgeschichte", "e": ["klassisch"]}, {"t": "Märchen", "e": ["klassisch"]}, {"t": "Tragödie", "e": ["klassisch"]}, {"t": "Zeitreise", "e": ["modern"]}, {"t": "Zombie-Apokalypse", "e": ["modern"]}, {"t": "Familiendrama", "e": ["modern"]}, {"t": "Romantik", "e": ["klassisch"]}, {"t": "Piratenabenteuer", "e": ["klassisch"]}, {"t": "Dokumentation", "e": ["modern"]}], "Gefühle": [{"t": "Freude", "e": ["positiv"]}, {"t": "Trauer", "e": ["negativ"]}, {"t": "Wut", "e": ["negativ", "stark"]}, {"t": "Angst", "e": ["negativ"]}, {"t": "Überraschung", "e": ["neutral"]}, {"t": "Ekel", "e": ["negativ"]}, {"t": "Scham", "e": ["negativ", "still"]}, {"t": "Stolz", "e": ["positiv"]}, {"t": "Neid", "e": ["negativ", "still"]}, {"t": "Liebe", "e": ["positiv"]}, {"t": "Hass", "e": ["negativ", "stark"]}, {"t": "Hoffnung", "e": ["positiv", "still"]}, {"t": "Verzweiflung", "e": ["negativ", "stark"]}, {"t": "Eifersucht", "e": ["negativ"]}, {"t": "Glück", "e": ["positiv"]}, {"t": "Langeweile", "e": ["neutral", "still"]}, {"t": "Aufregung", "e": ["neutral", "stark"]}, {"t": "Enttäuschung", "e": ["negativ"]}, {"t": "Dankbarkeit", "e": ["positiv", "still"]}, {"t": "Verwirrung", "e": ["neutral"]}, {"t": "Panik", "e": ["negativ", "stark"]}, {"t": "Ruhe", "e": ["positiv", "still"]}, {"t": "Frustration", "e": ["negativ"]}, {"t": "Zufriedenheit", "e": ["positiv", "still"]}, {"t": "Sehnsucht", "e": ["neutral", "still"]}, {"t": "Reue", "e": ["negativ", "still"]}, {"t": "Misstrauen", "e": ["negativ", "still"]}, {"t": "Begeisterung", "e": ["positiv", "stark"]}, {"t": "Melancholie", "e": ["negativ", "still"]}, {"t": "Nervosität", "e": ["negativ"]}, {"t": "Schadenfreude", "e": ["positiv"]}, {"t": "Einsamkeit", "e": ["negativ", "still"]}, {"t": "Geborgenheit", "e": ["positiv", "still"]}, {"t": "Überforderung", "e": ["negativ", "stark"]}, {"t": "Euphorie", "e": ["positiv", "stark"]}, {"t": "Gleichgültigkeit", "e": ["neutral", "still"]}, {"t": "Verlegenheit", "e": ["neutral"]}, {"t": "Bewunderung", "e": ["positiv"]}, {"t": "Schuldgefühle", "e": ["negativ", "still"]}, {"t": "Optimismus", "e": ["positiv"]}], "Beziehungen": [{"t": "Ehepaar", "e": ["nah"]}, {"t": "Geschwister", "e": ["nah"]}, {"t": "Mutter oder Vater mit Sohn oder Tochter", "e": ["nah"]}, {"t": "Chef und Angestellter", "e": ["beruflich"]}, {"t": "Lehrer und Schüler", "e": ["beruflich"]}, {"t": "Arzt und Patient", "e": ["beruflich"]}, {"t": "Verkäufer und Kunde", "e": ["beruflich"]}, {"t": "Nachbarn", "e": ["nah"]}, {"t": "Beste Freunde", "e": ["nah"]}, {"t": "Ex-Partner", "e": ["nah"]}, {"t": "Polizist und Verdächtiger", "e": ["beruflich"]}, {"t": "Kellner und Gast", "e": ["beruflich"]}, {"t": "Mitbewohner", "e": ["nah"]}, {"t": "Trainer und Sportler", "e": ["beruflich"]}, {"t": "Anwalt und Klient", "e": ["beruflich"]}, {"t": "Friseur und Kunde", "e": ["beruflich"]}, {"t": "Fremde", "e": ["fremd"]}], "Berufe": [{"t": "Lehrer", "e": ["Bildung"]}, {"t": "Arzt", "e": ["Gesundheit"]}, {"t": "Polizist", "e": ["Ordnung"]}, {"t": "Kellner", "e": ["Dienstleistung"]}, {"t": "Friseur", "e": ["Dienstleistung"]}, {"t": "Anwalt", "e": ["Ordnung"]}, {"t": "Sekretär", "e": ["Büro"]}, {"t": "Koch", "e": ["Handwerk"]}, {"t": "Postbote", "e": ["Dienstleistung"]}, {"t": "Gärtner", "e": ["Handwerk"]}, {"t": "Journalist", "e": ["Büro"]}, {"t": "Therapeut", "e": ["Gesundheit"]}, {"t": "Bauarbeiter", "e": ["Handwerk"]}, {"t": "Bestatter", "e": ["Dienstleistung"]}, {"t": "Immobilienmakler", "e": ["Büro"]}, {"t": "Elektriker", "e": ["Handwerk"]}, {"t": "Detektiv", "e": ["Ordnung"]}, {"t": "Priester", "e": ["Kirche"]}, {"t": "Pfarrer", "e": ["Kirche"]}, {"t": "Putzkraft", "e": ["Dienstleistung"]}]}};
-
 const CONFIG = {
-  // Hier später eintragen: Adresse, an die Vorschläge gehen (z. B. "webmaster@impro-brand.de").
-  // Solange leer, ist das Formular deaktiviert.
-  KONTAKT_MAIL: "",
-  // Spendenkonto. Solange leer, steht dort "Folgt bald".
+  // Adresse deiner Impro-App-Schnittstelle (Google Apps Script)
+  API: "https://script.google.com/macros/s/AKfycbwcGZii-rdT7MHU_vxgWMGMFsZIuwUW96_ECA8vTRAzEk8RbPszsdT2Dh8CPYJSWgqM/exec",
+  // Adresse, an die Vorschläge gehen
+  KONTAKT_MAIL: "leon@impro-brand.de",
+  // Spendenkonto. Solange leer, steht dort ein Hinweis.
   SPENDE: { inhaber: "", iban: "", bic: "", zweck: "Spende Impro-Fundus" }
 };
-
-const CATS=[
- {id:"warmup",name:"Warm-up",desc:"Spiele für den Probenbeginn: Geschichten im Kreis, Rhythmus und Energie.",subs:[["geschichten","Geschichten im Kreis"],["rhythmus","Rhythmus & Energie"],["material","Texte & Material"]]},
- {id:"grundlagen",name:"Ja-und & Angebote",desc:"Übungen zum Annehmen und Weiterbauen von Angeboten, der Grundlage jeder Impro-Szene.",subs:[["jaund","Ja, und …"],["gegen","Gegenvorschläge"],["erzaehlen","Gemeinsam erzählen"]]},
- {id:"szenen",name:"Szenenspiele",desc:"Spiele für zwei oder drei Personen, für Training und Auftritt.",subs:[["sprache","Sprachspiele"],["replay","Replay-Spiele"],["wechsel","Wechsel-Spiele"],["figuren","Figuren & Experten"]]}
-];
-const ITEMS=DATA.items;
-const VORG=DATA.v;
-
-const $=s=>document.querySelector(s);
-const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const catOf=id=>CATS.find(c=>c.id===id);
-const subName=(c,s)=>(catOf(c).subs.find(x=>x[0]===s)||[,""])[1];
-const pers=i=>i.pers||(i.ex?String(i.ex):i.von?`${i.von}–${i.bis}`:"offen");
-const fits=(i,p)=>p==="alle"||(p==="Gruppe"?((i.ex||0)>=4||(i.bis||0)>=4):(i.ex?i.ex==p:(i.von&&i.von<=+p&&+p<=i.bis)));
-const shortOf=i=>{if(!i.ab)return"Beschreibung folgt.";const z=i.ab.split(/\n/).find(l=>l.trim().length>30)||i.ab.split("\n")[0];return z.slice(0,150)};
-const prose=t=>t.split(/\n{2,}/).map(p=>`<p>${esc(p).replace(/\n/g,"<br>")}</p>`).join("");
-const pick=a=>a[Math.floor(Math.random()*a.length)].t;
-const draw=()=>({Ort:pick(VORG["Orte"]),Beziehung:pick(VORG["Beziehungen"]),Gefühl:pick(VORG["Gefühle"]),Tätigkeit:pick(VORG["Tätigkeiten"])});
-const vCount=()=>Object.values(VORG).reduce((a,x)=>a+x.length,0);
-
-const S={view:"start",cat:null,sub:null,id:null,vcat:"Orte",vprop:"alle",q:"",open:{},sent:false,level:"alle",p:"alle",draw:draw()};
-
-function go(view,o={}){
-  Object.assign(S,{view,cat:null,sub:null,id:null},o);
-  if(view!=="einreichen")S.sent=false;
-  if(o.cat)S.open[o.cat]=true;
-  closeDrawer();render();window.scrollTo(0,0);
-}
-function closeDrawer(){$("#drawer").classList.remove("open");$("#scrim").hidden=true}
-function openDrawer(){$("#drawer").classList.add("open");$("#scrim").hidden=false}
-
-const chev='<svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 6 6 6-6 6"/></svg>';
-const ICONS={
- start:'<path d="M3 11 12 4l9 7v9h-6v-6H9v6H3z"/>',
- kats:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
- vorgaben:'<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.3" fill="currentColor"/><circle cx="15" cy="15" r="1.3" fill="currentColor"/><circle cx="15" cy="9" r="1.3" fill="currentColor"/><circle cx="9" cy="15" r="1.3" fill="currentColor"/>',
- einreichen:'<path d="M12 5v14M5 12h14"/>',
- spenden:'<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>'
+const UE_INFO = {
+  "2er": "Übungen für zwei Personen.",
+  "3er": "Übungen für drei Personen.",
+  "Gruppe": "Übungen für vier und mehr Personen.",
+  "Warm-Up": "Aufwärmen für den Probenbeginn."
 };
 
-function navHTML(){
-  const b=(on,attrs,label,extra="")=>`<button class="navbtn${on?" on":""}" ${attrs}><span>${label}</span>${extra}</button>`;
-  let h=b(S.view==="start",'data-go="start"',"Start");
-  h+=`<div class="lbl">Übungen & Spiele</div>`;
-  CATS.forEach(c=>{
-    const n=ITEMS.filter(i=>i.cat===c.id).length, ex=!!S.open[c.id];
-    h+=`<button class="navbtn${S.view==="kat"&&S.cat===c.id&&!S.sub?" on":""}" data-cat="${c.id}" aria-expanded="${ex}"><span>${c.name}</span><span class="row" style="gap:8px"><span class="count">${n}</span>${chev}</span></button>`;
-    if(ex)h+=`<div class="subs">${c.subs.map(s=>b(S.view==="kat"&&S.cat===c.id&&S.sub===s[0],`data-cat="${c.id}" data-sub="${s[0]}"`,s[1],`<span class="count">${ITEMS.filter(i=>i.cat===c.id&&i.sub===s[0]).length}</span>`)).join("")}</div>`;
+let CATS = [], ITEMS = [], VORG = {}, LOADED = false, FEHLER = "";
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const catOf = id => CATS.find(c => c.id === id);
+const fits = (i, p) => p === "alle" || (p === "Gruppe" ? ((i.ex || 0) >= 4 || (i.bis || 0) >= 4) : (i.ex ? i.ex == p : (i.von && i.von <= +p && +p <= i.bis)));
+const shortOf = i => {
+  if (!i.ab) return "Beschreibung folgt.";
+  const z = i.ab.split(/\n/).find(l => l.trim().length > 30) || i.ab.split("\n")[0];
+  return z.slice(0, 150);
+};
+const prose = t => t.split(/\n{2,}/).map(p => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join("");
+const pick = key => { const a = VORG[key] || []; return a.length ? a[Math.floor(Math.random() * a.length)].t : "–"; };
+const draw = () => ({ Ort: pick("Orte"), Beziehung: pick("Beziehungen"), Gefühl: pick("Gefühle"), Tätigkeit: pick("Tätigkeiten") });
+const vCount = () => Object.values(VORG).reduce((a, x) => a + x.length, 0);
+
+function setData(d) {
+  CATS = d.uebungenReihe.filter(k => d.uebungen.some(u => u.kat === k)).map(k => ({ id: k, name: k, desc: UE_INFO[k] || "" }));
+  ITEMS = d.uebungen.map(u => {
+    const tn = String(u.tn || "").trim();
+    let ex = null, von = null, bis = null;
+    const m = tn.match(/^(\d+)\s*[–-]\s*(\d+)$/);
+    if (m) { von = +m[1]; bis = +m[2]; } else if (/^\d+$/.test(tn)) { ex = +tn; }
+    return { id: u.id, cat: u.kat, title: u.titel, ex, von, bis, pers: tn || "offen", level: u.level || "", ab: u.ablauf || "", dauer: u.dauer || "", eig: u.eig || [] };
   });
-  h+=`<div class="lbl">Vorgaben</div>`;
-  h+=`<button class="navbtn" data-vtoggle aria-expanded="${!!S.open.v}"><span>Vorgaben-Sammlung</span><span class="row" style="gap:8px"><span class="count">${vCount()}</span>${chev}</span></button>`;
-  if(S.open.v)h+=`<div class="subs">${Object.keys(VORG).map(k=>b(S.view==="vorgaben"&&S.vcat===k,`data-v="${esc(k)}"`,esc(k),`<span class="count">${VORG[k].length}</span>`)).join("")}</div>`;
-  h+=`<div class="lbl">Mitmachen</div>`;
-  h+=b(S.view==="einreichen",'data-go="einreichen"',"Vorschlag einreichen");
-  h+=b(S.view==="spenden",'data-go="spenden"',"Spenden");
-  h+=`<div class="memberbox"><strong>Für die Impro-Gruppe</strong><p>Mitglieder melden sich mit Namen und PIN an.</p><a class="btn red block" href="app/">Mitglieder-Anmeldung</a></div>`;
+  VORG = {};
+  d.vorgabenReihe.forEach(k => { if (d.vorgaben[k]) VORG[k] = d.vorgaben[k]; });
+  Object.keys(d.vorgaben).forEach(k => { if (!VORG[k]) VORG[k] = d.vorgaben[k]; });
+  LOADED = true;
+}
+
+const S = { view: "start", cat: null, id: null, vcat: null, vprop: "alle", q: "", sent: false, level: "alle", p: "alle", draw: null };
+
+function go(view, o = {}) {
+  Object.assign(S, { view, cat: null, id: null }, o);
+  if (view !== "einreichen") S.sent = false;
+  closeDrawer(); render(); window.scrollTo(0, 0);
+}
+function closeDrawer() { $("#drawer").classList.remove("open"); $("#scrim").hidden = true; }
+function openDrawer() { $("#drawer").classList.add("open"); $("#scrim").hidden = false; }
+
+const ICONS = {
+  start: '<path d="M3 11 12 4l9 7v9h-6v-6H9v6H3z"/>',
+  kats: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+  vorgaben: '<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.3" fill="currentColor"/><circle cx="15" cy="15" r="1.3" fill="currentColor"/><circle cx="15" cy="9" r="1.3" fill="currentColor"/><circle cx="9" cy="15" r="1.3" fill="currentColor"/>',
+  einreichen: '<path d="M12 5v14M5 12h14"/>',
+  spenden: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>'
+};
+
+function navHTML() {
+  const b = (on, attrs, label, extra = "") => `<button class="navbtn${on ? " on" : ""}" ${attrs}><span>${label}</span>${extra}</button>`;
+  let h = b(S.view === "start", 'data-go="start"', "Start");
+  h += `<div class="lbl">Übungen & Spiele</div>`;
+  CATS.forEach(c => {
+    const n = ITEMS.filter(i => i.cat === c.id).length;
+    h += b(S.view === "kat" && S.cat === c.id, `data-cat="${esc(c.id)}"`, esc(c.name), `<span class="count">${n}</span>`);
+  });
+  h += `<div class="lbl">Vorgaben</div>`;
+  h += b(S.view === "vorgaben", 'data-go="vorgaben"', "Vorgaben-Sammlung", `<span class="count">${vCount()}</span>`);
+  h += `<div class="lbl">Mitmachen</div>`;
+  h += b(S.view === "einreichen", 'data-go="einreichen"', "Vorschlag einreichen");
+  h += b(S.view === "spenden", 'data-go="spenden"', "Spenden");
+  h += `<div class="memberbox"><strong>Für die Impro-Gruppe</strong><p>Mitglieder melden sich mit Namen und PIN an.</p><a class="btn red block" href="app/">Mitglieder-Anmeldung</a></div>`;
   return h;
 }
 
-function bottomHTML(){
-  const t=[["start","Start"],["kats","Spiele"],["vorgaben","Vorgaben"],["einreichen","Einreichen"],["spenden","Spenden"]];
-  return t.map(([k,l])=>{
-    const on=S.view===k||(k==="kats"&&(S.view==="kat"||S.view==="item"));
-    return `<button data-go="${k}" class="${on?"on":""}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">${ICONS[k]}</svg>${l}</button>`;
+function bottomHTML() {
+  const t = [["start", "Start"], ["kats", "Spiele"], ["vorgaben", "Vorgaben"], ["einreichen", "Einreichen"], ["spenden", "Spenden"]];
+  return t.map(([k, l]) => {
+    const on = S.view === k || (k === "kats" && (S.view === "kat" || S.view === "item"));
+    return `<button data-go="${k}" class="${on ? "on" : ""}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">${ICONS[k]}</svg>${l}</button>`;
   }).join("");
 }
 
-const card=i=>`<button class="card" data-item="${i.id}"><span class="eyebrow">${esc(subName(i.cat,i.sub))}</span><h3>${esc(i.title)}${i.neu?'<span class="pill red">Neu</span>':""}${!i.ab?'<span class="pill todo">folgt</span>':""}</h3><p>${esc(shortOf(i))}</p><span class="meta"><span>${esc(pers(i))} Pers.</span><span>${esc(i.level)}</span></span></button>`;
-const genHTML=()=>`<section class="gen" aria-live="polite"><span class="eyebrow">Szenen-Würfel</span><div class="gen-slots">${Object.entries(S.draw).map(([k,v])=>`<div class="slot"><span>${k}</span><strong>${esc(v)}</strong></div>`).join("")}</div><div><button class="btn red" data-roll>Neu würfeln</button></div></section>`;
+const card = i => `<button class="card" data-item="${esc(i.id)}"><span class="eyebrow">${esc(i.cat)}${i.dauer ? " · " + esc(i.dauer) : ""}</span><h3>${esc(i.title)}${!i.ab ? '<span class="pill todo">folgt</span>' : ""}</h3><p>${esc(shortOf(i))}</p><span class="meta"><span>${esc(i.pers)} Pers.</span>${i.level ? `<span>${esc(i.level)}</span>` : ""}</span></button>`;
+const genHTML = () => `<section class="gen" aria-live="polite"><span class="eyebrow">Szenen-Würfel</span><div class="gen-slots">${Object.entries(S.draw || {}).map(([k, v]) => `<div class="slot"><span>${k}</span><strong>${esc(v)}</strong></div>`).join("")}</div><div><button class="btn red" data-roll>Neu würfeln</button></div></section>`;
 
-const V={
- start(){return `<section class="hero"><span class="eyebrow">${ITEMS.length} Übungen & Spiele · ${vCount()} Vorgaben</span><h1>Der Fundus für alle, die Impro spielen.</h1><p>Warm-ups, Übungen, Szenenspiele und Vorgaben, sortiert für Training und Auftritt. Kostenlos und offen für eure Ideen.</p></section>
- <div class="grid">${CATS.map(c=>`<button class="tile" data-cat="${c.id}"><span class="meta">${ITEMS.filter(i=>i.cat===c.id).length} Einträge · ${c.subs.length} Bereiche</span><h3>${c.name}</h3><p>${c.desc}</p></button>`).join("")}<button class="tile" data-go="vorgaben"><span class="meta">${vCount()} Vorgaben · ${Object.keys(VORG).length} Bereiche</span><h3>Vorgaben</h3><p>Orte, Gefühle, Ticks, Phobien, Berufe, Genres und mehr für eure Szenen.</p></button></div>
- ${genHTML()}
- <div class="grid"><button class="tile" data-go="einreichen"><h3>Eigene Idee einreichen</h3><p>Du kennst ein Spiel, das hier fehlt? Schick es uns, dann prüfen wir es.</p></button><button class="tile" data-go="spenden"><h3>Den Fundus unterstützen</h3><p>Die Seite ist kostenlos und werbefrei. Spenden helfen bei Hosting und Pflege.</p></button></div>`},
+const V = {
+  start() {
+    return `<section class="hero"><span class="eyebrow">${ITEMS.length} Übungen · ${vCount()} Vorgaben</span><h1>Der Fundus für alle, die Impro spielen.</h1><p>Übungen für zwei, drei und mehr Personen, Warm-ups und Vorgaben für eure Szenen. Kostenlos und offen für eure Ideen.</p></section>
+    <div class="grid">${CATS.map(c => `<button class="tile" data-cat="${esc(c.id)}"><span class="meta">${ITEMS.filter(i => i.cat === c.id).length} Einträge</span><h3>${esc(c.name)}</h3><p>${esc(c.desc)}</p></button>`).join("")}<button class="tile" data-go="vorgaben"><span class="meta">${vCount()} Vorgaben · ${Object.keys(VORG).length} Bereiche</span><h3>Vorgaben</h3><p>Orte, Gefühle, Ticks, Phobien, Berufe, Genres und mehr für eure Szenen.</p></button></div>
+    ${genHTML()}
+    <div class="grid"><button class="tile" data-go="einreichen"><h3>Eigene Idee einreichen</h3><p>Du kennst ein Spiel, das hier fehlt? Schick es uns, dann prüfen wir es.</p></button><button class="tile" data-go="spenden"><h3>Den Fundus unterstützen</h3><p>Die Seite ist kostenlos und werbefrei. Spenden helfen bei Hosting und Pflege.</p></button></div>`;
+  },
 
- kats(){return `<div class="pagehead"><h1>Übungen & Spiele</h1><p>Wähle einen Bereich.</p></div><div class="grid">${CATS.map(c=>`<button class="tile" data-cat="${c.id}"><span class="meta">${ITEMS.filter(i=>i.cat===c.id).length} Einträge</span><h3>${c.name}</h3><p>${c.desc}</p></button>`).join("")}</div>`},
+  kats() {
+    return `<div class="pagehead"><h1>Übungen & Spiele</h1><p>Wähle einen Bereich.</p></div><div class="grid">${CATS.map(c => `<button class="tile" data-cat="${esc(c.id)}"><span class="meta">${ITEMS.filter(i => i.cat === c.id).length} Einträge</span><h3>${esc(c.name)}</h3><p>${esc(c.desc)}</p></button>`).join("")}</div>`;
+  },
 
- kat(){const c=catOf(S.cat);
-  const l=ITEMS.filter(i=>i.cat===c.id&&(!S.sub||i.sub===S.sub)&&(S.level==="alle"||i.level===S.level)&&fits(i,S.p));
-  return `<div class="crumb"><button data-go="kats">Übungen & Spiele</button><span>›</span><span>${c.name}</span></div>
-  <div class="pagehead"><h1>${S.sub?esc(subName(c.id,S.sub)):c.name}</h1><p>${c.desc}</p></div>
-  <div class="chips" role="group" aria-label="Unterbereich"><button class="chip" aria-pressed="${!S.sub}" data-cat="${c.id}" data-sub="">Alle</button>${c.subs.map(s=>`<button class="chip" aria-pressed="${S.sub===s[0]}" data-cat="${c.id}" data-sub="${s[0]}">${s[1]}</button>`).join("")}</div>
-  <div class="row"><label for="pp" class="eyebrow">Personen</label><select id="pp" class="chip">${[["alle","Alle"],["2","2 Personen"],["3","3 Personen"],["Gruppe","Gruppe (4+)"]].map(([v,t])=>`<option value="${v}" ${v===S.p?"selected":""}>${t}</option>`).join("")}</select><label for="lvl" class="eyebrow">Niveau</label><select id="lvl" class="chip">${["alle","Einsteiger","Fortgeschritten"].map(x=>`<option value="${x}" ${x===S.level?"selected":""}>${x==="alle"?"Alle":x}</option>`).join("")}</select></div>
-  <div class="list">${l.length?l.map(card).join(""):'<div class="empty">Für diese Auswahl gibt es noch nichts.</div>'}</div>`},
+  kat() {
+    const c = catOf(S.cat);
+    const l = ITEMS.filter(i => i.cat === c.id && (S.level === "alle" || i.level === S.level) && fits(i, S.p));
+    return `<div class="crumb"><button data-go="kats">Übungen & Spiele</button><span>›</span><span>${esc(c.name)}</span></div>
+    <div class="pagehead"><h1>${esc(c.name)}</h1><p>${esc(c.desc)}</p></div>
+    <div class="row"><label for="pp" class="eyebrow">Personen</label><select id="pp" class="chip">${[["alle", "Alle"], ["2", "2 Personen"], ["3", "3 Personen"], ["Gruppe", "Gruppe (4+)"]].map(([v, t]) => `<option value="${v}" ${v === S.p ? "selected" : ""}>${t}</option>`).join("")}</select><label for="lvl" class="eyebrow">Niveau</label><select id="lvl" class="chip">${["alle", "Einsteiger", "Fortgeschritten"].map(x => `<option value="${x}" ${x === S.level ? "selected" : ""}>${x === "alle" ? "Alle" : x}</option>`).join("")}</select></div>
+    <div class="list">${l.length ? l.map(card).join("") : '<div class="empty">Für diese Auswahl gibt es noch nichts.</div>'}</div>`;
+  },
 
- item(){const i=ITEMS.find(x=>x.id===S.id),c=catOf(i.cat);
-  return `<div class="crumb"><button data-cat="${c.id}">${c.name}</button><span>›</span><button data-cat="${c.id}" data-sub="${i.sub}">${esc(subName(c.id,i.sub))}</button></div>
-  <article class="detail"><div class="pagehead"><span><span class="pill red">${esc(subName(c.id,i.sub))}</span>${i.neu?'<span class="pill">Neu · Community</span>':""}</span><h1>${esc(i.title)}</h1></div>
-  <div class="facts"><div class="fact"><span>Personen</span><strong>${esc(pers(i))}</strong></div><div class="fact"><span>Niveau</span><strong>${esc(i.level)}</strong></div><div class="fact"><span>Bereich</span><strong>${esc(c.name)}</strong></div></div>
-  ${i.ab?`<section class="prose"><h2>So geht's</h2>${prose(i.ab)}</section>`:`<div class="tip"><strong>Hier fehlt noch eine Beschreibung.</strong> Du kennst das Spiel? <button class="linkbtn" data-go="einreichen">Beschreibung einreichen</button></div>`}
-  ${i.by?`<p class="meta">Eingereicht von ${esc(i.by)}</p>`:""}</article>
-  <div class="row"><button class="btn" data-cat="${c.id}" data-sub="${i.sub}">← Zurück zur Liste</button></div>`},
+  item() {
+    const i = ITEMS.find(x => x.id === S.id), c = catOf(i.cat);
+    return `<div class="crumb"><button data-go="kats">Übungen & Spiele</button><span>›</span><button data-cat="${esc(c.id)}">${esc(c.name)}</button></div>
+    <article class="detail"><div class="pagehead"><span><span class="pill red">${esc(c.name)}</span></span><h1>${esc(i.title)}</h1></div>
+    <div class="facts"><div class="fact"><span>Personen</span><strong>${esc(i.pers)}</strong></div><div class="fact"><span>Dauer</span><strong>${esc(i.dauer || "–")}</strong></div><div class="fact"><span>Niveau</span><strong>${esc(i.level || "–")}</strong></div></div>
+    ${i.eig.length ? `<div class="taglist">${i.eig.map(e => `<span>${esc(e)}</span>`).join("")}</div>` : ""}
+    ${i.ab ? `<section class="prose"><h2>So geht's</h2>${prose(i.ab)}</section>` : `<div class="tip"><strong>Hier fehlt noch eine Beschreibung.</strong> Du kennst das Spiel? <button class="linkbtn" data-go="einreichen">Beschreibung einreichen</button></div>`}
+    </article>
+    <div class="row"><button class="btn" data-cat="${esc(c.id)}">← Zurück zur Liste</button></div>`;
+  },
 
- vorgaben(){const list=VORG[S.vcat],props=[...new Set(list.flatMap(x=>x.e))],sel=list.filter(x=>S.vprop==="alle"||x.e.includes(S.vprop));
-  return `<div class="pagehead"><h1>Vorgaben</h1><p>Anregungen für Szenen. Würfle eine Kombination oder stöbere in den Listen.</p></div>${genHTML()}
-  <div class="chips" role="group" aria-label="Vorgaben-Bereich">${Object.keys(VORG).map(k=>`<button class="chip" aria-pressed="${S.vcat===k}" data-v="${esc(k)}">${esc(k)} <span class="meta">${VORG[k].length}</span></button>`).join("")}</div>
-  <div class="row"><span class="eyebrow">Eigenschaft</span><div class="chips" role="group" aria-label="Eigenschaft"><button class="chip small" aria-pressed="${S.vprop==="alle"}" data-vp="alle">Alle</button>${props.map(p=>`<button class="chip small" aria-pressed="${S.vprop===p}" data-vp="${esc(p)}">${esc(p)}</button>`).join("")}</div></div>
-  <div class="taglist">${sel.map(v=>`<span>${esc(v.t)}</span>`).join("")}</div>`},
+  vorgaben() {
+    const keys = Object.keys(VORG);
+    const list = VORG[S.vcat] || [];
+    const props = [...new Set(list.flatMap(x => x.e))];
+    const sel = list.filter(x => S.vprop === "alle" || x.e.includes(S.vprop));
+    return `<div class="pagehead"><h1>Vorgaben</h1><p>Anregungen für Szenen. Würfle eine Kombination oder stöbere in den Listen.</p></div>${genHTML()}
+    <div class="chips" role="group" aria-label="Vorgaben-Bereich">${keys.map(k => `<button class="chip" aria-pressed="${S.vcat === k}" data-v="${esc(k)}">${esc(k)} <span class="meta">${VORG[k].length}</span></button>`).join("")}</div>
+    <div class="row"><span class="eyebrow">Eigenschaft</span><div class="chips" role="group" aria-label="Eigenschaft"><button class="chip small" aria-pressed="${S.vprop === "alle"}" data-vp="alle">Alle</button>${props.map(p => `<button class="chip small" aria-pressed="${S.vprop === p}" data-vp="${esc(p)}">${esc(p)}</button>`).join("")}</div></div>
+    <div class="taglist">${sel.map(v => `<span>${esc(v.t)}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}</span>`).join("")}</div>`;
+  },
 
- suche(){const q=S.q.toLowerCase();
-  const l=ITEMS.filter(i=>(i.title+" "+(i.ab||"")).toLowerCase().includes(q));
-  const vs=Object.entries(VORG).flatMap(([k,a])=>a.filter(v=>v.t.toLowerCase().includes(q)).map(v=>[k,v.t]));
-  return `<div class="pagehead"><h1>Suche: „${esc(S.q)}“</h1><p>${l.length} Spiele · ${vs.length} Vorgaben</p></div>
-  <div class="list">${l.length?l.map(card).join(""):'<div class="empty">Kein Spiel gefunden. Vielleicht magst du es einreichen?</div>'}</div>
-  ${vs.length?`<h2>Vorgaben</h2><div class="taglist">${vs.map(([k,t])=>`<span><span class="meta">${esc(k)}</span> ${esc(t)}</span>`).join("")}</div>`:""}`},
+  suche() {
+    const q = S.q.toLowerCase();
+    const l = ITEMS.filter(i => (i.title + " " + i.ab).toLowerCase().includes(q));
+    const vs = Object.entries(VORG).flatMap(([k, a]) => a.filter(v => v.t.toLowerCase().includes(q)).map(v => [k, v.t]));
+    return `<div class="pagehead"><h1>Suche: „${esc(S.q)}“</h1><p>${l.length} Übungen · ${vs.length} Vorgaben</p></div>
+    <div class="list">${l.length ? l.map(card).join("") : '<div class="empty">Nichts gefunden. Vielleicht magst du es einreichen?</div>'}</div>
+    ${vs.length ? `<h2>Vorgaben</h2><div class="taglist">${vs.map(([k, t]) => `<span><span class="meta">${esc(k)}</span> ${esc(t)}</span>`).join("")}</div>` : ""}`;
+  },
 
- einreichen(){
-  if(S.sent)return `<div class="pagehead"><h1>Danke für deinen Vorschlag!</h1></div><div class="notice"><strong>Dein Mail-Programm wurde geöffnet.</strong><span>Schick die Mail ab, dann wird dein Vorschlag geprüft.</span></div><div class="row"><button class="btn" data-again>Noch etwas einreichen</button></div>`;
-  const opts=CATS.map(c=>`<optgroup label="${c.name}">${c.subs.map(s=>`<option value="${c.id}|${s[0]}">${s[1]}</option>`).join("")}</optgroup>`).join("");
-  const offen=!CONFIG.KONTAKT_MAIL;
-  return `<div class="pagehead"><h1>Vorschlag einreichen</h1><p>Ein Spiel, eine Übung oder eine Vorgabe fehlt? Beschreibe sie hier. Wir prüfen den Vorschlag und veröffentlichen ihn danach.</p></div>
-  ${offen?'<div class="note">Das Einreichen ist gerade noch nicht eingerichtet.</div>':""}
-  <form id="f" novalidate>
-   <div class="field"><label for="f-kind">Was möchtest du einreichen?</label><select id="f-kind"><option>Spiel</option><option>Übung</option><option>Vorgabe</option></select></div>
-   <div class="field"><label for="f-title">Name</label><input id="f-title" placeholder="z. B. Gefühls-Staffel"></div>
-   <div class="field" id="wrap-cat"><label for="f-cat">Bereich</label><select id="f-cat">${opts}</select></div>
-   <div class="field" id="wrap-vcat" hidden><label for="f-vcat">Art der Vorgabe</label><select id="f-vcat">${Object.keys(VORG).map(k=>`<option>${esc(k)}</option>`).join("")}</select></div>
-   <div class="field"><label for="f-text">Beschreibung und Ablauf</label><textarea id="f-text" placeholder="Wie läuft es ab? Was ist die Regel?"></textarea></div>
-   <div class="two" id="wrap-meta"><div class="field"><label for="f-players">Anzahl Personen</label><input id="f-players" placeholder="z. B. 2–4"></div><div class="field"><label for="f-level">Niveau</label><select id="f-level"><option>Einsteiger</option><option>Fortgeschritten</option></select></div></div>
-   <div class="two"><div class="field"><label for="f-name">Dein Name <small>(freiwillig)</small></label><input id="f-name"></div><div class="field"><label for="f-mail">E-Mail für Rückfragen <small>(freiwillig)</small></label><input id="f-mail" type="email"></div></div>
-   <label class="check"><input type="checkbox" id="f-ok"><span>Ich bin einverstanden, dass mein Vorschlag auf der Website veröffentlicht werden darf.</span></label>
-   <p class="err" id="f-err" hidden></p>
-   <button class="btn red" type="submit" ${offen?"disabled":""}>Vorschlag absenden</button>
-  </form>`},
+  einreichen() {
+    if (S.sent) return `<div class="pagehead"><h1>Danke für deinen Vorschlag!</h1></div><div class="notice"><strong>Dein Mail-Programm wurde geöffnet.</strong><span>Schick die Mail ab, dann wird dein Vorschlag geprüft.</span></div><div class="row"><button class="btn" data-again>Noch etwas einreichen</button></div>`;
+    const opts = CATS.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
+    const vopts = Object.keys(VORG).map(k => `<option>${esc(k)}</option>`).join("");
+    const offen = !CONFIG.KONTAKT_MAIL;
+    return `<div class="pagehead"><h1>Vorschlag einreichen</h1><p>Eine Übung oder eine Vorgabe fehlt? Beschreibe sie hier. Wir prüfen den Vorschlag und veröffentlichen ihn danach.</p></div>
+    ${offen ? '<div class="note">Das Einreichen ist gerade noch nicht eingerichtet.</div>' : ""}
+    <form id="f" novalidate>
+     <div class="field"><label for="f-kind">Was möchtest du einreichen?</label><select id="f-kind"><option>Übung</option><option>Vorgabe</option></select></div>
+     <div class="field"><label for="f-title">Name</label><input id="f-title" placeholder="z. B. Gefühls-Staffel"></div>
+     <div class="field" id="wrap-cat"><label for="f-cat">Bereich</label><select id="f-cat">${opts}</select></div>
+     <div class="field" id="wrap-vcat" hidden><label for="f-vcat">Art der Vorgabe</label><select id="f-vcat">${vopts}</select></div>
+     <div class="field"><label for="f-text">Beschreibung und Ablauf</label><textarea id="f-text" placeholder="Wie läuft es ab? Was ist die Regel?"></textarea></div>
+     <div class="two" id="wrap-meta"><div class="field"><label for="f-players">Anzahl Personen</label><input id="f-players" placeholder="z. B. 2–4"></div><div class="field"><label for="f-level">Niveau</label><select id="f-level"><option>Einsteiger</option><option>Fortgeschritten</option></select></div></div>
+     <div class="two"><div class="field"><label for="f-name">Dein Name <small>(freiwillig)</small></label><input id="f-name"></div><div class="field"><label for="f-mail">E-Mail für Rückfragen <small>(freiwillig)</small></label><input id="f-mail" type="email"></div></div>
+     <label class="check"><input type="checkbox" id="f-ok"><span>Ich bin einverstanden, dass mein Vorschlag auf der Website veröffentlicht werden darf.</span></label>
+     <p class="err" id="f-err" hidden></p>
+     <button class="btn red" type="submit" ${offen ? "disabled" : ""}>Vorschlag absenden</button>
+    </form>`;
+  },
 
- spenden(){const s=CONFIG.SPENDE;
-  const konto=s.iban
-    ? `<dl><dt>Inhaber</dt><dd>${esc(s.inhaber)}</dd><dt>IBAN</dt><dd id="iban">${esc(s.iban)}</dd>${s.bic?`<dt>BIC</dt><dd>${esc(s.bic)}</dd>`:""}<dt>Zweck</dt><dd>${esc(s.zweck)}</dd></dl><div class="row"><button class="btn" data-copy>IBAN kopieren</button><span class="meta" id="copied" aria-live="polite"></span></div>`
-    : `<p class="meta">Das Spendenkonto wird hier bald veröffentlicht.</p>`;
-  return `<div class="pagehead"><h1>Den Fundus unterstützen</h1><p>Der Impro-Fundus ist kostenlos und werbefrei. Mit einer Spende hilfst du bei Hosting, Pflege und neuen Inhalten.</p></div>
-  <section class="bank"><h2>Überweisung</h2>${konto}</section>`},
+  spenden() {
+    const s = CONFIG.SPENDE;
+    const konto = s.iban
+      ? `<dl><dt>Inhaber</dt><dd>${esc(s.inhaber)}</dd><dt>IBAN</dt><dd id="iban">${esc(s.iban)}</dd>${s.bic ? `<dt>BIC</dt><dd>${esc(s.bic)}</dd>` : ""}<dt>Zweck</dt><dd>${esc(s.zweck)}</dd></dl><div class="row"><button class="btn" data-copy>IBAN kopieren</button><span class="meta" id="copied" aria-live="polite"></span></div>`
+      : `<div class="notice"><strong>Die Spendenfunktion wird später eingebaut.</strong><span>Bis dahin kannst du den Fundus bei Fragen direkt ansprechen.</span></div>` + `<svg viewBox="0 0 320 180" width="100%" role="img" aria-label="Kommt bald" style="max-width:320px;height:auto;display:block;margin:0 auto">
+  <rect width="320" height="180" rx="18" fill="#f4f4f2"/>
+  <rect x="0" y="0" width="320" height="180" rx="18" fill="none" stroke="#e3e2df"/>
+  <path d="M40 60 h120 a16 16 0 0 1 16 16 v38 a16 16 0 0 1 -16 16 h-74 l-22 18 v-18 h-24 a16 16 0 0 1 -16 -16 v-38 a16 16 0 0 1 16 -16 z" fill="#d81b23"/>
+  <circle cx="72" cy="95" r="6" fill="#fff"/><circle cx="100" cy="95" r="6" fill="#fff"/><circle cx="128" cy="95" r="6" fill="#fff"/>
+  <path d="M200 96 h80 a14 14 0 0 1 14 14 v28 a14 14 0 0 1 -14 14 h-60 l-14 14 v-14 h-6 a14 14 0 0 1 -14 -14 v-28 a14 14 0 0 1 14 -14 z" fill="#ffffff" stroke="#8e2639" stroke-width="3"/>
+  <path d="M258 40 l5 12 13 2 -10 8 3 13 -11 -7 -11 7 3 -13 -10 -8 13 -2 z" fill="#8e2639"/>
+  <text x="160" y="172" text-anchor="middle" font-family="Gaegu,cursive" font-size="20" fill="#161616">Kommt bald</text>
+</svg>`;
+    return `<div class="pagehead"><h1>Den Fundus unterstützen</h1><p>Der Impro-Fundus ist kostenlos und werbefrei. Mit einer Spende hilfst du bei Hosting, Pflege und neuen Inhalten.</p></div>
+    <section class="bank"><h2>Überweisung</h2>${konto}</section>`;
+  }
 };
 
-function render(){
-  $("#side").innerHTML=navHTML();
-  $("#drawer").innerHTML=navHTML();
-  $("#bottom").innerHTML=bottomHTML();
-  const fn=V[S.view]||V.start;
-  $("#main").innerHTML=`<div class="inner">${fn()}</div>`;
-  if(S.view==="einreichen"&&!S.sent)bindForm();
+function render() {
+  $("#side").innerHTML = navHTML();
+  $("#drawer").innerHTML = navHTML();
+  $("#bottom").innerHTML = bottomHTML();
+  if (!LOADED) {
+    $("#main").innerHTML = `<div class="inner">${FEHLER ? `<div class="empty">${esc(FEHLER)}</div>` : '<div class="empty">Lade Übungen und Vorgaben …</div>'}</div>`;
+    return;
+  }
+  const fn = V[S.view] || V.start;
+  $("#main").innerHTML = `<div class="inner">${fn()}</div>`;
+  if (S.view === "einreichen" && !S.sent) bindForm();
 }
 
-function bindForm(){
-  const k=$("#f-kind"), sync=()=>{const v=k.value==="Vorgabe";$("#wrap-cat").hidden=v;$("#wrap-meta").hidden=v;$("#wrap-vcat").hidden=!v};
-  k.onchange=sync; sync();
-  const f=$("#f");
-  if(!f)return;
-  f.onsubmit=e=>{
+function bindForm() {
+  const k = $("#f-kind");
+  const sync = () => { const v = k.value === "Vorgabe"; $("#wrap-cat").hidden = v; $("#wrap-meta").hidden = v; $("#wrap-vcat").hidden = !v; };
+  k.onchange = sync; sync();
+  const f = $("#f");
+  if (!f) return;
+  f.onsubmit = e => {
     e.preventDefault();
-    const t=$("#f-title").value.trim(), x=$("#f-text").value.trim(), err=$("#f-err");
-    const show=m=>{err.textContent=m;err.hidden=false};
-    if(!t||!x)return show("Bitte gib einen Namen und eine Beschreibung ein.");
-    if(!$("#f-ok").checked)return show("Bitte bestätige, dass der Vorschlag veröffentlicht werden darf.");
-    const [cat,sub]=$("#f-cat").value.split("|");
-    const body=[
-      "Art: "+k.value,
-      "Name: "+t,
-      k.value==="Vorgabe" ? "Vorgaben-Art: "+$("#f-vcat").value : "Bereich: "+(catOf(cat).name+" › "+subName(cat,sub)),
-      "Personen: "+$("#f-players").value.trim(),
-      "Niveau: "+$("#f-level").value,
+    const t = $("#f-title").value.trim(), x = $("#f-text").value.trim(), err = $("#f-err");
+    const show = m => { err.textContent = m; err.hidden = false; };
+    if (!t || !x) return show("Bitte gib einen Namen und eine Beschreibung ein.");
+    if (!$("#f-ok").checked) return show("Bitte bestätige, dass der Vorschlag veröffentlicht werden darf.");
+    const body = [
+      "Art: " + k.value,
+      "Name: " + t,
+      k.value === "Vorgabe" ? "Vorgaben-Art: " + $("#f-vcat").value : "Bereich: " + catOf($("#f-cat").value).name,
+      "Personen: " + $("#f-players").value.trim(),
+      "Niveau: " + $("#f-level").value,
       "",
       x,
       "",
-      "Von: "+($("#f-name").value.trim()||"Anonym")+" "+$("#f-mail").value.trim()
+      "Von: " + ($("#f-name").value.trim() || "Anonym") + " " + $("#f-mail").value.trim()
     ].join("\n");
-    S.sent=true;
-    window.location.href=`mailto:${CONFIG.KONTAKT_MAIL}?subject=${encodeURIComponent("Vorschlag Impro-Fundus: "+t)}&body=${encodeURIComponent(body)}`;
+    S.sent = true;
+    window.location.href = `mailto:${CONFIG.KONTAKT_MAIL}?subject=${encodeURIComponent("Vorschlag Impro-Fundus: " + t)}&body=${encodeURIComponent(body)}`;
     render();
   };
 }
 
-document.addEventListener("click",e=>{
-  if(e.target.closest("#menuBtn")){openDrawer();return}
-  const t=e.target.closest("button");
-  if(!t)return;
-  const d=t.dataset;
-  if(d.go){go(d.go);return}
-  if(d.cat!==undefined){
-    const inNav=t.closest(".side,.drawer");
-    if(inNav&&d.sub===undefined&&S.view==="kat"&&S.cat===d.cat&&!S.sub){S.open[d.cat]=!S.open[d.cat];render();return}
-    go("kat",{cat:d.cat,sub:d.sub||null});return;
-  }
-  if(d.item){go("item",{id:d.item});return}
-  if(d.vtoggle!==undefined){S.open.v=!S.open.v;if(S.open.v&&S.view!=="vorgaben")go("vorgaben");else render();return}
-  if(d.v){go("vorgaben",{vcat:d.v,vprop:"alle"});return}
-  if(d.vp){S.vprop=d.vp;render();return}
-  if(d.roll!==undefined){S.draw=draw();render();return}
-  if(d.again!==undefined){S.sent=false;render();return}
-  if(d.copy!==undefined){
-    const txt=$("#iban").textContent;
-    if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>$("#copied").textContent="Kopiert",()=>$("#copied").textContent="Bitte markieren und kopieren");
+document.addEventListener("click", e => {
+  if (e.target.closest("#menuBtn")) { openDrawer(); return; }
+  const t = e.target.closest("button");
+  if (!t) return;
+  const d = t.dataset;
+  if (d.go) { go(d.go); return; }
+  if (d.cat !== undefined) { go("kat", { cat: d.cat }); return; }
+  if (d.item) { go("item", { id: d.item }); return; }
+  if (d.v) { go("vorgaben", { vcat: d.v, vprop: "alle" }); return; }
+  if (d.vp) { S.vprop = d.vp; render(); return; }
+  if (d.roll !== undefined) { S.draw = draw(); render(); return; }
+  if (d.again !== undefined) { S.sent = false; render(); return; }
+  if (d.copy !== undefined) {
+    const txt = $("#iban").textContent;
+    if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => $("#copied").textContent = "Kopiert", () => $("#copied").textContent = "Bitte markieren und kopieren");
     return;
   }
 });
-document.addEventListener("change",e=>{
-  if(e.target.id==="lvl"){S.level=e.target.value;render()}
-  if(e.target.id==="pp"){S.p=e.target.value;render()}
+document.addEventListener("change", e => {
+  if (e.target.id === "lvl") { S.level = e.target.value; render(); }
+  if (e.target.id === "pp") { S.p = e.target.value; render(); }
 });
-$("#scrim").onclick=closeDrawer;
-$("#q").addEventListener("input",e=>{
-  S.q=e.target.value.trim();
-  if(S.q)go("suche");
-  else if(S.view==="suche")go("start");
+$("#scrim").onclick = closeDrawer;
+$("#q").addEventListener("input", e => {
+  S.q = e.target.value.trim();
+  if (S.q) go("suche");
+  else if (S.view === "suche") go("start");
 });
+
 render();
+fetch(CONFIG.API + "?action=fundus")
+  .then(r => { if (!r.ok) throw new Error("http"); return r.json(); })
+  .then(d => {
+    if (!d.ok) throw new Error("data");
+    setData(d);
+    S.vcat = Object.keys(VORG)[0] || null;
+    S.draw = draw();
+    render();
+  })
+  .catch(() => {
+    FEHLER = "Die Liste kann gerade nicht geladen werden. Bitte später noch einmal versuchen.";
+    render();
+  });
+
 </script>
 </body>
 </html>
