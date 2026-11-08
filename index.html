@@ -7,7 +7,7 @@
 <meta name="description" content="Impro-Fundus: Warm-ups, Übungen, Szenenspiele und Vorgaben für Improtheater.">
 <title>Impro-Fundus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;700&family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{--red:#B02E28;--maroon:#8E2220;--bg:#F5F0E8;--card:#FFFFFF;--field:#FFFFFF;--line:#E6DFD4;--fg:#1F1B17;--muted:#6F665D;--ok:#2e9e5b;--no:#8E2220;--hintbg:#fff7e0;--overlay:rgba(0,0,0,.45);color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1A1714;--card:#2A2622;--field:#2A2622;--line:#3A342E;--fg:#F3ECE3;--muted:#ABA196;--red:#D8564F;--maroon:#D8564F;--ok:#2e9e5b;--no:#a8324a;--hintbg:#3a3320;--overlay:rgba(0,0,0,.6);color-scheme:dark}}
@@ -18,8 +18,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;background:none;border:0;padding:0}
 :focus-visible{outline:3px solid var(--red);outline-offset:2px;border-radius:8px}
 h1,h2,h3{margin:0;line-height:1.2}
-h1{font-family:"Special Elite","Courier New",monospace;font-weight:400;font-size:clamp(32px,5vw,46px);font-weight:700}
-h2{font-family:"Special Elite","Courier New",monospace;font-size:24px;font-weight:400}
+h1{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif;font-weight:400;font-size:clamp(32px,5vw,46px);font-weight:700}
+h2{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif;font-size:24px;font-weight:400}
 h3{font-size:18px;font-weight:700}
 
 /* Kopfzeile */
@@ -27,7 +27,7 @@ h3{font-size:18px;font-weight:700}
 .top{display:flex;align-items:center;gap:10px;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top))}
 .iconbtn{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none}
 .iconbtn svg{width:24px;height:24px}
-.logo{font-family:"Special Elite","Courier New",monospace;font-weight:700;font-size:28px;color:var(--red);line-height:1;white-space:nowrap}
+.logo{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif;font-weight:700;font-size:28px;color:var(--red);line-height:1;white-space:nowrap}
 .search{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:var(--field);border:1px solid var(--line);border-radius:16px;padding:0 12px;height:44px;max-width:460px;margin-left:auto}
 .search input{flex:1;min-width:0;border:0;background:none;outline:none;font-size:16px}
 .rightbox{display:flex;align-items:center;gap:10px;flex:1;min-width:0;justify-content:flex-end}
@@ -255,7 +255,7 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
 .home .sep{margin:0}
 .chests{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:center;justify-items:center}
 .home .chests .chest .cbox,.home .chests .chest img{height:clamp(90px,13vh,140px)}
-.startbtns{display:grid;grid-template-columns:1fr;gap:14px}
+.startbtns{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .dlg{position:fixed;inset:0;background:var(--overlay);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
 .dlg[hidden]{display:none!important}
 .dlg-box{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;max-width:560px;width:100%;max-height:90vh;overflow:auto}
@@ -270,9 +270,9 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
 .adminbar{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 8px}
 button.loginbtn{border:0;cursor:pointer;font:inherit;font-weight:700;font-size:16px}
 /* Schriften nach Design: Schreibmaschine für Titel und Bedienelemente, Handschrift für Notizen */
-h1,h2,.pagehead h1{font-family:"Special Elite","Courier New",monospace;font-weight:400;letter-spacing:0}
-h3{font-family:"Courier Prime","Courier New",monospace;font-weight:700}
-button,.btn,.chip,select,input,.eyebrow,.meta,.pill,.crumb,.topnav,.loginbtn,.foot button,.empty,.slot span{font-family:"Courier Prime","Courier New",monospace}
+h1,h2,.pagehead h1{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif;font-weight:700;letter-spacing:0}
+h3{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif;font-weight:700}
+button,.btn,.chip,select,input,.eyebrow,.meta,.pill,.crumb,.topnav,.loginbtn,.foot button,.empty,.slot span{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif}
 .foot button,.foot a{font-size:14px}
 </style>
 </head>
@@ -416,6 +416,7 @@ const V = {
     ${genHTML()}
     <div class="startbtns">
       <button class="tile" data-go="impro"><h3>Was ist eigentlich Impro?</h3><p>Eine kurze Einführung in das Improvisationstheater.</p></button>
+      <button class="tile" data-go="einreichen"><h3>Eigene Idee einreichen</h3><p>Du kennst ein Spiel, das hier fehlt? Schick es uns, dann prüfen wir es.</p></button>
     </div>`;
   },
 
