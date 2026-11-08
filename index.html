@@ -183,6 +183,16 @@ main{flex:1;min-width:0;padding:20px 16px 110px}
 .fact strong{font-size:15px}
 .prose{display:flex;flex-direction:column;gap:10px}
 .prose p{margin:0}
+.faqwrap{display:grid;gap:12px;grid-template-columns:1fr}
+@media (min-width:900px){.faqwrap{grid-template-columns:1fr 1fr;align-items:start}}
+.faqcol{display:flex;flex-direction:column;gap:12px;min-width:0}
+.faq{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 18px}
+.faq summary{cursor:pointer;list-style:none;font-size:26px;line-height:1.2;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-size:30px;line-height:1;color:var(--red);flex:none}
+.faq[open] summary::after{content:"–"}
+.faq .faqa{margin-top:10px;font-size:22px;line-height:1.3;color:var(--fg)}
+.faq .faqa p{margin:0 0 8px}
 .tip{border-left:4px solid var(--red);padding:10px 14px;background:var(--hintbg);border-radius:0 12px 12px 0}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:16px;border:1px solid var(--line);background:var(--card);font-weight:700;font-size:16px}
 .btn.red{background:var(--red);border-color:var(--red);color:#fff}
@@ -483,8 +493,29 @@ const V = {
   },
 
   impro() { return seite("Was ist eigentlich Impro?", "Inhalt folgt."); },
-  ueber() { return seite("Über den Fundus", "Hier kommt bald ein Text über den Fundus."); },
-  gruender() { return seite("Über den Gründer des Impro-Fundus", "Hier kommt bald ein Text über den Gründer."); },
+  ueber() {
+    const links = [
+      ["Was ist der Impro-Fundus?", "Der Impro-Fundus ist eine Sammlung von Übungen, Spielen und Vorgaben für Improtheater. Alles ist nach Kategorien geordnet, damit du schnell findest, was du für deine Probe oder deinen Workshop brauchst."],
+      ["Was kostet die Nutzung?", "Nichts. Der Impro-Fundus ist kostenlos und ohne Anmeldung nutzbar."],
+      ["Gibt es Werbung?", "Nein. Auf dieser Seite gibt es keine Werbung."],
+      ["Wer steckt hinter dem Fundus?", "Ich bin Leon, Gruppenleiter der Impro-Gruppe im Theater Brand in Aachen-Brand. Den Fundus habe ich aus Freude am Improtheater aufgebaut und pflege ihn in meiner Freizeit."],
+      ["Für wen ist die Seite gedacht?", "Für alle, die Improtheater spielen: Anfängerinnen und Anfänger, erfahrene Spielerinnen und Spieler, Gruppenleitungen, Workshop-Leitungen und Lehrende."],
+      ["Möchtest du den Fundus finanziell unterstützen?", "Das freut mich sehr. Der Fundus ist kostenlos, aber Domain, Hosting und neue Inhalte kosten Zeit und Geld. Die Spendenmöglichkeit wird noch eingerichtet.", true],
+      ["Hast du Lust, beim Fundus mitzuarbeiten?", "Sehr gern. Du kannst Übungen und Vorgaben einreichen, Fehler melden oder Ideen für neue Inhalte schicken. Auch beim Prüfen, Schreiben oder Gestalten bin ich dankbar für Unterstützung. Schreib mir einfach eine Mail."]
+    ];
+    const rechts = [
+      ["Was passiert mit meinen eingereichten Übungen und Vorschlägen?", "Jeder Vorschlag wird von mir gelesen und geprüft. Passt er zum Fundus, wird er veröffentlicht oder vorher überarbeitet. Nicht jeder Vorschlag wird übernommen."],
+      ["Bekomme ich eine Rückmeldung zu meinen Vorschlägen?", "Ja, wenn du in deiner Nachricht eine Mailadresse oder deinen Namen angibst, melde ich mich bei dir, sobald dein Vorschlag geprüft ist."],
+      ["Kann ich mit meinem Namen genannt werden oder bleibe ich anonym?", "Beides ist möglich. Wenn du möchtest, nenne ich dich bei der Veröffentlichung mit deinem Vornamen. Ohne Angabe bleibt dein Beitrag anonym."],
+      ["Wohin wende ich mich bei Fragen, Fehlern oder anderen Anliegen?", "Am besten per Mail an " + CONFIG.KONTAKT_MAIL + ". Schreib dazu, worum es geht. Wenn du einen Fehler gefunden hast, nenne bitte die Seite, auf der du ihn gesehen hast."],
+      ["Welche Daten werden gespeichert, wenn ich etwas einreiche?", "Beim Einreichen öffnet sich dein Mail-Programm mit deinem Vorschlag. Die Mail, die du abschickst, landet bei mir. Mehr dazu steht in der Datenschutzerklärung.", "datenschutz"],
+      ["Wer darf Inhalte veröffentlichen oder ändern?", "Nur ich. Eingereichte Vorschläge übernehme ich erst nach Prüfung."]
+    ];
+    const faq = (f) => `<details class="faq"><summary>${esc(f[0])}</summary><div class="faqa"><p>${esc(f[1])}</p>${f[2] === true ? `<p><button class="linkbtn" data-go="spenden">Zur Unterstützung</button></p>` : typeof f[2] === "string" ? `<p><button class="linkbtn" data-go="${esc(f[2])}">Zur Datenschutzerklärung</button></p>` : ""}</div></details>`;
+    return `<div class="pagehead"><h1>Alles über den Fundus</h1></div>
+      <div class="prose"><p>Der Impro-Fundus ist eine kostenlose, werbefreie Sammlung für alle, die Improtheater spielen. Hier findest du Warm-ups, Übungen, Szenenspiele und Vorgaben, nach Kategorien geordnet. Du kannst eigene Ideen einreichen und die Seite unterstützen.</p></div>
+      <div class="faqwrap"><div class="faqcol">${links.map(faq).join("")}</div><div class="faqcol">${rechts.map(faq).join("")}</div></div>`;
+  },
   impressum() { return seite("Impressum", "Inhalt folgt."); },
   datenschutz() { return seite("Datenschutz", "Inhalt folgt."); },
   nutzung() { return seite("Nutzungsbedingungen", "Inhalt folgt."); },
@@ -563,7 +594,7 @@ const zitatHeute = () => {
   return ZITATE[tag % ZITATE.length];
 };
 
-const footHTML = () => `<footer class="foot"><button data-go="ueber">Über den Fundus</button><button data-go="gruender">Über den Gründer</button><button data-go="spenden">Fundus unterstützen</button><button data-go="impressum">Impressum</button><button data-go="datenschutz">Datenschutz</button><button data-go="nutzung">Nutzungsbedingungen</button></footer>`;
+const footHTML = () => `<footer class="foot"><button data-go="ueber">Alles über den Fundus</button><button data-go="spenden">Fundus unterstützen</button><button data-go="impressum">Impressum</button><button data-go="datenschutz">Datenschutz</button><button data-go="nutzung">Nutzungsbedingungen</button></footer>`;
 
 function render() {
   const sh = sideHTML();
