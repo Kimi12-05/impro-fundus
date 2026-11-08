@@ -316,6 +316,8 @@ button,input,select,textarea{font-size:inherit}
 .dicepop .gen-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .dicepop .slot{min-width:0;position:relative}
 .dicepop .gen{background:none;border:0;padding:0}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.row2 .field{min-width:0}
 .slot-top{display:flex;align-items:center;gap:4px;min-width:0}
 .slot-top span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dtog{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;border:0;background:none;color:var(--muted);cursor:pointer;border-radius:6px;opacity:.6}
@@ -477,7 +479,8 @@ async function kontaktSenden() {
   const btn = $("#kf button[type=submit]");
   btn.disabled = true; btn.textContent = "Wird gesendet …";
   try {
-    const r = await apiPost({ action: "kontakt", vorname: vn, mail, betreff: bt, text: tx });
+    const nn = $("#k-nn").value.trim(), tel = $("#k-tel").value.trim();
+    const r = await apiPost({ action: "kontakt", vorname: vn, nachname: nn, mail, telefon: tel, betreff: bt, text: tx });
     if (!r || !r.ok) throw new Error((r && r.msg) || "nicht gesendet");
     S.kSent = true; render(); window.scrollTo(0, 0);
   } catch (e) {
@@ -548,8 +551,12 @@ const V = {
     if (S.kSent) return `<div class="pagehead"><h1>Danke!</h1><p>Deine Nachricht ist angekommen. Ich melde mich so schnell wie möglich.</p></div><button class="btn red" data-kneu="1">Neue Nachricht schreiben</button>`;
     return `<div class="pagehead"><h1>Kontakt</h1><p>Schreib mir eine Nachricht. Felder mit * sind Pflichtfelder.</p></div>
     <form id="kf" novalidate>
-      <div class="field"><label for="k-vn">Vorname *</label><input id="k-vn" autocomplete="given-name"></div>
+      <div class="row2">
+        <div class="field"><label for="k-vn">Vorname *</label><input id="k-vn" autocomplete="given-name"></div>
+        <div class="field"><label for="k-nn">Nachname</label><input id="k-nn" autocomplete="family-name"></div>
+      </div>
       <div class="field"><label for="k-mail">E-Mail *</label><input id="k-mail" type="email" autocomplete="email"></div>
+      <div class="field"><label for="k-tel">Handynummer</label><input id="k-tel" type="tel" autocomplete="tel"></div>
       <div class="field"><label for="k-betreff">Betreff *</label><input id="k-betreff"></div>
       <div class="field"><label for="k-text">Nachricht * <small>(mindestens 20 Zeichen)</small></label><textarea id="k-text"></textarea></div>
       <p class="err" id="k-err" hidden></p>
