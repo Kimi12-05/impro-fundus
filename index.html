@@ -343,7 +343,7 @@ const CONFIG = {
   // Adresse deiner Impro-App-Schnittstelle (Google Apps Script)
   API: "https://script.google.com/macros/s/AKfycbwcGZii-rdT7MHU_vxgWMGMFsZIuwUW96_ECA8vTRAzEk8RbPszsdT2Dh8CPYJSWgqM/exec",
   // Adresse, an die Vorschläge gehen
-  KONTAKT_MAIL: "leon@impro-brand.de",
+  KONTAKT_MAIL: "leon@impro-fundus.de",
   // Spendenkonto. Solange leer, steht dort ein Hinweis.
   SPENDE: { inhaber: "", iban: "", bic: "", zweck: "Spende Impro-Fundus" }
 };
@@ -470,6 +470,7 @@ const V = {
     ${genHTML()}
     <div class="startbtns">
       <button class="tile" data-go="impro"><h3>Was ist eigentlich Impro?</h3><p>Eine kurze Einführung in das Improvisationstheater.</p></button>
+      <button class="tile" data-pdf="1"><h3>Als PDF speichern</h3><p>Wähle Übungen und Vorgaben aus, die du als PDF herunterladen möchtest.</p></button>
       <button class="tile" data-go="einreichen"><h3>Eigene Idee einreichen</h3><p>Du kennst ein Spiel, das hier fehlt? Schick es uns, dann prüfen wir es.</p></button>
     </div>`;
   },
@@ -545,7 +546,7 @@ const V = {
     return `<div class="pagehead"><h1>Szenenwürfel</h1><p>Würfle eine zufällige Kombination aus Ort, Beziehung, Gefühl und Tätigkeit.</p></div>${genHTML()}`;
   },
 
-  impro() { return seite("Was ist eigentlich Impro?", "Inhalt folgt."); },
+  impro() { return "<div class=\"pagehead\"><h1>Was ist eigentlich Impro?</h1></div><div class=\"prose\"><p><strong>Was ist Improvisationstheater?</strong><br>Improvisationstheater oder Improtheater ist eine Form des Theaters, in der improvisiert wird: Keine der dargebotenen Szenen wurde vorher geprobt. Das ist der Hauptunterschied zum klassischen Theater.</p><p>Oft holen sich die Schauspieler einen Vorschlag aus dem Publikum, oder lassen sich auch während einer Szene immer wieder Vorgaben geben. Diese Vorschläge dienen dann als Leitmotiv oder Impulsgeber für die spontan entstehenden Szenen. Häufig wird im Improtheater mit Musik begleitet. Auch die gespielte Musik ist improvisiert und ist doch mit der Darbietung auf der Bühne engstens verwoben.</p><p>Die Geschichten entstehen durch die gegenseitige Inspiration der Schauspieler. Vorausplanendes Spiel weicht dem reinen, spontanen Spiel von Aktion und Reaktion zwischen den Akteuren. Im improwiki findest du über 756 Spiele, Übungen und Aufwärmspiele (improwiki.com/de/wiki), die in Workshops und Shows zum Einsatz kommen.</p><p><strong>Formen des Improvisationstheaters</strong><br>Man unterscheidet zwischen Kurz- und Langformen im Improvisationstheater. Die Kurzformen bestehen aus Szenen, die nur wenige Minuten dauern, für sich allein stehen, oder durch ein übergeordnetes thematisches Motiv verbunden sind, aber nicht miteinander verbunden sind.</p><p>Zu diesen Kurzformen gibt es viele Konzepte. Im „Theatersport“ treten z. B. Mannschaften aus Schauspielern gegeneinander an und wetteifern um die Gunst des Publikums. Ebenso gibt es im Impro die Form des Maestro, in der der beste Spieler des Abends ermittelt wird. Theatersport-Mannschaften gibt es auf der ganzen Welt, wobei auch einige andere Theatermacher ähnliche Konzepte entwickelt haben und es Überschneidungen gibt.</p><p>Bei den Kurzformen dominieren meist die „Games“, was oft zu einer komischen Auslegung des Improtheaters führt. Das kann so sein, muss aber nicht. Bei den improvisierten Langformen hingegen dominieren eher die ernsthaften Szenen, allerdings dürfen auch hier komische Elemente genutzt werden.</p><p>Ein Format namens „Harold“ greift einen Themenvorschlag aus dem Publikum auf, und die Schauspieler erstellen aus verschiedenen Aspekten dieses Themas eine eng verwobene szenische Collage mit teilweise weit entwickelten Charakteren und psychologischer Tiefe. Beide Formen findest du ausführlich beschrieben im improwiki (improwiki.com/de/wiki).</p><p><strong>Improtheater als Lebenseinstellung</strong><br>Gute und interessante Geschichten entstehen dann, wenn die Schauspieler bestimmte Prinzipien beherzigen. Dazu gehört die oft beschworene „Lust am Scheitern“, das Spielen im Hier und Jetzt und das Spielen mit dem eigenen Status.</p><p>Da diese Art des Spiels auch eine besondere Art von offener Kommunikation ermöglicht, sehen viele Spieler in ihrer Leidenschaft zum Improtheater mehr als nur eine Form der Freizeitgestaltung, sondern vielmehr das Ausleben einer inneren Haltung zum Leben. Diese enge Verknüpfung mit der eigenen Lebensphilosophie ist vielleicht ein Unterschied zum klassischen Theater.</p><p>Das Improvisationstheater in Deutschland begann vor ca. 25 Jahren. Die Springmaus und das Improvisationstheater Emscherblut waren die ersten Vertreter dieses Genres.</p><p><strong>Workshops, Festivals, Auftritte</strong><br>Jedem Interessierten werden als Einstieg in die Improvisation Workshops angeboten. Viele davon findest du in der Terminübersicht des improwiki (improwiki.com/de/termine/2026/11). Des Weiteren gibt es viele Festivals, auf denen man besonders gute Improvisateure aus aller Welt sehen kann. In den Übungen des improwiki gibt es eine Menge ausführlich beschriebener Tipps (improwiki.com/de/uebungen).</p><p><strong>Die Impro-Community</strong><br>Weltweit gibt es eine aktive Improtheater-Szene. Im Gruppenverzeichnis des improwiki (improwiki.com/de/liste_improgruppen_weltweit) findest du Ensembles in deiner Nähe. Im Terminkalender (improwiki.com/de/termine/2026/11) sind Auftritte, Workshops und Festivals gelistet. Das improwiki ist das größte deutschsprachige Portal für Improvisationstheater: von der Community, für die Community.</p></div>"; },
   ueber() {
     const links = [
       ["Was ist der Impro-Fundus?", "Der Impro-Fundus ist eine Sammlung von Übungen, Spielen und Vorgaben für Improtheater. Alles ist nach Kategorien geordnet, damit du schnell findest, was du für deine Probe oder deinen Workshop brauchst."],
@@ -569,9 +570,9 @@ const V = {
       <div class="prose"><p>Der Impro-Fundus ist eine kostenlose, werbefreie Sammlung für alle, die Improtheater spielen. Hier findest du Warm-ups, Übungen, Szenenspiele und Vorgaben, nach Kategorien geordnet. Du kannst eigene Ideen einreichen und die Seite unterstützen.</p></div>
       <div class="faqwrap"><div class="faqcol">${links.map(faq).join("")}</div><div class="faqcol">${rechts.map(faq).join("")}</div></div>`;
   },
-  impressum() { return seite("Impressum", "Inhalt folgt."); },
-  datenschutz() { return seite("Datenschutz", "Inhalt folgt."); },
-  nutzung() { return seite("Nutzungsbedingungen", "Inhalt folgt."); },
+  impressum() { return "<div class=\"pagehead\"><h1>Impressum</h1></div><div class=\"prose\"><p>Angaben gemäß § 5 DDG</p><p>Leon E.<br>Marktplatz 13<br>52078 Aachen<br>Deutschland</p><p>Kontakt: leon@impro-fundus.de</p><p>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV: Leon E.</p><p>Der Impro-Fundus ist ein privates, nicht kommerzielles Angebot. Es gibt keinen Shop, keine Anmeldung für Besucher und keine Verträge. Die Nutzung ist kostenlos.</p><p><strong>Haftung für Inhalte</strong><br>Die Inhalte werden sorgfältig erstellt. Für Vollständigkeit, Richtigkeit und Aktualität wird keine Gewähr übernommen. Verpflichtungen zur Entfernung oder Sperrung von Informationen nach den allgemeinen Gesetzen bleiben unberührt.</p><p><strong>Haftung für Links</strong><br>Die Seite enthält Links zu fremden Websites. Für deren Inhalte ist der jeweilige Anbieter verantwortlich. Zum Zeitpunkt der Verlinkung waren keine Rechtsverstöße erkennbar. Bei Hinweisen auf Verstöße wird der Link entfernt.</p><p><strong>Urheberrecht</strong><br>Die Texte und die Gestaltung dieser Seite sind urheberrechtlich geschützt. Die Nutzungsbedingungen regeln, wie Inhalte verwendet werden dürfen.</p><p><strong>Verbraucherstreitbeilegung</strong><br>Der Betreiber ist nicht verpflichtet und nicht bereit, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p><p>Stand: 8. November 2026</p></div>"; },
+  datenschutz() { return "<div class=\"pagehead\"><h1>Datenschutz</h1></div><div class=\"prose\"><p><strong>Verantwortlich</strong><br>Leon E., Marktplatz 13, 52078 Aachen, leon@impro-fundus.de</p><p><strong>Hosting</strong><br>Die Seite wird über GitHub Pages bereitgestellt (GitHub Inc., USA). Beim Aufruf verarbeitet der Anbieter technisch notwendige Daten wie IP-Adresse, Zeitpunkt und aufgerufene Seite, um die Seite auszuliefern. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem stabilen Betrieb). Informationen: https://docs.github.com/site-policy/privacy-policies/github-privacy-statement</p><p><strong>Inhalte aus der Google-Tabelle</strong><br>Übungen und Vorgaben werden über ein Google Apps Script geladen, das auf eine Google-Tabelle zugreift. Dabei wird die IP-Adresse an Google übertragen. Personenbezogene Daten werden dabei nicht gespeichert. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO.</p><p><strong>Kontaktformular und Vorschläge</strong><br>Beim Absenden öffnet sich dein E-Mail-Programm. Die Nachricht wird erst versendet, wenn du sie absendest. Die von dir eingegebenen Angaben gehen dann an die E-Mail-Adresse des Betreibers. Name und Mailadresse bei Vorschlägen sind freiwillig; im Kontaktformular brauchen wir die Adresse, um zu antworten. Für die E-Mail-Dienste wird ein Dienstleister eingesetzt. Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Bearbeitung deiner Anfrage) bzw. lit. a DSGVO (Einwilligung bei Vorschlägen).</p><p><strong>Google Fonts</strong><br>Die Schrift Caveat wird von Google geladen. Dabei wird deine IP-Adresse an Google übertragen. Informationen: https://policies.google.com/privacy</p><p><strong>Cookies und Tracking</strong><br>Die Seite setzt keine Cookies und bindet keine Analyse- oder Werbedienste ein.</p><p><strong>Deine Rechte</strong><br>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch (Art. 15 bis 21 DSGVO). Wende dich dafür an leon@impro-fundus.de. Beschwerden kannst du bei der Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen einreichen (ldi.nrw.de).</p><p>Stand: 8. November 2026</p></div>"; },
+  nutzung() { return "<div class=\"pagehead\"><h1>Nutzungsbedingungen</h1></div><div class=\"prose\"><p><strong>1. Geltungsbereich</strong><br>Diese Bedingungen gelten für die Nutzung der Website impro-fundus.de.</p><p><strong>2. Kostenlose Nutzung</strong><br>Die Übungen, Spiele und Vorgaben sowie die App dürfen kostenlos genutzt werden, zum Beispiel in Gruppen, Workshops und Proben. Auch der PDF-Export ist kostenlos.</p><p><strong>3. Keine kommerzielle Nutzung</strong><br>Die Inhalte dürfen nicht verkauft und nicht zu kommerziellen Zwecken verwendet werden.</p><p><strong>4. Eingereichte Vorschläge</strong><br>Mit dem Einreichen eines Vorschlags erlaubst du dem Betreiber, ihn zu überarbeiten, unverändert oder verändert zu übernehmen und zu veröffentlichen. Der Betreiber ist nicht verpflichtet, Vorschläge zu veröffentlichen. Dein Name wird nur genannt, wenn du dem im Formular zustimmst.</p><p><strong>5. Verantwortung beim Spielen</strong><br>Impro ist körperliche und emotionale Aktivität. Übungen werden auf eigene Verantwortung durchgeführt. Gruppenleitungen achten auf die Sicherheit und das Wohlbefinden der Teilnehmenden.</p><p><strong>6. Änderungen</strong><br>Der Betreiber kann Inhalte und diese Bedingungen jederzeit ändern.</p><p><strong>7. Anwendbares Recht</strong><br>Es gilt deutsches Recht.</p><p><strong>Kontakt</strong><br>leon@impro-fundus.de</p><p>Stand: 8. November 2026</p></div>"; },
 
   einreichen() {
     if (S.sent) return `<div class="pagehead"><h1>Danke für deinen Vorschlag!</h1></div><div class="notice"><strong>Dein Mail-Programm wurde geöffnet.</strong><span>Schick die Mail ab, dann wird dein Vorschlag geprüft.</span></div><div class="row"><button class="btn" data-again>Noch etwas einreichen</button></div>`;
@@ -588,28 +589,14 @@ const V = {
      <div class="field"><label for="f-text">Beschreibung und Ablauf</label><textarea id="f-text" placeholder="Wie läuft es ab? Was ist die Regel?"></textarea></div>
      <div class="two" id="wrap-meta"><div class="field"><label for="f-players">Anzahl Personen</label><input id="f-players" placeholder="z. B. 2–4"></div><div class="field"><label for="f-level">Niveau</label><select id="f-level"><option>Einsteiger</option><option>Fortgeschritten</option></select></div></div>
      <div class="two"><div class="field"><label for="f-name">Dein Name <small>(freiwillig)</small></label><input id="f-name"></div><div class="field"><label for="f-mail">E-Mail für Rückfragen <small>(freiwillig)</small></label><input id="f-mail" type="email"></div></div>
+     <label class="check"><input type="checkbox" id="f-namepub"><span>Mein Name darf bei der Veröffentlichung genannt werden.</span></label>
      <label class="check"><input type="checkbox" id="f-ok"><span>Ich bin einverstanden, dass mein Vorschlag auf der Website veröffentlicht werden darf.</span></label>
      <p class="err" id="f-err" hidden></p>
      <button class="btn red" type="submit" ${offen ? "disabled" : ""}>Vorschlag absenden</button>
     </form>`;
   },
 
-  spenden() {
-    const s = CONFIG.SPENDE;
-    const konto = s.iban
-      ? `<dl><dt>Inhaber</dt><dd>${esc(s.inhaber)}</dd><dt>IBAN</dt><dd id="iban">${esc(s.iban)}</dd>${s.bic ? `<dt>BIC</dt><dd>${esc(s.bic)}</dd>` : ""}<dt>Zweck</dt><dd>${esc(s.zweck)}</dd></dl><div class="row"><button class="btn" data-copy>IBAN kopieren</button><span class="meta" id="copied" aria-live="polite"></span></div>`
-      : `<div class="notice"><strong>Die Spendenfunktion wird später eingebaut.</strong><span>Bis dahin kannst du den Fundus bei Fragen direkt ansprechen.</span></div>` + `<svg viewBox="0 0 320 180" width="100%" role="img" aria-label="Kommt bald" style="max-width:320px;height:auto;display:block;margin:0 auto">
-  <rect width="320" height="180" rx="18" fill="#FFFFFF"/>
-  <rect x="0" y="0" width="320" height="180" rx="18" fill="none" stroke="#E6DFD4"/>
-  <path d="M40 60 h120 a16 16 0 0 1 16 16 v38 a16 16 0 0 1 -16 16 h-74 l-22 18 v-18 h-24 a16 16 0 0 1 -16 -16 v-38 a16 16 0 0 1 16 -16 z" fill="#B02E28"/>
-  <circle cx="72" cy="95" r="6" fill="#fff"/><circle cx="100" cy="95" r="6" fill="#fff"/><circle cx="128" cy="95" r="6" fill="#fff"/>
-  <path d="M200 96 h80 a14 14 0 0 1 14 14 v28 a14 14 0 0 1 -14 14 h-60 l-14 14 v-14 h-6 a14 14 0 0 1 -14 -14 v-28 a14 14 0 0 1 14 -14 z" fill="#ffffff" stroke="#8E2220" stroke-width="3"/>
-  <path d="M258 40 l5 12 13 2 -10 8 3 13 -11 -7 -11 7 3 -13 -10 -8 13 -2 z" fill="#8E2220"/>
-  <text x="160" y="172" text-anchor="middle" font-family="Caveat,cursive" font-size="20" fill="#1F1B17">Kommt bald</text>
-</svg>`;
-    return `<div class="pagehead"><h1>Den Fundus unterstützen</h1><p>Der Impro-Fundus ist kostenlos und werbefrei. Mit einer Spende hilfst du bei Hosting, Pflege und neuen Inhalten.</p></div>
-    <section class="bank"><h2>Überweisung</h2>${konto}</section>`;
-  }
+  spenden() { return "<div class=\"pagehead\"><h1>Den Fundus unterstützen</h1><p>Der Impro-Fundus ist kostenlos und werbefrei. Wenn du ihn unterstützen möchtest, kannst du mit einer Spende helfen. Wofür die Spende gedacht ist:</p></div><div class=\"prose\"><ul><li>Domain und Hosting von impro-fundus.de</li><li>Den Fundus werbefrei halten</li><li>Kosten für neue Funktionen, zum Beispiel die Verwaltung der Admins</li><li>Fotos und Grafiken für die Seite</li><li>Materialien für Anfänger-Workshops</li><li>Einen Puffer für die jährliche Verlängerung der Domain</li><li>Ein neues Projekt, das gerade in Planung ist</li><li>Eine freie Spende ohne Zweck: Danke für die Arbeit</li></ul><p><strong>Spenden für die Improvisationstheatergruppe:</strong> Wenn du bei der Spende ausdrücklich dafür bist, kommt sie der Improvisationstheatergruppe des Theater Brand in Aachen-Brand zugute.</p></div><div class=\"notice\" id=\"spendeBox\"><strong>Die Spendenmöglichkeit wird gerade eingerichtet.</strong><span>Bis dahin kannst du den Fundus bei Fragen über das Kontaktformular ansprechen.</span></div>"; }
 };
 
 function sideHTML() {
@@ -690,6 +677,7 @@ function bindForm() {
       k.value === "Vorgabe" ? "Vorgaben-Art: " + $("#f-vcat").value : "Bereich: " + catOf($("#f-cat").value).name,
       "Personen: " + $("#f-players").value.trim(),
       "Niveau: " + $("#f-level").value,
+      "Name nennen: " + (($("#f-namepub") && $("#f-namepub").checked) ? "ja" : "nein"),
       "",
       x,
       "",
@@ -713,6 +701,7 @@ document.addEventListener("click", e => {
   if (d.adminEdit !== undefined) { const i = findeItem(d.adminEdit); if (i) editor(i, "uebung"); return; }
   if (d.adminVedit !== undefined) { const f = findeVorgabe(d.adminVedit); if (f) editor({ ...f.v, kat: f.k, title: f.v.t, ab: f.v.h }, "vorgabe"); return; }
   if (d.level !== undefined) { S.level = S.level === d.level ? "alle" : d.level; render(); return; }
+  if (d.pdf !== undefined) { pdfDialog(); return; }
   if (d.adminUsers !== undefined) { adminVerwalten(); return; }
   if (d.admDel !== undefined) { admEntfernen(d.admDel); return; }
   if (d.go) { if (d.kind) S.kind = d.kind; go(d.go); return; }
@@ -866,6 +855,43 @@ function adminVerwalten() {
     } catch (x) { $("#am2").textContent = x.message; }
   };
 }
+function pdfDialog() {
+  const ue = CATS.map(c => `<label class="check"><input type="checkbox" name="pu" value="${esc(c.id)}"> ${esc(c.name)} (${ITEMS.filter(i => i.cat === c.id).length})</label>`).join("");
+  const vo = Object.keys(VORG).map(k => `<label class="check"><input type="checkbox" name="pv" value="${esc(k)}"> ${esc(k)} (${VORG[k].length})</label>`).join("");
+  openDlg(`<h2>Als PDF speichern</h2>
+    <form id="pdfForm" class="dlgform">
+      <h3>Übungen</h3>${ue}
+      <h3>Vorgaben</h3>${vo}
+      <p class="meta" id="pdfm">Dein Browser öffnet danach das Druckfenster. Wähle dort „Als PDF speichern“.</p>
+      <div class="row"><button class="btn red" type="submit">PDF erstellen</button><button class="btn" type="button" data-dlg-close>Abbrechen</button></div>
+    </form>`);
+  $("#pdfForm").onsubmit = e => {
+    e.preventDefault();
+    const u = [...document.querySelectorAll('input[name=pu]:checked')].map(x => x.value);
+    const v = [...document.querySelectorAll('input[name=pv]:checked')].map(x => x.value);
+    if (!u.length && !v.length) { $("#pdfm").textContent = "Bitte wähle mindestens eine Übung oder Vorgabe aus."; return; }
+    pdfErstellen(u, v);
+  };
+}
+function pdfErstellen(u, v) {
+  const w = window.open("", "_blank");
+  if (!w) { alert("Bitte erlaube Pop-ups für diese Seite, damit das PDF erstellt werden kann."); return; }
+  let body = "";
+  u.forEach(id => {
+    const c = catOf(id);
+    body += `<h2>${esc(c.name)}</h2>`;
+    ITEMS.filter(i => i.cat === id).forEach(i => {
+      const meta = [i.dauer, i.level].filter(Boolean).join(" · ");
+      body += `<h3>${esc(i.title)}</h3><p class="m">${esc(meta)}</p>${i.ab ? `<div class="t">${prose(i.ab)}</div>` : '<p class="m">Beschreibung folgt.</p>'}`;
+    });
+  });
+  v.forEach(k => {
+    body += `<h2>Vorgaben: ${esc(k)}</h2><ul>${(VORG[k] || []).map(x => `<li>${esc(x.t)}${x.h ? ` <span class="m">(${esc(x.h)})</span>` : ""}</li>`).join("")}</ul>`;
+  });
+  w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Impro-Fundus</title><style>body{font:14px/1.5 Arial,sans-serif;color:#000;margin:24px}h1{font-size:22px}h2{margin-top:28px;border-bottom:1px solid #ccc;padding-bottom:4px}h3{margin:14px 0 2px;font-size:16px}.m{color:#666;margin:0 0 4px}.t p{margin:0 0 6px}ul{columns:2}</style></head><body><h1>Impro-Fundus – Auszug</h1><p class="m">impro-fundus.de</p>${body}<script>window.onload=function(){window.print();}<\/script></body></html>`);
+  w.document.close();
+}
+
 function editor(item, art, kat) {
   const vorgabe = art === "vorgabe";
   const katListe = vorgabe ? Object.keys(VORG) : CATS.map(c => c.id);
