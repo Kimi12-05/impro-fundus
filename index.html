@@ -486,7 +486,7 @@ async function kontaktSenden() {
     S.kSent = true; render(); window.scrollTo(0, 0);
   } catch (e) {
     btn.disabled = false; btn.textContent = "Nachricht senden";
-    err.textContent = "Die Nachricht konnte gerade nicht gesendet werden. Bitte versuche es später noch einmal oder schreibe direkt an " + CONFIG.KONTAKT_MAIL + ".";
+    err.textContent = "Die Nachricht konnte gerade nicht gesendet werden. Bitte versuche es später noch einmal oder schreibe direkt an " + CONFIG.KONTAKT_MAIL + ". (Technische Meldung: " + (e && e.message ? e.message : "unbekannt") + ")";
     err.hidden = false;
   }
 }
