@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;700&family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
 <style>
-:root{--red:#D63368;--maroon:#B82A57;--bg:#ffffff;--card:#FFFFFF;--field:#FFFFFF;--line:#E6DFD4;--fg:#1F1B17;--muted:#6F665D;--ok:#2e9e5b;--no:#B82A57;--hintbg:#fff7e0;--overlay:rgba(0,0,0,.45);color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0b0c;--card:#1b1b1c;--field:#232325;--line:#2d2d30;--fg:#f2f2f2;--muted:#9b9a97;--ok:#2e9e5b;--no:#a8324a;--hintbg:#3a3320;--overlay:rgba(0,0,0,.6);color-scheme:dark}}
+:root{--red:#D63368;--maroon:#B82A57;--bg:#F5F0E8;--card:#FFFFFF;--field:#FFFFFF;--line:#E6DFD4;--fg:#1F1B17;--muted:#6F665D;--ok:#2e9e5b;--no:#B82A57;--hintbg:#fff7e0;--overlay:rgba(0,0,0,.45);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1A1714;--card:#2A2622;--field:#2A2622;--line:#3A342E;--fg:#F3ECE3;--muted:#ABA196;--red:#E2558A;--maroon:#E2558A;--ok:#2e9e5b;--no:#a8324a;--hintbg:#3a3320;--overlay:rgba(0,0,0,.6);color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
 body{background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif;font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
@@ -217,15 +217,15 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
 /* Startseite: Zettel-Zitat, Szenen-Würfel, Titel in Caveat */
 .ttl{margin:4px 0 0}
 .ttl svg{display:block;width:100%;height:auto;overflow:visible}
-.ttl text{font-family:Caveat,cursive;font-weight:700;font-size:58px;fill:var(--fg)}
-.home .quote{position:relative;text-align:left;display:flex;flex-direction:column;gap:6px;background:#fffdf3;border:0;border-radius:4px;box-shadow:0 3px 8px rgba(0,0,0,.12);transform:rotate(-.6deg);margin:16px 12px 8px;padding:24px 28px 16px}
-.home .quote .tape{position:absolute;top:-13px;width:96px;height:26px;background:rgba(232,214,140,.75);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.ttl text{font-family:Caveat,cursive;font-weight:400;font-size:58px;fill:var(--fg)}
+.home .quote{position:relative;text-align:left;display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid var(--line);border-radius:6px;box-shadow:0 1px 2px rgba(60,45,30,.06);transform:rotate(-.3deg);margin:16px 12px 8px;padding:24px 28px 16px}
+.home .quote .tape{position:absolute;top:-9px;width:64px;height:18px;background:rgba(232,214,140,.35);box-shadow:none}
 .home .quote .tape.l{left:12%;transform:rotate(-4deg)}
 .home .quote .tape.r{right:12%;transform:rotate(3deg)}
 .home .quote p{font-family:Caveat,cursive;font-size:34px;line-height:1.15;color:var(--fg)}
 .home .quote .meta{font-family:Caveat,cursive;font-size:21px;color:var(--muted)}
 .home .copybtn{color:var(--muted)}
-.home .start-grid .gen{background:#efe9e1;border:0;border-radius:22px;padding:20px 22px;gap:14px}
+.home .start-grid .gen{background:var(--card);border:1px solid var(--line);box-shadow:0 1px 2px rgba(60,45,30,.06);border-radius:22px;padding:20px 22px;gap:14px}
 .home .start-grid .gen .eyebrow{font-size:13px;letter-spacing:.08em}
 .home .start-grid .slot{background:#fff;border:1px solid #e0d9cf;border-radius:12px;padding:10px 14px;min-height:76px}
 .home .start-grid .slot span{font-size:12px}
