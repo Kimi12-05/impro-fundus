@@ -37,6 +37,39 @@ function startListe(){
   START_VORGABEN.forEach((v,i) => l.push({id:'v'+(i+1), titel:v[1], kat:v[0], art:'vorgabe', tn:'', dauer:'', level:'', ablauf:'', eig:v[2]}));
   return l;
 }
+// Zuordnung der Übungen zu den Bereichen der Fundus-Website (einmalig auf das Blatt übertragen)
+const KAT_KORREKTUR = {
+  "Grommolo Übersetzer": "3er",
+  "Grommolo Switch": "2er",
+  "Drei Tote": "3er",
+  "Letztes Wort, erstes Wort": "2er",
+  "ABC Spiel": "2er",
+  "Drei Regeln": "2er",
+  "Tod in einer Minute (30, 15, 10, 5)": "Gruppe",
+  "Gefühlsreplay": "Gruppe",
+  "Genrereplay": "Gruppe",
+  "Gebärdendolmetscher": "3er",
+  "Aus der Sicht von": "Gruppe",
+  "Akzeptieren": "2er",
+  "Au Ja!": "Warm-Up",
+  "Geschichten gleichzeitig erzählen": "2er",
+  "Orte Switch": "Gruppe",
+  "Day before – Day after": "Gruppe",
+  "Big Booty": "Warm-Up",
+  "4-Satzgeschichte": "Gruppe",
+  "Ja, genau und dann …": "2er",
+  "Ja, aber …": "2er",
+  "Freeze": "Gruppe",
+  "Einwortgeschichte": "Warm-Up",
+  "Erfinder-Talkshow": "2er",
+  "Whose Line is it anyways": "Gruppe",
+  "Ja und": "2er",
+  "Experte": "2er",
+  "Toaster-Spiel": "Warm-Up",
+  "Wachsmaske": "Warm-Up"
+};
+// Die Website zeigt die langen Namen, im Blatt stehen noch die alten Kürzel
+const KAT_ALT = {'2er':'Zweierübungen', '3er':'Dreierübungen', 'Gruppe':'Gruppenübungen', 'Warm-Up':'Warm-Up-Spiele'};
 function startdaten(){
   const props = PropertiesService.getScriptProperties();
   const personenNachtragen = props.getProperty('personen') !== '1';
@@ -57,6 +90,12 @@ function startdaten(){
     props.setProperty('fix2er','1');
     const sp = alle('Spiele');
     sp.forEach(s => { if(s.titel === 'Drei Regeln' || s.titel === 'Akzeptieren') s.kat = '2er'; });
+    schreibe('Spiele', sp);
+  }
+  if(props.getProperty('katFix3') !== '1' && props.getProperty('startdaten2') === '1'){
+    props.setProperty('katFix3','1');
+    const sp = alle('Spiele');
+    sp.forEach(s => { if(KAT_KORREKTUR[s.titel]) s.kat = KAT_KORREKTUR[s.titel]; });
     schreibe('Spiele', sp);
   }
   if(props.getProperty('startdaten2') === '1'){ personenEinspielen(props, personenNachtragen); return; }
@@ -202,7 +241,7 @@ function fundusDaten(){
   startdaten();
   const sp = alle('Spiele');
   const uebungen = sp.filter(s => s.art !== 'vorgabe').map(s => ({
-    id: s.id, titel: s.titel, kat: s.kat, tn: s.tn, dauer: s.dauer, level: s.level, ablauf: s.ablauf, eig: liste(s.eig)
+    id: s.id, titel: s.titel, kat: KAT_ALT[s.kat] || s.kat, tn: s.tn, dauer: s.dauer, level: s.level, ablauf: s.ablauf, eig: liste(s.eig)
   }));
   const vorgaben = {};
   sp.filter(s => s.art === 'vorgabe').forEach(s => {
