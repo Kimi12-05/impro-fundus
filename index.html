@@ -90,6 +90,15 @@ main{flex:1;min-width:0;padding:20px 16px 110px}
 .foot button{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
 .quote{text-align:center;display:flex;flex-direction:column;gap:6px;padding:16px 20px;background:var(--card);border:1px dashed var(--line);border-radius:18px}
 .quote p{margin:0;font-family:Gaegu,cursive;font-size:24px;line-height:1.3}
+.start-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.start-grid .s2{grid-column:span 2;min-height:200px}
+.start-grid .s3{grid-column:span 3}
+.start-grid .s6{grid-column:1/-1}
+@media (min-width:900px){
+  .foot{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--bg);padding:14px 24px;margin:0;justify-content:center}
+  main{padding-bottom:110px}
+  .side{height:calc(100dvh - 180px)}
+}
 
 /* Karten und Inhalte */
 .hero{display:flex;flex-direction:column;gap:10px}
@@ -270,16 +279,14 @@ const V = {
   start() {
     const z = zitatHeute();
     return `<div class="quote"><p>„${esc(z.t)}“</p><span class="meta">${esc(z.a)}</span></div>
-    <section class="hero"><span class="eyebrow">${ITEMS.length} Übungen · ${vCount()} Vorgaben</span><h1>Der Fundus für alle, die Impro spielen.</h1><p>Übungen für zwei, drei und mehr Personen, Warm-ups und Vorgaben für eure Szenen. Kostenlos und offen für eure Ideen.</p></section>
-    <div class="grid">
-      <button class="tile" data-go="kats"><h3>Übungen</h3><p>Übungen für zwei, drei und mehr Personen sowie Warm-ups.</p></button>
-      <button class="tile" data-cat="Kennenlernspiele"><h3>Kennenlernspiele</h3><p>Spiele, mit denen sich Gruppen besser kennenlernen.</p></button>
-      <button class="tile" data-go="vorgaben"><h3>Vorgaben</h3><p>Orte, Gefühle, Ticks, Phobien, Berufe, Genres und mehr für eure Szenen.</p></button>
-      <button class="tile" data-go="wuerfel"><h3>Szenenwürfel</h3><p>Würfle eine zufällige Kombination aus Ort, Beziehung, Gefühl und Tätigkeit.</p></button>
-      <button class="tile" data-go="impro"><h3>Was ist eigentlich Impro?</h3><p>Eine kurze Einführung in das Improvisationstheater.</p></button>
-      <button class="tile" data-go="einreichen"><h3>Eigene Idee einreichen</h3><p>Du kennst ein Spiel, das hier fehlt? Schick es uns, dann prüfen wir es.</p></button>
-      <button class="tile" data-go="spenden"><h3>Den Fundus unterstützen</h3><p>Die Seite ist kostenlos und werbefrei. Spenden helfen bei Hosting und Pflege.</p></button>
-      <button class="tile" data-go="gruender"><h3>Über den Gründer des Impro-Fundus</h3><p>Wer hinter dem Fundus steckt und wo er herkommt.</p></button>
+    <section class="hero"><h1>Der Fundus für alle, die Impro spielen.</h1></section>
+    <div class="start-grid">
+      <button class="tile s2" data-go="kats"><h3>Übungen</h3><p>Übungen für zwei, drei und mehr Personen sowie Warm-ups.</p></button>
+      <button class="tile s2" data-cat="Kennenlernspiele"><h3>Kennenlernspiele</h3><p>Spiele, mit denen sich Gruppen besser kennenlernen.</p></button>
+      <button class="tile s2" data-go="vorgaben"><h3>Vorgaben</h3><p>Orte, Gefühle, Ticks, Phobien, Berufe, Genres und mehr für eure Szenen.</p></button>
+      <div class="s6">${genHTML()}</div>
+      <button class="tile s3" data-go="impro"><h3>Was ist eigentlich Impro?</h3><p>Eine kurze Einführung in das Improvisationstheater.</p></button>
+      <button class="tile s3" data-go="einreichen"><h3>Eigene Idee einreichen</h3><p>Du kennst ein Spiel, das hier fehlt? Schick es uns, dann prüfen wir es.</p></button>
     </div>`;
   },
 
@@ -395,9 +402,7 @@ function topnavHTML() {
   return `<div class="dd"><button class="${ueAct}" data-go="kats">Übungen ▾</button><div class="ddmenu">${ue}</div></div>`
     + `<div class="dd"><button class="${act("vorgaben")}" data-go="vorgaben">Vorgaben ▾</button><div class="ddmenu">${vo}</div></div>`
     + `<button class="${act("wuerfel")}" data-go="wuerfel">Szenenwürfel</button>`
-    + `<button class="${act("einreichen")}" data-go="einreichen">Eigene Idee einreichen</button>`
-    + `<button class="${act("spenden")}" data-go="spenden">Fundus unterstützen</button>`
-    + `<button class="${act("gruender")}" data-go="gruender">Über den Gründer</button>`;
+    + `<button class="${act("einreichen")}" data-go="einreichen">Eigene Idee einreichen</button>`;
 }
 
 const ZITATE = [
@@ -411,7 +416,7 @@ const zitatHeute = () => {
   return ZITATE[tag % ZITATE.length];
 };
 
-const footHTML = () => `<footer class="foot"><button data-go="ueber">Über den Fundus</button><button data-go="impressum">Impressum</button><button data-go="datenschutz">Datenschutz</button><button data-go="nutzung">Nutzungsbedingungen</button></footer>`;
+const footHTML = () => `<footer class="foot"><button data-go="ueber">Über den Fundus</button><button data-go="gruender">Über den Gründer</button><button data-go="spenden">Fundus unterstützen</button><button data-go="impressum">Impressum</button><button data-go="datenschutz">Datenschutz</button><button data-go="nutzung">Nutzungsbedingungen</button></footer>`;
 
 function render() {
   const sh = sideHTML();
