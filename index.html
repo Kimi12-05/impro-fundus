@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#d81b23">
+<meta name="theme-color" content="#D63368">
 <meta name="description" content="Impro-Fundus: Warm-ups, Übungen, Szenenspiele und Vorgaben für Improtheater.">
 <title>Impro-Fundus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;700&family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
 <style>
-:root{--red:#d81b23;--maroon:#8e2639;--bg:#ffffff;--card:#f4f4f2;--field:#f4f4f2;--line:#e3e2df;--fg:#161616;--muted:#6f6e6b;--ok:#2e9e5b;--no:#8e2639;--hintbg:#fff7e0;--overlay:rgba(0,0,0,.45);color-scheme:light}
+:root{--red:#D63368;--maroon:#B82A57;--bg:#ffffff;--card:#FFFFFF;--field:#FFFFFF;--line:#E6DFD4;--fg:#1F1B17;--muted:#6F665D;--ok:#2e9e5b;--no:#B82A57;--hintbg:#fff7e0;--overlay:rgba(0,0,0,.45);color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0b0c;--card:#1b1b1c;--field:#232325;--line:#2d2d30;--fg:#f2f2f2;--muted:#9b9a97;--ok:#2e9e5b;--no:#a8324a;--hintbg:#3a3320;--overlay:rgba(0,0,0,.6);color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
@@ -18,8 +18,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;background:none;border:0;padding:0}
 :focus-visible{outline:3px solid var(--red);outline-offset:2px;border-radius:8px}
 h1,h2,h3{margin:0;line-height:1.2}
-h1{font-family:Gaegu,cursive;font-size:clamp(32px,5vw,46px);font-weight:700}
-h2{font-family:Gaegu,cursive;font-size:28px;font-weight:700}
+h1{font-family:"Special Elite","Courier New",monospace;font-weight:400;font-size:clamp(32px,5vw,46px);font-weight:700}
+h2{font-family:"Special Elite","Courier New",monospace;font-size:24px;font-weight:400}
 h3{font-size:18px;font-weight:700}
 
 /* Kopfzeile */
@@ -27,11 +27,11 @@ h3{font-size:18px;font-weight:700}
 .top{display:flex;align-items:center;gap:10px;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top))}
 .iconbtn{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none}
 .iconbtn svg{width:24px;height:24px}
-.logo{font-family:Gaegu,cursive;font-weight:700;font-size:28px;color:var(--red);line-height:1;white-space:nowrap}
-.search{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:var(--field);border:1px solid var(--line);border-radius:14px;padding:0 12px;height:44px;max-width:460px;margin-left:auto}
+.logo{font-family:"Special Elite","Courier New",monospace;font-weight:700;font-size:28px;color:var(--red);line-height:1;white-space:nowrap}
+.search{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:var(--field);border:1px solid var(--line);border-radius:16px;padding:0 12px;height:44px;max-width:460px;margin-left:auto}
 .search input{flex:1;min-width:0;border:0;background:none;outline:none;font-size:16px}
 .rightbox{display:flex;align-items:center;gap:10px;flex:1;min-width:0;justify-content:flex-end}
-.loginbtn{display:inline-flex;align-items:center;background:var(--red);color:#fff;border-radius:14px;padding:0 16px;height:44px;font-weight:700;text-decoration:none;white-space:nowrap}
+.loginbtn{display:inline-flex;align-items:center;background:var(--red);color:#fff;border-radius:16px;padding:0 16px;height:44px;font-weight:700;text-decoration:none;white-space:nowrap}
 
 /* Aufbau */
 .shell{display:flex;min-height:calc(100dvh - 65px)}
@@ -78,7 +78,7 @@ main{flex:1;min-width:0;padding:20px 16px 110px}
 .lbl{font-size:13px;color:var(--muted);padding:14px 12px 4px;text-transform:uppercase;letter-spacing:.06em}
 .subs{display:flex;flex-direction:column;margin:2px 0 6px 18px;padding-left:12px;border-left:2px solid var(--line)}
 .subs .navbtn{font-size:15px;padding:7px 10px}
-.memberbox{margin-top:auto;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.memberbox{margin-top:auto;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px}
 .memberbox p{margin:0;font-size:14px;color:var(--muted)}
 
 /* Obere Navigation (Computer) */
@@ -87,7 +87,7 @@ main{flex:1;min-width:0;padding:20px 16px 110px}
 .topnav>button:hover,.dd>button:hover,.dd:focus-within>button{background:var(--card)}
 .topnav>button.on,.dd>button.on{color:var(--red)}
 .dd{position:relative}
-.ddmenu{display:none;position:absolute;top:100%;left:0;min-width:260px;flex-direction:column;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:30}
+.ddmenu{display:none;position:absolute;top:100%;left:0;min-width:260px;flex-direction:column;background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:30}
 .dd:hover .ddmenu,.dd:focus-within .ddmenu{display:flex}
 .ddmenu button{text-align:left;padding:8px 12px;border-radius:10px;font-size:15px;width:100%}
 .ddmenu button:hover{background:var(--card);color:var(--red)}
@@ -95,8 +95,8 @@ main{flex:1;min-width:0;padding:20px 16px 110px}
 /* Fußzeile */
 .foot{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px}
 .foot button{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
-.quote{text-align:center;display:flex;flex-direction:column;gap:6px;padding:16px 20px;background:var(--card);border:1px dashed var(--line);border-radius:18px}
-.quote p{margin:0;font-family:Gaegu,cursive;font-size:24px;line-height:1.3}
+.quote{text-align:center;display:flex;flex-direction:column;gap:6px;padding:16px 20px;background:var(--card);border:1px dashed var(--line);border-radius:22px}
+.quote p{margin:0;font-family:Caveat,cursive;font-size:24px;line-height:1.3}
 .quote .row.center{justify-content:center;margin-top:6px}
 .sep{border:0;border-top:1px solid var(--line);margin:0}
 .search.big{margin:0;max-width:none;height:52px;width:100%}
@@ -158,7 +158,7 @@ main{flex:1;min-width:0;padding:20px 16px 110px}
 .hero p{margin:0;color:var(--muted);max-width:60ch;font-size:17px}
 .eyebrow{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
-.tile,.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;text-align:left;display:flex;flex-direction:column;gap:6px;width:100%}
+.tile,.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;text-align:left;display:flex;flex-direction:column;gap:6px;width:100%}
 .tile:hover,.card:hover{border-color:var(--red)}
 .tile p,.card p{margin:0;color:var(--muted);font-size:15px}
 .meta{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
@@ -177,43 +177,60 @@ main{flex:1;min-width:0;padding:20px 16px 110px}
 .chip[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:#fff}
 .chip.small{padding:3px 10px;font-size:13px}
 .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-.detail{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:18px}
+.detail{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:18px}
 .facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.fact{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.fact{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
 .fact span{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 .fact strong{font-size:15px}
 .prose{display:flex;flex-direction:column;gap:10px}
 .prose p{margin:0}
 .tip{border-left:4px solid var(--red);padding:10px 14px;background:var(--hintbg);border-radius:0 12px 12px 0}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:14px;border:1px solid var(--line);background:var(--card);font-weight:700;font-size:16px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 20px;border-radius:16px;border:1px solid var(--line);background:var(--card);font-weight:700;font-size:16px}
 .btn.red{background:var(--red);border-color:var(--red);color:#fff}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .btn.block{width:100%}
 .linkbtn{color:var(--red);text-decoration:underline;text-underline-offset:3px;font-weight:700}
-.gen{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.gen{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:14px}
 .gen-slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.slot{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.slot{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:10px 12px}
 .slot span{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.slot strong{font-family:Gaegu,cursive;font-size:22px}
+.slot strong{font-family:Caveat,cursive;font-size:22px}
 .taglist{display:flex;flex-wrap:wrap;gap:8px}
 .taglist span{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-size:15px}
-form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-weight:700;font-size:15px}
 .field small{color:var(--muted);font-weight:400}
-.field input,.field select,.field textarea{background:var(--field);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:16px;width:100%}
+.field input,.field select,.field textarea{background:var(--field);border:1px solid var(--line);border-radius:16px;padding:12px 14px;font-size:16px;width:100%}
 .field textarea{min-height:120px;resize:vertical}
 .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
 .check{display:flex;gap:10px;align-items:flex-start;font-size:15px}
 .check input{margin-top:4px;width:18px;height:18px}
 .err{color:var(--no);font-size:14px}
-.note{font-size:14px;color:var(--muted);border:1px dashed var(--line);border-radius:14px;padding:12px 14px}
-.notice{background:var(--card);border:1px solid var(--ok);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:6px}
-.bank{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.note{font-size:14px;color:var(--muted);border:1px dashed var(--line);border-radius:16px;padding:12px 14px}
+.notice{background:var(--card);border:1px solid var(--ok);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:6px}
+.bank{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px}
 .bank dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0}
 .bank dt{font-size:13px;color:var(--muted);text-transform:uppercase;padding-top:2px}
 .bank dd{margin:0;font-family:ui-monospace,Menlo,monospace;font-size:15px;overflow-wrap:anywhere}
-.empty{color:var(--muted);text-align:center;padding:28px;border:1px dashed var(--line);border-radius:18px}
+.empty{color:var(--muted);text-align:center;padding:28px;border:1px dashed var(--line);border-radius:22px}
+/* Startseite: Zettel-Zitat, Szenen-Würfel, Titel in Caveat */
+.ttl{margin:4px 0 0}
+.ttl svg{display:block;width:100%;height:auto;overflow:visible}
+.ttl text{font-family:Caveat,cursive;font-weight:700;font-size:58px;fill:var(--fg)}
+.home .quote{position:relative;text-align:left;display:flex;flex-direction:column;gap:6px;background:#fffdf3;border:0;border-radius:4px;box-shadow:0 3px 8px rgba(0,0,0,.12);transform:rotate(-.6deg);margin:16px 12px 8px;padding:24px 28px 16px}
+.home .quote .tape{position:absolute;top:-13px;width:96px;height:26px;background:rgba(232,214,140,.75);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.home .quote .tape.l{left:12%;transform:rotate(-4deg)}
+.home .quote .tape.r{right:12%;transform:rotate(3deg)}
+.home .quote p{font-family:Caveat,cursive;font-size:34px;line-height:1.15;color:var(--fg)}
+.home .quote .meta{font-family:Caveat,cursive;font-size:21px;color:var(--muted)}
+.home .copybtn{color:var(--muted)}
+.home .start-grid .gen{background:#efe9e1;border:0;border-radius:22px;padding:20px 22px;gap:14px}
+.home .start-grid .gen .eyebrow{font-size:13px;letter-spacing:.08em}
+.home .start-grid .slot{background:#fff;border:1px solid #e0d9cf;border-radius:12px;padding:10px 14px;min-height:76px}
+.home .start-grid .slot span{font-size:12px}
+.home .start-grid .slot strong{font-family:Caveat,cursive;font-weight:400;font-size:26px;line-height:1.1;display:block;margin-top:8px}
+.home .start-grid .gen-slots{grid-template-columns:repeat(4,minmax(0,1fr))}
 </style>
 </head>
 <body>
@@ -273,8 +290,17 @@ const shortOf = i => {
 };
 const seite = (titel, text) => `<div class="pagehead"><h1>${esc(titel)}</h1></div><div class="note">${esc(text)}</div>`;
 const prose = t =>t.split(/\n{2,}/).map(p => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join("");
-const pick = key => { const a = VORG[key] || []; return a.length ? a[Math.floor(Math.random() * a.length)].t : "–"; };
-const draw = () => ({ Ort: pick("Orte"), Beziehung: pick("Beziehungen"), Gefühl: pick("Gefühle"), Tätigkeit: pick("Tätigkeiten") });
+const pickFrom = list => (list && list.length) ? list[Math.floor(Math.random() * list.length)].t : "–";
+const DICE = [["Ort", "ort"], ["Beziehung", "bezieh"], ["Gefühl", "gef"], ["Tätigkeit", "tät"]];
+const draw = () => {
+  const keys = Object.keys(VORG);
+  const out = {};
+  DICE.forEach(([label, word], i) => {
+    const k = keys.find(x => x.toLowerCase().includes(word)) || keys[i];
+    out[label] = pickFrom(k ? VORG[k] : []);
+  });
+  return out;
+};
 const vCount = () => Object.values(VORG).reduce((a, x) => a + x.length, 0);
 
 function setData(d) {
@@ -335,8 +361,8 @@ const genHTML = () => `<section class="gen" aria-live="polite"><span class="eyeb
 const V = {
   start() {
     const z = zitatHeute();
-    return `<section class="hero"><h1>Der Fundus für alle, die Impro spielen.</h1></section>
-    <div class="quote"><p>„${esc(z.t)}“</p><div class="qfoot"><span class="meta">${esc(z.a)}</span><button class="copybtn" data-quote="1" data-txt="${esc("„" + z.t + "“ – " + z.a)}" aria-label="Zitat kopieren" title="Zitat kopieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></div></div>
+    return `<h1 class="ttl"><svg viewBox="0 0 920 80" role="img" aria-label="Der Fundus für alle, die Impro spielen."><text x="0" y="62" textLength="920" lengthAdjust="spacingAndGlyphs">Der Fundus für alle, die Impro spielen.</text></svg></h1>
+    <div class="quote"><span class="tape l"></span><span class="tape r"></span><p>„${esc(z.t)}“</p><div class="qfoot"><span class="meta">— ${esc(z.a)}</span><button class="copybtn" data-quote="1" data-txt="${esc("„" + z.t + "“ – " + z.a)}" aria-label="Zitat kopieren" title="Zitat kopieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></div></div>
     <hr class="sep">
     <label class="search big"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q2" class="qin" type="search" placeholder="Spiel oder Vorgabe suchen" aria-label="Suchen" value="${esc(S.q)}"></label>
     <div class="start-grid">
@@ -430,13 +456,13 @@ const V = {
     const konto = s.iban
       ? `<dl><dt>Inhaber</dt><dd>${esc(s.inhaber)}</dd><dt>IBAN</dt><dd id="iban">${esc(s.iban)}</dd>${s.bic ? `<dt>BIC</dt><dd>${esc(s.bic)}</dd>` : ""}<dt>Zweck</dt><dd>${esc(s.zweck)}</dd></dl><div class="row"><button class="btn" data-copy>IBAN kopieren</button><span class="meta" id="copied" aria-live="polite"></span></div>`
       : `<div class="notice"><strong>Die Spendenfunktion wird später eingebaut.</strong><span>Bis dahin kannst du den Fundus bei Fragen direkt ansprechen.</span></div>` + `<svg viewBox="0 0 320 180" width="100%" role="img" aria-label="Kommt bald" style="max-width:320px;height:auto;display:block;margin:0 auto">
-  <rect width="320" height="180" rx="18" fill="#f4f4f2"/>
-  <rect x="0" y="0" width="320" height="180" rx="18" fill="none" stroke="#e3e2df"/>
-  <path d="M40 60 h120 a16 16 0 0 1 16 16 v38 a16 16 0 0 1 -16 16 h-74 l-22 18 v-18 h-24 a16 16 0 0 1 -16 -16 v-38 a16 16 0 0 1 16 -16 z" fill="#d81b23"/>
+  <rect width="320" height="180" rx="18" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="320" height="180" rx="18" fill="none" stroke="#E6DFD4"/>
+  <path d="M40 60 h120 a16 16 0 0 1 16 16 v38 a16 16 0 0 1 -16 16 h-74 l-22 18 v-18 h-24 a16 16 0 0 1 -16 -16 v-38 a16 16 0 0 1 16 -16 z" fill="#D63368"/>
   <circle cx="72" cy="95" r="6" fill="#fff"/><circle cx="100" cy="95" r="6" fill="#fff"/><circle cx="128" cy="95" r="6" fill="#fff"/>
-  <path d="M200 96 h80 a14 14 0 0 1 14 14 v28 a14 14 0 0 1 -14 14 h-60 l-14 14 v-14 h-6 a14 14 0 0 1 -14 -14 v-28 a14 14 0 0 1 14 -14 z" fill="#ffffff" stroke="#8e2639" stroke-width="3"/>
-  <path d="M258 40 l5 12 13 2 -10 8 3 13 -11 -7 -11 7 3 -13 -10 -8 13 -2 z" fill="#8e2639"/>
-  <text x="160" y="172" text-anchor="middle" font-family="Gaegu,cursive" font-size="20" fill="#161616">Kommt bald</text>
+  <path d="M200 96 h80 a14 14 0 0 1 14 14 v28 a14 14 0 0 1 -14 14 h-60 l-14 14 v-14 h-6 a14 14 0 0 1 -14 -14 v-28 a14 14 0 0 1 14 -14 z" fill="#ffffff" stroke="#B82A57" stroke-width="3"/>
+  <path d="M258 40 l5 12 13 2 -10 8 3 13 -11 -7 -11 7 3 -13 -10 -8 13 -2 z" fill="#B82A57"/>
+  <text x="160" y="172" text-anchor="middle" font-family="Caveat,cursive" font-size="20" fill="#1F1B17">Kommt bald</text>
 </svg>`;
     return `<div class="pagehead"><h1>Den Fundus unterstützen</h1><p>Der Impro-Fundus ist kostenlos und werbefrei. Mit einer Spende hilfst du bei Hosting, Pflege und neuen Inhalten.</p></div>
     <section class="bank"><h2>Überweisung</h2>${konto}</section>`;
