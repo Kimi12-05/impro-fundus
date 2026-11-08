@@ -243,14 +243,19 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
 }
 /* Vorgaben-Einträge als Notizzettel wie das Zitat */
 .vcols{column-width:260px;column-gap:24px}
-.vitem{break-inside:avoid;margin:0 0 22px;padding:30px 30px 24px;min-height:124px;background:url(note-a.png) center/100% 100% no-repeat;border:0;font-family:Caveat,cursive;font-size:24px;line-height:1.2;color:var(--fg)}
+.vitem{break-inside:avoid;margin:0 0 22px;padding:34px 44px 30px;min-height:140px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:url(note-a.png) center/100% 100% no-repeat;border:0;font-family:Caveat,cursive;font-size:26px;line-height:1.15;color:var(--fg)}
 .vitem:nth-child(even){background-image:url(note-b.png)}
-.vitem .meta{display:block;margin-top:6px;font-family:Caveat,cursive;font-size:18px;color:var(--muted);letter-spacing:0}
+.vgtile{position:relative;min-height:140px;padding:34px 44px 30px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:url(note-a.png) center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:none;font-family:Caveat,cursive;color:var(--fg)}
+.vgtile:nth-child(even){background-image:url(note-b.png)}
+.vgtile h3{font-family:Caveat,cursive;font-size:30px;font-weight:700;line-height:1.1}
+.vgtile .meta{font-family:Caveat,cursive;font-size:19px;color:var(--muted);letter-spacing:0}
+.vitem .meta{display:block;margin-top:6px;font-family:Caveat,cursive;font-size:19px;color:var(--muted);letter-spacing:0}
+.vitem .linkbtn{font-family:Caveat,cursive;font-size:18px}
 .home .inner{min-height:calc(100dvh - var(--hh) - 96px);justify-content:space-evenly;gap:12px}
 .home .sep{margin:0}
 .chests{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:center;justify-items:center}
 .home .chests .chest .cbox,.home .chests .chest img{height:clamp(90px,13vh,140px)}
-.startbtns{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.startbtns{display:grid;grid-template-columns:1fr;gap:14px}
 .dlg{position:fixed;inset:0;background:var(--overlay);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
 .dlg[hidden]{display:none!important}
 .dlg-box{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;max-width:560px;width:100%;max-height:90vh;overflow:auto}
@@ -264,6 +269,11 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
 .dlgfields[hidden]{display:none!important}
 .adminbar{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 8px}
 button.loginbtn{border:0;cursor:pointer;font:inherit;font-weight:700;font-size:16px}
+/* Schriften nach Design: Schreibmaschine für Titel und Bedienelemente, Handschrift für Notizen */
+h1,h2,.pagehead h1{font-family:"Special Elite","Courier New",monospace;font-weight:400;letter-spacing:0}
+h3{font-family:"Courier Prime","Courier New",monospace;font-weight:700}
+button,.btn,.chip,select,input,.eyebrow,.meta,.pill,.crumb,.topnav,.loginbtn,.foot button,.empty,.slot span{font-family:"Courier Prime","Courier New",monospace}
+.foot button,.foot a{font-size:14px}
 </style>
 </head>
 <body>
@@ -406,7 +416,6 @@ const V = {
     ${genHTML()}
     <div class="startbtns">
       <button class="tile" data-go="impro"><h3>Was ist eigentlich Impro?</h3><p>Eine kurze Einführung in das Improvisationstheater.</p></button>
-      <button class="tile" data-go="einreichen"><h3>Eigene Idee einreichen</h3><p>Du kennst ein Spiel, das hier fehlt? Schick es uns, dann prüfen wir es.</p></button>
     </div>`;
   },
 
@@ -438,7 +447,7 @@ const V = {
 
   vorgaben() {
     if (!S.vcat) {
-      return `<div class="pagehead"><h1>Vorgaben</h1><p>Wähle einen Bereich.</p></div><div class="grid">${Object.keys(VORG).map(k => `<button class="tile" data-v="${esc(k)}"><span class="meta">${VORG[k].length} Vorgaben</span><h3>${esc(k)}</h3></button>`).join("")}</div>`;
+      return `<div class="pagehead"><h1>Vorgaben</h1><p>Wähle einen Bereich.</p></div><div class="grid">${Object.keys(VORG).map(k => `<button class="vgtile" data-v="${esc(k)}"><span class="meta">${VORG[k].length} Vorgaben</span><h3>${esc(k)}</h3></button>`).join("")}</div>`;
     }
     const list = VORG[S.vcat] || [];
     return `<div class="crumb"><button data-go="vorgaben">Vorgaben</button><span>›</span><span>${esc(S.vcat)}</span></div>
@@ -473,7 +482,7 @@ const V = {
     const opts = CATS.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
     const vopts = Object.keys(VORG).map(k => `<option>${esc(k)}</option>`).join("");
     const offen = !CONFIG.KONTAKT_MAIL;
-    return `<div class="pagehead"><h1>Vorschlag einreichen</h1><p>Eine Übung oder eine Vorgabe fehlt? Beschreibe sie hier. Wir prüfen den Vorschlag und veröffentlichen ihn danach.</p></div>
+    return `<div class="pagehead"><h1>Vorschlag einreichen</h1></div>
     ${offen ? '<div class="note">Das Einreichen ist gerade noch nicht eingerichtet.</div>' : ""}
     <form id="f" novalidate>
      <div class="field"><label for="f-kind">Was möchtest du einreichen?</label><select id="f-kind"><option>Übung</option><option>Vorgabe</option></select></div>
