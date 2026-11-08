@@ -355,12 +355,24 @@ button,input,select,textarea{font-size:inherit}
   .dlg{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
   .home .inner{min-height:0;justify-content:flex-start;gap:18px}
   .home .ttl{order:1}
-  .home .chests{order:2;grid-template-columns:1fr;gap:14px}
+  .home .chests{display:none}
+  .home .mtiles{display:grid;order:2;gap:10px}
+  .home .mtiles .tile{min-height:0;padding:clamp(8px,1.6vh,14px) 16px;gap:2px}
+  .home .mtiles .tile h3{font-size:22px}
+  .home .mtiles .tile p{font-size:15px}
+  .home .quote{padding:12px 18px 8px}
+  .home .quote p{font-size:22px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .home .quote .meta{font-size:16px}
+  .home .inner{gap:14px}
+  main.home{padding-top:12px}
+  .tgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .tgrid .vgtile{min-height:clamp(84px,calc((100dvh - 330px) / 3),150px);padding:14px 10px}
+  .tgrid .vgtile h3{font-size:24px}
   .home .quote{order:3}
   .home .sep,.home .gen,.home .startbtns{display:none}
-  .home .chests .chest .cbox,.home .chests .chest img{height:clamp(78px,12.5vh,130px)}
   .drawer{padding-top:max(16px,env(safe-area-inset-top,0px))}
 }
+.mtiles{display:none}
 .dsearch{margin:0 0 8px;background:none!important;border:0!important;padding:0!important;box-shadow:none!important}
 .dsearch input{width:100%;height:44px;border-radius:16px;border:1px solid var(--line);background:var(--field);padding:0 14px;font-size:16px;color:var(--fg)}
 .navbtn.small{font-size:14px;color:var(--muted)}
@@ -532,12 +544,12 @@ function navHTML() {
   h += b(S.view === "vorgaben", 'data-go="vorgaben"', "Vorgaben");
   h += b(S.view === "einreichen", 'data-go="einreichen"', "Vorschlag einreichen");
   h += b(S.view === "kontakt", 'data-go="kontakt"', "Kontakt");
-  h += b(S.view === "spenden", 'data-go="spenden"', "Spenden");
   h += `<div class="lbl">Mehr</div>`;
   h += b(S.view === "impro", 'data-go="impro"', "Was ist Impro?");
   h += b(false, 'data-pdf="1"', "PDF speichern");
   h += `<div class="lbl">Über den Fundus</div>`;
   h += b(S.view === "ueber", 'data-go="ueber"', "Alles über den Fundus");
+  h += b(S.view === "spenden", 'data-go="spenden"', "Spenden");
   h += b(S.view === "impressum", 'data-go="impressum"', "Impressum");
   h += b(S.view === "datenschutz", 'data-go="datenschutz"', "Datenschutz");
   h += b(S.view === "nutzung", 'data-go="nutzung"', "Nutzungsbedingungen");
@@ -603,6 +615,11 @@ const V = {
       <button class="chest" data-cat="Kennenlernspiele" aria-label="Kennenlernspiele"><span class="cbox"><img src="kiste-kennenlernen.png" alt="Kennenlernspiele"></span></button>
       <button class="chest" data-go="vorgaben" aria-label="Vorgaben"><span class="cbox"><img src="kiste-vorgaben.png" alt="Vorgaben"></span></button>
     </div>
+    <div class="mtiles">
+      <button class="tile" data-go="kats"><h3>Übungen</h3><p>Warm-ups, Szenen und Spiele</p></button>
+      <button class="tile" data-cat="Kennenlernspiele"><h3>Kennenlernen</h3><p>Spiele für neue Gruppen</p></button>
+      <button class="tile" data-go="vorgaben"><h3>Vorgaben</h3><p>Orte, Gefühle, Berufe und mehr</p></button>
+    </div>
     ${genHTML()}
     <div class="startbtns">
       <button class="tile" data-go="impro"><h3>Was ist Impro?</h3><p>Eine kurze Einführung.</p></button>
@@ -612,7 +629,7 @@ const V = {
   },
 
   kats() {
-    return `<div class="pagehead"><h1>Übungen</h1><p>Wähle einen Bereich.</p></div>${adminBar(`<button class="btn red" data-admin-new="uebung">+ Neue Übung</button><button class="btn" data-akat="neu" data-art="uebung">+ Neue Kategorie</button>`)}<div class="grid">${CATS.map(c => admTile(`<button class="vgtile" data-cat="${esc(c.id)}"><h3>${esc(c.name)}</h3></button>`, "uebung", c.id)).join("")}</div>`;
+    return `<div class="pagehead"><h1>Übungen</h1><p>Wähle einen Bereich.</p></div>${adminBar(`<button class="btn red" data-admin-new="uebung">+ Neue Übung</button><button class="btn" data-akat="neu" data-art="uebung">+ Neue Kategorie</button>`)}<div class="grid tgrid">${CATS.map(c => admTile(`<button class="vgtile" data-cat="${esc(c.id)}"><h3>${esc(c.name)}</h3></button>`, "uebung", c.id)).join("")}</div>`;
   },
 
   kat() {
@@ -640,7 +657,7 @@ const V = {
 
   vorgaben() {
     if (!S.vcat) {
-      return `<div class="pagehead"><h1>Vorgaben</h1></div>${adminBar(`<button class="btn" data-akat="neu" data-art="vorgabe">+ Neue Kategorie</button>`)}<div class="grid">${Object.keys(VORG).map(k => admTile(`<button class="vgtile" data-v="${esc(k)}"><h3>${esc(k)}</h3></button>`, "vorgabe", k)).join("")}</div>`;
+      return `<div class="pagehead"><h1>Vorgaben</h1></div>${adminBar(`<button class="btn" data-akat="neu" data-art="vorgabe">+ Neue Kategorie</button>`)}<div class="grid tgrid">${Object.keys(VORG).map(k => admTile(`<button class="vgtile" data-v="${esc(k)}"><h3>${esc(k)}</h3></button>`, "vorgabe", k)).join("")}</div>`;
     }
     const list = VORG[S.vcat] || [];
     return `<div class="crumb"><button data-go="vorgaben">Vorgaben</button><span>›</span><span>${esc(S.vcat)}</span></div>
