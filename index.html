@@ -277,7 +277,9 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
 .home .sep{margin:0}
 .chests{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:center;justify-items:center}
 .home .chests .chest .cbox,.home .chests .chest img{height:clamp(90px,13vh,140px)}
-.startbtns{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.startbtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.startbtns .tile{padding:12px 14px;border-radius:16px;align-items:center;text-align:center}
+.startbtns .tile h3{margin:0;font-size:16px;line-height:1.2}
 .dlg{position:fixed;inset:0;background:var(--overlay);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
 .dlg[hidden]{display:none!important}
 .dlg-box{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;max-width:560px;width:100%;max-height:90vh;overflow:auto}
@@ -313,7 +315,17 @@ button,input,select,textarea{font-size:inherit}
 .dicepop .gen{display:flex;flex-direction:column;gap:14px}
 .dicepop .gen .eyebrow{display:block}
 .dicepop .gen-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.dicepop .slot{min-width:0}
+.dicepop .slot{min-width:0;position:relative}
+.dicepop .gen{background:none;border:0;padding:0}
+.slot-top{display:flex;align-items:center;gap:4px;min-width:0}
+.slot-top span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dtog{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;border:0;background:none;color:var(--muted);cursor:pointer;border-radius:6px;opacity:.6}
+.dtog svg{width:13px;height:13px}
+.dtog:hover,.dtog:focus-visible{opacity:1;color:var(--fg)}
+.dmenu{position:absolute;left:6px;right:6px;top:100%;margin-top:4px;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;display:flex;flex-direction:column;box-shadow:0 8px 20px rgba(0,0,0,.2)}
+.dopt{text-align:left;background:none;border:0;border-radius:8px;padding:8px 10px;font-size:15px;color:var(--fg);cursor:pointer}
+.dopt:hover{background:var(--bg)}
+.dopt.on{color:var(--red);font-weight:700}
 .dicepop .slot strong{font-size:22px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
@@ -445,8 +457,9 @@ const card = i => `<button class="card" data-item="${esc(i.id)}"><span class="ey
 const genHTML = () => {
   const ks = diceKeys();
   const res = S.draw || [];
-  const opts = sel => Object.keys(VORG).map(k => `<option ${k === sel ? "selected" : ""}>${esc(k)}</option>`).join("");
-  return `<section class="gen" aria-live="polite"><span class="eyebrow">Szenen-Würfel</span><div class="gen-slots">${ks.map((k, i) => `<div class="slot"><select class="dsel" data-die="${i}" aria-label="Art der Vorgabe für Würfel ${i + 1}">${opts(k)}</select><strong>${esc(res[i] ? res[i][1] : "–")}</strong></div>`).join("")}</div><div><button class="btn red" data-roll>Neu würfeln</button></div></section>`;
+  const chev = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
+  const slot = (k, i) => `<div class="slot"><div class="slot-top"><button class="dtog" type="button" data-dtog="${i}" aria-expanded="${S.dpick === i}" aria-label="Vorgabe für Würfel ${i + 1} ändern" title="Vorgabe ändern">${chev}</button><span>${esc(k)}</span></div><strong>${esc(res[i] ? res[i][1] : "–")}</strong>${S.dpick === i ? `<div class="dmenu">${Object.keys(VORG).map(o => `<button class="dopt${o === k ? " on" : ""}" type="button" data-dset="${i}" data-val="${esc(o)}">${esc(o)}</button>`).join("")}</div>` : ""}</div>`;
+  return `<section class="gen" aria-live="polite"><span class="eyebrow">Szenen-Würfel</span><div class="gen-slots">${ks.map(slot).join("")}</div><div><button class="btn red" data-roll>Neu würfeln</button></div></section>`;
 };
 
 const levelChips = () => `<div class="row" role="group" aria-label="Niveau"><span class="eyebrow">Niveau</span>${[["Einsteiger", "Anfänger"], ["Fortgeschritten", "Fortgeschritten"]].map(([v, l]) => `<button class="chip" aria-pressed="${S.level === v}" data-level="${v}">${l}</button>`).join("")}</div>`;
@@ -462,8 +475,17 @@ async function kontaktSenden() {
   else if (!CONFIG.KONTAKT_MAIL) m = "Das Kontaktformular ist noch nicht eingerichtet.";
   if (m) { err.textContent = m; err.hidden = false; return; }
   err.hidden = true;
-  const body = `Von: ${vn}\nE-Mail: ${mail}\n\n${tx}`;
-  location.href = `mailto:${CONFIG.KONTAKT_MAIL}?subject=${encodeURIComponent("Kontakt: " + bt)}&body=${encodeURIComponent(body)}`;
+  const btn = $("#kf button[type=submit]");
+  btn.disabled = true; btn.textContent = "Wird gesendet …";
+  try {
+    const r = await apiPost({ action: "kontakt", vorname: vn, mail, betreff: bt, text: tx });
+    if (!r || !r.ok) throw new Error((r && r.msg) || "nicht gesendet");
+    S.kSent = true; render(); window.scrollTo(0, 0);
+  } catch (e) {
+    btn.disabled = false; btn.textContent = "Nachricht senden";
+    err.textContent = "Die Nachricht konnte gerade nicht gesendet werden. Bitte versuche es später noch einmal oder schreibe direkt an " + CONFIG.KONTAKT_MAIL + ".";
+    err.hidden = false;
+  }
 }
 
 const V = {
@@ -479,9 +501,9 @@ const V = {
     </div>
     ${genHTML()}
     <div class="startbtns">
-      <button class="tile" data-go="impro"><h3>Was ist eigentlich Impro?</h3><p>Eine kurze Einführung in das Improvisationstheater.</p></button>
-      <button class="tile" data-go="einreichen"><h3>Eigene Idee einreichen</h3><p>Du kennst ein Spiel, das hier fehlt? Schick es uns, dann prüfen wir es.</p></button>
-      <button class="tile" data-pdf="1"><h3>Als PDF speichern</h3><p>Wähle Übungen und Vorgaben aus, die du als PDF herunterladen möchtest.</p></button>
+      <button class="tile" data-go="impro"><h3>Was ist Impro?</h3></button>
+      <button class="tile" data-go="einreichen"><h3>Idee einreichen</h3></button>
+      <button class="tile" data-pdf="1"><h3>PDF speichern</h3></button>
     </div>`;
   },
 
@@ -524,6 +546,7 @@ const V = {
   },
 
   kontakt() {
+    if (S.kSent) return `<div class="pagehead"><h1>Danke!</h1><p>Deine Nachricht ist angekommen. Ich melde mich so schnell wie möglich.</p></div><button class="btn red" data-kneu="1">Neue Nachricht schreiben</button>`;
     return `<div class="pagehead"><h1>Kontakt</h1><p>Schreib mir eine Nachricht. Felder mit * sind Pflichtfelder.</p></div>
     <form id="kf" novalidate>
       <div class="field"><label for="k-vn">Vorname *</label><input id="k-vn" autocomplete="given-name"></div>
@@ -627,7 +650,7 @@ function topnavHTML() {
   const ueAct = ["kats", "kat", "item"].includes(S.view) ? "on" : "";
   const ue = CATS.map(c => `<button data-cat="${esc(c.id)}">${esc(c.name)}</button>`).join("");
   const vo = Object.keys(VORG).map(k => `<button data-v="${esc(k)}">${esc(k)}</button>`).join("");
-  return `<div class="dd"><button class="${ueAct}" data-go="kats">Übungen ▾</button><div class="ddmenu">${ue}</div></div>`
+  return `<button class="${act("start")}" data-go="start">Start</button><div class="dd"><button class="${ueAct}" data-go="kats">Übungen ▾</button><div class="ddmenu">${ue}</div></div>`
     + `<div class="dd"><button class="${act("vorgaben")}" data-go="vorgaben">Vorgaben ▾</button><div class="ddmenu">${vo}</div></div>`
     + `<button class="${act("kontakt")}" data-go="kontakt">Kontakt</button>`
     + `<button class="${act("einreichen")}" data-go="einreichen">Eigene Idee einreichen</button>`;
@@ -754,6 +777,9 @@ document.addEventListener("click", e => {
   if (d.v) { go("vorgaben", { vcat: d.v, vprop: "alle" }); return; }
   if (d.vp) { S.vprop = d.vp; render(); return; }
   if (d.dicedlg !== undefined) { S.diceOpen = true; S.draw = S.draw || draw(); openDlg(dicePop()); return; }
+  if (d.dtog !== undefined) { S.dpick = S.dpick === +d.dtog ? null : +d.dtog; render(); return; }
+  if (d.dset !== undefined) { const ks = diceKeys().slice(); ks[+d.dset] = d.val; S.dice = ks; S.dpick = null; S.draw = draw(); render(); return; }
+  if (d.kneu !== undefined) { S.kSent = false; render(); return; }
   if (d.roll !== undefined) { S.draw = draw(); render(); return; }
   if (d.again !== undefined) { S.sent = false; render(); return; }
   if (d.quote !== undefined) {
