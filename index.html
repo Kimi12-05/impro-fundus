@@ -88,6 +88,8 @@ main{flex:1;min-width:0;padding:20px 16px 110px}
 /* Fußzeile */
 .foot{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px}
 .foot button{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.quote{text-align:center;display:flex;flex-direction:column;gap:6px;padding:16px 20px;background:var(--card);border:1px dashed var(--line);border-radius:18px}
+.quote p{margin:0;font-family:Gaegu,cursive;font-size:24px;line-height:1.3}
 
 /* Karten und Inhalte */
 .hero{display:flex;flex-direction:column;gap:10px}
@@ -272,10 +274,19 @@ const genHTML = () => `<section class="gen" aria-live="polite"><span class="eyeb
 
 const V = {
   start() {
-    return `<section class="hero"><span class="eyebrow">${ITEMS.length} Übungen · ${vCount()} Vorgaben</span><h1>Der Fundus für alle, die Impro spielen.</h1><p>Übungen für zwei, drei und mehr Personen, Warm-ups und Vorgaben für eure Szenen. Kostenlos und offen für eure Ideen.</p></section>
-    <div class="grid">${CATS.map(c => `<button class="tile" data-cat="${esc(c.id)}"><span class="meta">${ITEMS.filter(i => i.cat === c.id).length} Einträge</span><h3>${esc(c.name)}</h3><p>${esc(c.desc)}</p></button>`).join("")}<button class="tile" data-go="vorgaben"><span class="meta">${vCount()} Vorgaben · ${Object.keys(VORG).length} Bereiche</span><h3>Vorgaben</h3><p>Orte, Gefühle, Ticks, Phobien, Berufe, Genres und mehr für eure Szenen.</p></button></div>
-    ${genHTML()}
-    <div class="grid"><button class="tile" data-go="einreichen"><h3>Eigene Idee einreichen</h3><p>Du kennst ein Spiel, das hier fehlt? Schick es uns, dann prüfen wir es.</p></button><button class="tile" data-go="spenden"><h3>Den Fundus unterstützen</h3><p>Die Seite ist kostenlos und werbefrei. Spenden helfen bei Hosting und Pflege.</p></button></div>`;
+    const z = zitatHeute();
+    return `<div class="quote"><p>„${esc(z.t)}“</p><span class="meta">${esc(z.a)}</span></div>
+    <section class="hero"><span class="eyebrow">${ITEMS.length} Übungen · ${vCount()} Vorgaben</span><h1>Der Fundus für alle, die Impro spielen.</h1><p>Übungen für zwei, drei und mehr Personen, Warm-ups und Vorgaben für eure Szenen. Kostenlos und offen für eure Ideen.</p></section>
+    <div class="grid">
+      <button class="tile" data-go="kats"><h3>Übungen</h3><p>Übungen für zwei, drei und mehr Personen sowie Warm-ups.</p></button>
+      <button class="tile" data-go="kats"><h3>Kennenlernspiele</h3><p>Spiele, mit denen sich Gruppen besser kennenlernen.</p></button>
+      <button class="tile" data-go="vorgaben"><h3>Vorgaben</h3><p>Orte, Gefühle, Ticks, Phobien, Berufe, Genres und mehr für eure Szenen.</p></button>
+      <button class="tile" data-go="wuerfel"><h3>Szenenwürfel</h3><p>Würfle eine zufällige Kombination aus Ort, Beziehung, Gefühl und Tätigkeit.</p></button>
+      <button class="tile" data-go="impro"><h3>Was ist eigentlich Impro?</h3><p>Eine kurze Einführung in das Improvisationstheater.</p></button>
+      <button class="tile" data-go="einreichen"><h3>Eigene Idee einreichen</h3><p>Du kennst ein Spiel, das hier fehlt? Schick es uns, dann prüfen wir es.</p></button>
+      <button class="tile" data-go="spenden"><h3>Den Fundus unterstützen</h3><p>Die Seite ist kostenlos und werbefrei. Spenden helfen bei Hosting und Pflege.</p></button>
+      <button class="tile" data-go="gruender"><h3>Über den Gründer des Impro-Fundus</h3><p>Wer hinter dem Fundus steckt und wo er herkommt.</p></button>
+    </div>`;
   },
 
   kats() {
@@ -307,7 +318,7 @@ const V = {
     const list = VORG[S.vcat] || [];
     const props = [...new Set(list.flatMap(x => x.e))];
     const sel = list.filter(x => S.vprop === "alle" || x.e.includes(S.vprop));
-    return `<div class="pagehead"><h1>Vorgaben</h1><p>Anregungen für Szenen. Würfle eine Kombination oder stöbere in den Listen.</p></div>${genHTML()}
+    return `<div class="pagehead"><h1>Vorgaben</h1><p>Anregungen für Szenen. Stöbere in den Listen.</p></div>
     <div class="chips mob" role="group" aria-label="Vorgaben-Bereich">${keys.map(k => `<button class="chip" aria-pressed="${S.vcat === k}" data-v="${esc(k)}">${esc(k)} <span class="meta">${VORG[k].length}</span></button>`).join("")}</div>
     <div class="row"><span class="eyebrow">Eigenschaft</span><div class="chips" role="group" aria-label="Eigenschaft"><button class="chip small" aria-pressed="${S.vprop === "alle"}" data-vp="alle">Alle</button>${props.map(p => `<button class="chip small" aria-pressed="${S.vprop === p}" data-vp="${esc(p)}">${esc(p)}</button>`).join("")}</div></div>
     <div class="taglist">${sel.map(v => `<span>${esc(v.t)}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}</span>`).join("")}</div>`;
@@ -326,6 +337,7 @@ const V = {
     return `<div class="pagehead"><h1>Szenenwürfel</h1><p>Würfle eine zufällige Kombination aus Ort, Beziehung, Gefühl und Tätigkeit.</p></div>${genHTML()}`;
   },
 
+  impro() { return seite("Was ist eigentlich Impro?", "Inhalt folgt."); },
   ueber() { return seite("Über den Fundus", "Hier kommt bald ein Text über den Fundus."); },
   gruender() { return seite("Über den Gründer des Impro-Fundus", "Hier kommt bald ein Text über den Gründer."); },
   impressum() { return seite("Impressum", "Inhalt folgt."); },
@@ -396,6 +408,17 @@ function topnavHTML() {
     + `<button class="${act("spenden")}" data-go="spenden">Fundus unterstützen</button>`
     + `<button class="${act("gruender")}" data-go="gruender">Über den Gründer</button>`;
 }
+
+const ZITATE = [
+  { t: "Die ganze Welt ist eine Bühne, und alle Männer und Frauen nur Spieler.", a: "William Shakespeare, Wie es euch gefällt" },
+  { t: "Versuch es. Scheitere. Scheitere besser.", a: "Samuel Beckett" },
+  { t: "Der Mensch spielt nur, wo er in voller Bedeutung des Worts Mensch ist, und er ist nur da ganz Mensch, wo er spielt.", a: "Friedrich Schiller, Briefe über die ästhetische Erziehung" }
+];
+const zitatHeute = () => {
+  const d = new Date();
+  const tag = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+  return ZITATE[tag % ZITATE.length];
+};
 
 const footHTML = () => `<footer class="foot"><button data-go="ueber">Über den Fundus</button><button data-go="impressum">Impressum</button><button data-go="datenschutz">Datenschutz</button><button data-go="nutzung">Nutzungsbedingungen</button></footer>`;
 
