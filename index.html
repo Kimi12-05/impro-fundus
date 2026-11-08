@@ -647,7 +647,7 @@ const zitatHeute = () => {
   return ZITATE[tag % ZITATE.length];
 };
 
-const footHTML = () => `<footer class="foot"><button data-go="ueber">Alles über den Fundus</button><button data-go="spenden">Fundus unterstützen</button><button data-go="impressum">Impressum</button><button data-go="datenschutz">Datenschutz</button><button data-go="nutzung">Nutzungsbedingungen</button></footer>`;
+const footHTML = () => `<footer class="foot"><button data-go="ueber">Alles über den Fundus</button><button data-go="spenden">Fundus unterstützen</button><button data-go="impressum">Impressum</button><button data-go="datenschutz">Datenschutz</button><button data-go="nutzung">Nutzungsbedingungen</button>${ADMIN ? '<button data-admin-users>Admins verwalten</button>' : ""}</footer>`;
 
 function render() {
   const sh = sideHTML();
@@ -713,6 +713,8 @@ document.addEventListener("click", e => {
   if (d.adminEdit !== undefined) { const i = findeItem(d.adminEdit); if (i) editor(i, "uebung"); return; }
   if (d.adminVedit !== undefined) { const f = findeVorgabe(d.adminVedit); if (f) editor({ ...f.v, kat: f.k, title: f.v.t, ab: f.v.h }, "vorgabe"); return; }
   if (d.level !== undefined) { S.level = S.level === d.level ? "alle" : d.level; render(); return; }
+  if (d.adminUsers !== undefined) { adminVerwalten(); return; }
+  if (d.admDel !== undefined) { admEntfernen(d.admDel); return; }
   if (d.go) { if (d.kind) S.kind = d.kind; go(d.go); return; }
   if (d.cat !== undefined) { go("kat", { cat: d.cat }); return; }
   if (d.item) { go("item", { id: d.item }); return; }
@@ -823,6 +825,45 @@ function adminLogin() {
       try { sessionStorage.setItem("fundus-admin", ADMIN); } catch (x) {}
       closeDlg(); render();
     } catch (x) { $("#am").textContent = "Keine Verbindung. Bitte später noch einmal versuchen."; }
+  };
+}
+async function admAktion(obj) {
+  const r = await apiPost(Object.assign({ token: ADMIN }, obj));
+  if (!r.ok) throw new Error(r.msg || "Das hat nicht geklappt.");
+  return r;
+}
+async function admListeNeuLaden() {
+  try {
+    const r = await admAktion({ action: "adminListe" });
+    $("#admList").innerHTML = r.admins.map(n => `<div class="row"><span>${esc(n)}</span><button class="linkbtn" type="button" data-adm-del="${esc(n)}">entfernen</button></div>`).join("");
+  } catch (x) { $("#am2").textContent = x.message; }
+}
+async function admEntfernen(name) {
+  if (!confirm(`Admin „${name}“ wirklich entfernen?`)) return;
+  try { await admAktion({ action: "adminEntfernen", name }); await admListeNeuLaden(); }
+  catch (x) { $("#am2").textContent = x.message; }
+}
+function adminVerwalten() {
+  openDlg(`<h2>Admins verwalten</h2>
+    <div id="admList" class="dlgform"></div>
+    <form id="admNeu" class="dlgform">
+      <h3>Neuen Admin anlegen</h3>
+      <label>Benutzername<input id="an2" autocapitalize="none" autocomplete="off"></label>
+      <label>Passwort (mindestens 8 Zeichen)<input id="ap2" type="password" autocomplete="new-password"></label>
+      <p class="meta" id="am2"></p>
+      <div class="row"><button class="btn red" type="submit">Admin speichern</button><button class="btn" type="button" data-dlg-close>Schließen</button></div>
+    </form>`);
+  admListeNeuLaden();
+  $("#admNeu").onsubmit = async e => {
+    e.preventDefault();
+    const n = $("#an2").value.trim(), p = $("#ap2").value;
+    $("#am2").textContent = "Einen Moment …";
+    try {
+      await admAktion({ action: "adminHinzufuegen", name: n, passwort: p });
+      $("#an2").value = ""; $("#ap2").value = "";
+      $("#am2").textContent = `Admin „${n}“ gespeichert.`;
+      await admListeNeuLaden();
+    } catch (x) { $("#am2").textContent = x.message; }
   };
 }
 function editor(item, art, kat) {
