@@ -292,6 +292,8 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
 .dlgform label{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--muted)}
 .dlgform input,.dlgform select,.dlgform textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
 .dlgform textarea{min-height:140px;resize:vertical}
+.dlgform label.check{flex-direction:row;align-items:center;color:var(--fg)}
+.dlgform label.check input{width:18px;height:18px;padding:0}
 .dlgform .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .dlgfields{display:flex;flex-direction:column;gap:12px}
 .dlgfields[hidden]{display:none!important}
@@ -409,7 +411,7 @@ const vCount = () => Object.values(VORG).reduce((a, x) => a + x.length, 0);
 function setData(d) {
   CATS = d.uebungenReihe.map(k => ({ id: k, name: k, desc: UE_INFO[k] || "" }));
   const KAT_ALT = { "2er": "Zweierübungen", "3er": "Dreierübungen", "Gruppe": "Gruppenübungen", "Warm-Up": "Warm-Up-Spiele" };
-  ITEMS = d.uebungen.map(u => ({ id: u.id, cat: KAT_ALT[u.kat] || u.kat, title: u.titel, level: u.level || "", ab: u.ablauf || "", dauer: u.dauer || "", tn: u.tn || "", eig: u.eig || [] }));
+  ITEMS = d.uebungen.map(u => ({ id: u.id, cat: KAT_ALT[u.kat] || u.kat, title: u.titel, level: u.level || "", draft: u.entwurf === "1", ab: u.ablauf || "", dauer: u.dauer || "", tn: u.tn || "", eig: u.eig || [] }));
   VORG = {};
   d.vorgabenReihe.forEach(k => { VORG[k] = d.vorgaben[k] || []; });
   Object.keys(d.vorgaben).forEach(k => { if (!VORG[k]) VORG[k] = d.vorgaben[k]; });
@@ -461,7 +463,7 @@ function bottomHTML() {
   }).join("");
 }
 
-const card = i => `<button class="card" data-item="${esc(i.id)}"><span class="eyebrow">${esc(i.cat)}${i.dauer ? " · " + esc(i.dauer) : ""}</span><h3>${esc(i.title)}${!i.ab ? '<span class="pill todo">folgt</span>' : ""}</h3><p>${esc(shortOf(i))}</p><span class="meta">${i.level ? `<span>${esc(i.level)}</span>` : ""}</span></button>`;
+const card = i => `<button class="card" data-item="${esc(i.id)}"><span class="eyebrow">${esc(i.cat)}${i.dauer ? " · " + esc(i.dauer) : ""}</span><h3>${esc(i.title)}${i.draft ? '<span class="pill todo">Entwurf</span>' : ""}${!i.ab ? '<span class="pill todo">folgt</span>' : ""}</h3><p>${esc(shortOf(i))}</p><span class="meta">${i.level ? `<span>${esc(i.level)}</span>` : ""}</span></button>`;
 const genHTML = () => {
   const ks = diceKeys();
   const res = S.draw || [];
@@ -533,6 +535,7 @@ const V = {
   item() {
     const i = ITEMS.find(x => x.id === S.id), c = catOf(i.cat);
     return `<div class="crumb"><button data-go="kats">Übungen</button><span>›</span><button data-cat="${esc(c.id)}">${esc(c.name)}</button></div>
+    ${i.draft ? '<div class="notice"><strong>Entwurf</strong><span>Diese Übung ist noch nicht online. Nur du siehst sie im Admin-Modus.</span></div>' : ""}
     <article class="detail"><div class="pagehead"><span><span class="pill red">${esc(c.name)}</span></span><h1>${esc(i.title)}</h1></div>
     <div class="facts"><div class="fact"><span>Dauer</span><strong>${esc(i.dauer || "–")}</strong></div><div class="fact"><span>Niveau</span><strong>${esc(i.level || "–")}</strong></div></div>
     ${i.eig.length ? `<div class="taglist">${i.eig.map(e => `<span>${esc(e)}</span>`).join("")}</div>` : ""}
@@ -551,7 +554,7 @@ const V = {
     <div class="pagehead"><h1>${esc(S.vcat)}</h1><p>${list.length} Vorgaben</p></div>
     <div class="chips mob" role="group" aria-label="Vorgaben-Bereich">${Object.keys(VORG).map(k => `<button class="chip" aria-pressed="${S.vcat === k}" data-v="${esc(k)}">${esc(k)}</button>`).join("")}</div>
     ${adminBar(`<button class="btn red" data-admin-new="vorgabe" data-kat="${esc(S.vcat)}">+ Vorgabe in „${esc(S.vcat)}“</button>`)}
-    <div class="vcols">${list.map(v => `<div class="vitem">${esc(v.t)}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}${ADMIN && v.id ? `<div class="admctl"><button data-amove="${esc(v.id)}" data-dir="-1" title="nach oben">↑</button><button data-amove="${esc(v.id)}" data-dir="1" title="nach unten">↓</button><button data-admin-vedit="${esc(v.id)}">bearbeiten</button><button class="del" data-adel="${esc(v.id)}">löschen</button></div>` : ""}</div>`).join("")}</div>`;
+    <div class="vcols">${list.map(v => `<div class="vitem">${esc(v.t)}${v.entwurf === "1" ? '<br><span class="meta">(Entwurf, nur für dich sichtbar)</span>' : ""}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}${ADMIN && v.id ? `<div class="admctl"><button data-amove="${esc(v.id)}" data-dir="-1" title="nach oben">↑</button><button data-amove="${esc(v.id)}" data-dir="1" title="nach unten">↓</button><button data-admin-vedit="${esc(v.id)}">bearbeiten</button><button class="del" data-adel="${esc(v.id)}">löschen</button></div>` : ""}</div>`).join("")}</div>`;
   },
 
   kontakt() {
@@ -790,7 +793,7 @@ document.addEventListener("click", e => {
   if (d.adel !== undefined) { if (window.confirm("Diese Vorgabe wirklich löschen?")) admDirekt({ action: "adminLoeschen", sid: d.adel }); return; }
   if (d.adminNew !== undefined) { editor(null, d.adminNew, d.kat || ""); return; }
   if (d.adminEdit !== undefined) { const i = findeItem(d.adminEdit); if (i) editor(i, "uebung"); return; }
-  if (d.adminVedit !== undefined) { const f = findeVorgabe(d.adminVedit); if (f) editor({ ...f.v, kat: f.k, title: f.v.t, ab: f.v.h }, "vorgabe"); return; }
+  if (d.adminVedit !== undefined) { const f = findeVorgabe(d.adminVedit); if (f) editor({ ...f.v, kat: f.k, title: f.v.t, ab: f.v.h, entwurf: f.v.entwurf }, "vorgabe"); return; }
   if (d.level !== undefined) { S.level = S.level === d.level ? "alle" : d.level; render(); return; }
   if (d.pdf !== undefined) { pdfDialog(); return; }
   if (d.adminUsers !== undefined) { adminVerwalten(); return; }
@@ -858,8 +861,11 @@ document.addEventListener("keydown", e => {
 
 render();
 function laden() {
-  return fetch(CONFIG.API + "?action=fundus")
-    .then(r => { if (!r.ok) throw new Error("http"); return r.json(); })
+  const normal = () => fetch(CONFIG.API + "?action=fundus").then(r => { if (!r.ok) throw new Error("http"); return r.json(); });
+  const quelle = ADMIN
+    ? apiPost({ action: "fundusAdmin", token: ADMIN }).then(d => { if (d && d.ok) return d; if (d && /erneut/.test(d.msg || "")) { ADMIN = null; try { sessionStorage.removeItem("fundus-admin"); } catch (e) {} } return normal(); }).catch(normal)
+    : normal();
+  return quelle
     .then(d => {
       if (!d.ok) throw new Error("data");
       setData(d);
@@ -886,7 +892,7 @@ async function apiPost(obj) {
 function adminEnde() {
   ADMIN = null;
   try { sessionStorage.removeItem("fundus-admin"); } catch (e) {}
-  closeDlg(); render();
+  closeDlg(); render(); laden();
 }
 function openDlg(html) {
   $("#dlgBox").innerHTML = html;
@@ -912,7 +918,7 @@ function adminLogin() {
       if (!r.ok) { $("#am").textContent = r.msg || "Anmeldung nicht möglich."; return; }
       ADMIN = r.token;
       try { sessionStorage.setItem("fundus-admin", ADMIN); } catch (x) {}
-      closeDlg(); render();
+      closeDlg(); render(); laden();
     } catch (x) { $("#am").textContent = "Keine Verbindung. Bitte später noch einmal versuchen."; }
   };
 }
@@ -980,13 +986,13 @@ function pdfErstellen(u, v) {
   u.forEach(id => {
     const c = catOf(id);
     body += `<h2>${esc(c.name)}</h2>`;
-    ITEMS.filter(i => i.cat === id).forEach(i => {
+    ITEMS.filter(i => i.cat === id && !i.draft).forEach(i => {
       const meta = [i.dauer, i.level].filter(Boolean).join(" · ");
       body += `<h3>${esc(i.title)}</h3><p class="m">${esc(meta)}</p>${i.ab ? `<div class="t">${prose(i.ab)}</div>` : '<p class="m">Beschreibung folgt.</p>'}`;
     });
   });
   v.forEach(k => {
-    body += `<h2>Vorgaben: ${esc(k)}</h2><ul>${(VORG[k] || []).map(x => `<li>${esc(x.t)}${x.h ? ` <span class="m">(${esc(x.h)})</span>` : ""}</li>`).join("")}</ul>`;
+    body += `<h2>Vorgaben: ${esc(k)}</h2><ul>${(VORG[k] || []).filter(x => x.entwurf !== "1").map(x => `<li>${esc(x.t)}${x.h ? ` <span class="m">(${esc(x.h)})</span>` : ""}</li>`).join("")}</ul>`;
   });
   w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Impro-Fundus</title><style>body{font:14px/1.5 Arial,sans-serif;color:#000;margin:24px}h1{font-size:22px}h2{margin-top:28px;border-bottom:1px solid #ccc;padding-bottom:4px}h3{margin:14px 0 2px;font-size:16px}.m{color:#666;margin:0 0 4px}.t p{margin:0 0 6px}ul{columns:2}</style></head><body><h1>Impro-Fundus – Auszug</h1><p class="m">impro-fundus.de</p>${body}<script>window.onload=function(){window.print();}<\/script></body></html>`);
   w.document.close();
@@ -1015,6 +1021,7 @@ function editor(item, art, kat) {
         <label>Niveau<select id="edLevel">${["", "Einsteiger", "Fortgeschritten"].map(x => `<option value="${x}" ${x === (item ? item.level || "" : "") ? "selected" : ""}>${x || "–"}</option>`).join("")}</select></label>
         <label>Eigenschaften (mit Komma getrennt)<input id="edEig" value="${esc(eig)}"></label>
       </div>
+      <label class="check"><input type="checkbox" id="edEntwurf" ${(item && (item.draft || item.entwurf === "1")) ? "checked" : ""}><span>Entwurf: noch nicht online stellen</span></label>
       <label><span id="edTxtLbl">${vorgabe ? "Hinweis (optional)" : "Ablauf / Beschreibung"}</span><textarea id="edTxt">${esc(txt)}</textarea></label>
       <p class="meta" id="edMsg"></p>
       <div class="row">
@@ -1035,7 +1042,8 @@ function editor(item, art, kat) {
       dauer: $("#edDauer") ? $("#edDauer").value.trim() : "",
       level: $("#edLevel") ? $("#edLevel").value : "",
       eig: $("#edEig") ? $("#edEig").value.split(",").map(x => x.trim()).filter(Boolean).join(",") : "",
-      ablauf: $("#edTxt").value.trim()
+      ablauf: $("#edTxt").value.trim(),
+      entwurf: $("#edEntwurf").checked ? "1" : ""
     };
     if (item) eintrag.id = item.id;
     await adminSende({ action: "adminSpeichern", eintrag });
