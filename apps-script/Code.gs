@@ -6,7 +6,7 @@ const TABELLEN = {
   Mitglieder:  ['id','vorname','nachname','seit','gruppenleiter','aktiv','pinHash','mail','tel','chatTyp','chatWert','notiz','bild'],
   Proben:      ['id','datum','start','ende','ausgefallen','grund','anwesend','plan'],
   Status:      ['probeId','mitgliedId','status','zeit'],
-  Spiele:      ['id','titel','kat','art','tn','dauer','level','ablauf','eig'],
+  Spiele:      ['id','titel','kat','art','tn','dauer','level','ablauf','eig','entwurf'],
   Wuensche:    ['probeId','mitgliedId','spielId','wunsch'],
   Vorschlaege: ['id','typ','kategorie','titel','beschr','von','datum'],
   Einstellungen: ['key','wert']
@@ -70,6 +70,8 @@ const KAT_KORREKTUR = {
 };
 // Die Website zeigt die langen Namen, im Blatt stehen noch die alten Kürzel
 const KAT_ALT = {'2er':'Zweierübungen', '3er':'Dreierübungen', 'Gruppe':'Gruppenübungen', 'Warm-Up':'Warm-Up-Spiele'};
+const TEXT_TOD = 'Zwei Spieler beginnen eine Szene (gern mit Vorgaben aus dem Publikum), in der innerhalb einer Minute eine der beiden Figuren sterben muss.\n\nDanach wird dieselbe Szene noch einmal gespielt, aber nur noch 30 Sekunden lang. Es folgen 15 Sekunden, 10 Sekunden, 5 Sekunden und zum Schluss 1 Sekunde.\n\nDie Szene wird also sechsmal gespielt: in 1 Minute, in 30, 15, 10, 5 und 1 Sekunde.';
+const TEXT_GENREREPLAY = 'Mit der Vorgabe einer alltäglichen Handlung wird von zwei bis drei Spielern eine kurze Szene gespielt.\n\nDiese wird danach zwei- oder dreimal in verschiedenen Genres wiederholt (Replay).\n\nDie Wahl der Genres ist dem Publikum überlassen. Möglichst gegensätzliche Genres machen die Wiederholungen besonders unterhaltsam. Ideen findest du bei den Vorgaben unter Genre.';
 function startdaten(){
   const props = PropertiesService.getScriptProperties();
   const personenNachtragen = props.getProperty('personen') !== '1';
@@ -96,6 +98,18 @@ function startdaten(){
     props.setProperty('katFix3','1');
     const sp = alle('Spiele');
     sp.forEach(s => { if(KAT_KORREKTUR[s.titel]) s.kat = KAT_KORREKTUR[s.titel]; });
+    schreibe('Spiele', sp);
+  }
+  if(props.getProperty('textFix4') !== '1' && props.getProperty('startdaten2') === '1'){
+    props.setProperty('textFix4','1');
+    const sp = alle('Spiele');
+    sp.forEach(s => {
+      if(s.titel === 'Tod in einer Minute (30, 15, 10, 5)'){
+        s.titel = 'Tod in einer Minute';
+        s.ablauf = TEXT_TOD;
+      }
+      if(s.titel === 'Genrereplay') s.ablauf = TEXT_GENREREPLAY;
+    });
     schreibe('Spiele', sp);
   }
   if(props.getProperty('startdaten2') === '1'){ personenEinspielen(props, personenNachtragen); wikiEinspielen(props); return; }
@@ -263,16 +277,16 @@ function doGet(e){
 // Öffentlich lesbar (ohne PIN): nur Übungen und Vorgaben, keine Mitgliederdaten.
 const UE_REIHE = ['Zweierübungen','Dreierübungen','Gruppenübungen','Warm-Up-Spiele','Kennenlernspiele'];
 const VO_REIHE = ['Ticks','Tätigkeiten','Phobien','Orte','Rekorde','Hobbys','Genre','Gefühle','Beziehungen','Berufe','Routine','Persönlichkeiten'];
-function fundusDaten(){
+function fundusDaten(auchEntwuerfe){
   startdaten();
-  const sp = alle('Spiele');
+  const sp = alle('Spiele').filter(s => auchEntwuerfe || s.entwurf !== '1');
   const uebungen = sp.filter(s => s.art !== 'vorgabe').map(s => ({
-    id: s.id, titel: s.titel, kat: KAT_ALT[s.kat] || s.kat, tn: s.tn, dauer: s.dauer, level: s.level, ablauf: s.ablauf, eig: liste(s.eig)
+    id: s.id, titel: s.titel, kat: KAT_ALT[s.kat] || s.kat, tn: s.tn, dauer: s.dauer, level: s.level, ablauf: s.ablauf, eig: liste(s.eig), entwurf: s.entwurf === '1' ? '1' : ''
   }));
   const vorgaben = {};
   sp.filter(s => s.art === 'vorgabe').forEach(s => {
     if(!vorgaben[s.kat]) vorgaben[s.kat] = [];
-    vorgaben[s.kat].push({id: s.id, t: s.titel, e: liste(s.eig), h: s.ablauf || ''});
+    vorgaben[s.kat].push({id: s.id, t: s.titel, e: liste(s.eig), h: s.ablauf || '', entwurf: s.entwurf === '1' ? '1' : ''});
   });
   return {ok: true, uebungen: uebungen, vorgaben: vorgaben, uebungenReihe: reiheLesen('uebung'), vorgabenReihe: reiheLesen('vorgabe')};
 }
@@ -298,6 +312,9 @@ function handle(req){
       case 'anfrage':    return anfrage(req);
       case 'kontakt':    return kontaktNachricht(req);
       case 'idee':       return ideeNachricht(req);
+      case 'fundusAdmin':
+        if(CacheService.getScriptCache().get('adm_' + String(req.token || '')) !== '1') return {ok:false, msg:'Bitte melde dich erneut als Admin an.'};
+        return fundusDaten(true);
       case 'adminAnmelden': return adminAnmelden(req);
       case 'adminSpeichern':
       case 'adminLoeschen':
@@ -734,10 +751,10 @@ function spielSpeichern(req){
   const f = req.eintrag || {};
   let e = f.id ? sp.find(x => x.id === f.id) : null;
   if(!e){
-    e = {id:'x'+Date.now(), titel:'', kat:'', art:'uebung', tn:'', dauer:'', level:'', ablauf:'', eig:''};
+    e = {id:'x'+Date.now(), titel:'', kat:'', art:'uebung', tn:'', dauer:'', level:'', ablauf:'', eig:'', entwurf:''};
     sp.push(e);
   }
-  ['titel','kat','art','tn','dauer','level','ablauf','eig'].forEach(k => { if(f[k] !== undefined) e[k] = String(f[k]); });
+  ['titel','kat','art','tn','dauer','level','ablauf','eig','entwurf'].forEach(k => { if(f[k] !== undefined) e[k] = String(f[k]); });
   schreibe('Spiele', sp);
   return {ok:true, id:e.id};
 }
