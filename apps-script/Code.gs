@@ -9,7 +9,8 @@ const TABELLEN = {
   Spiele:      ['id','titel','kat','art','tn','dauer','level','ablauf','eig','entwurf'],
   Wuensche:    ['probeId','mitgliedId','spielId','wunsch'],
   Vorschlaege: ['id','typ','kategorie','titel','beschr','von','datum'],
-  Einstellungen: ['key','wert']
+  Einstellungen: ['key','wert'],
+  Zitate:      ['id','text','autor']
 };
 const LEITER_MAIL = 'eckervogt@outlook.de';
 // ADMIN-ZUGANG FÜR DIE FUNDUS-SEITE: hier dein Passwort eintragen, dann Funktion adminEinrichten ausführen
@@ -71,6 +72,11 @@ const KAT_KORREKTUR = {
 // Die Website zeigt die langen Namen, im Blatt stehen noch die alten Kürzel
 const KAT_ALT = {'2er':'Zweierübungen', '3er':'Dreierübungen', 'Gruppe':'Gruppenübungen', 'Warm-Up':'Warm-Up-Spiele'};
 const TEXT_NEU = {"Grommolo Übersetzer": "3 bis 4 Spieler\n\nDie Szene spielt in einem Hotel im Land Gromolo. Ein Spieler ist Urlauber und hat sich in sein Hotelzimmer eingebucht. Der zweite Spieler ist Hotelangestellter und spricht und versteht nur Gromolo, eine frei erfundene Fantasiesprache. Der dritte Spieler ist ebenfalls Hotelangestellter und übersetzt zwischen den beiden.\n\nDas Publikum gibt eine Beschwerde vor, über die sich der Urlauber ärgert, zum Beispiel „Ameisen im Bett“ oder „keine Aussicht auf den Strand“.\n\nAblauf: Der Urlauber beschwert sich beim Angestellten. Der versteht ihn nicht, also springt der Übersetzer ein. Er gibt jeden Satz in die jeweils andere Sprache weiter, sodass die Szene als Hin und Her über den Übersetzer läuft.\n\nTipps: Der Übersetzer lenkt die Szene, denn nur er versteht beide Seiten. Der Gromolo-Sprecher macht es ihm leichter, wenn er viel mit Mimik und Gestik arbeitet.\n\nVariante: Ein vierter Spieler kommt als Hotelgast dazu, der nur Kauderwelsch spricht. Der Übersetzer muss dann Gromolo in Kauderwelsch und zurück übersetzen, was die Szene noch chaotischer macht.", "Drei Tote": "3 bis 4 Spieler, ruhiges Spiel\n\nJeder Spieler stellt eine tote Figur dar. In drei Runden erfährt das Publikum, wer die Figuren sind, wo sie sind und wie sie gestorben sind. Ziel ist, dass am Ende alle am selben Ort zur selben Zeit gestorben sind.\n\nAufbau: Die Spieler stehen in einer Reihe auf der Bühne. Das Publikum nennt für jeden eine Todesart. Dann drehen sich alle um und stehen mit dem Rücken zum Publikum.\n\nRunde 1, die Figuren: Nacheinander dreht sich jeder Spieler um, stellt seine Figur kurz vor und dreht sich wieder weg. In dieser Runde geht es nur um die Figuren. Ihre Geschichten können zusammenhängen oder ganz unabhängig sein.\n\nRunde 2, der Ort: Wieder dreht sich jeder nacheinander um und erzählt seine Geschichte. Der erste legt dabei einen Ort fest, die anderen übernehmen ihn und bauen darauf auf. Am Ende der Runde sollten alle am selben Ort sein.\n\nRunde 3, die Tode: Jetzt verrät jeder, wie seine Figur gestorben ist, mit der Todesart des Publikums. Der Reiz liegt darin, dass alle zur gleichen Zeit am gleichen Ort sterben.\n\nTipp: In den ersten beiden Runden nicht auf den Tod hinsteuern, sondern Figur und Ort frei wählen. Das macht die letzte Runde spannender.\n\nVarianten: Die Spieler liegen auf der Bühne und stehen nur zum Sprechen auf. Oder sie sitzen vornübergebeugt auf Stühlen, und nur die sprechende Person richtet sich auf. Man kann die Runden auch weglassen: Jeder spricht, wann er will.", "Gebärdendolmetscher": "3 Spieler\n\nZwei Spieler führen ein improvisiertes Interview, zum Beispiel mit einer Expertin oder einem Experten zu einem Thema. Der dritte Spieler ist der „Gebärdendolmetscher“ und übersetzt das Gespräch für das Publikum in erfundene Gebärden.\n\nRegeln für den Dolmetscher:\n- Er steht dem Publikum zugewandt, nicht den Sprechern.\n- Er wirkt ernst und konzentriert.\n- Er arbeitet mit Gesten, Gesichtsausdruck und dem ganzen Körper.\n- Für jeden Begriff gibt es eine feste Gebärde: Dasselbe Wort bekommt immer dasselbe Zeichen.\n- Er gebärdet einzelne Begriffe, keine ganzen Sätze, und ohne Pausen.\n\nTipp für die Sprecher: Wiederholt Begriffe, die lustig zu gebärden sind, vor allem solche, bei denen der Dolmetscher kämpfen muss, zum Beispiel „fallen“.\n\nVariante: Der Dolmetscher formt die Wörter dazu lautlos und übertrieben mit dem Mund, wenn er beides gleichzeitig schafft.\n\nDas Spiel lebt von der Körperlichkeit und Kreativität des Dolmetschers, der im Mittelpunkt der Szene steht.", "Toaster-Spiel": "4 bis 6 Spieler, schnelles Spiel für Einsteiger und Fortgeschrittene\n\nDas Spiel trainiert Tempo und Aufmerksamkeit und eignet sich als Aufwärmspiel oder als Starter vor einer Aufführung.\n\nAufbau: Die Spieler sitzen verteilt auf der Bühne, am besten auf dem Boden. Das Publikum nennt ein grobes Thema für die Szenen, zum Beispiel Landwirtschaft, Straßenverkehr oder Urlaub.\n\nAblauf:\n1. Die Spielleitung gibt in unregelmäßigen Abständen ein Signal, zum Beispiel durch Klatschen oder Pfeifen.\n2. Bei jedem Signal entscheidet jeder Spieler für sich, ob er aufsteht, sich hinsetzt oder bleibt, wie er ist.\n3. Wer steht, spielt eine Szene bis zum nächsten Signal.\n4. Ändert sich die Gruppe der Stehenden, beginnt eine ganz neue Szene.\n5. Das Spiel kann beliebig lange laufen. Die Spielleitung beendet es, zum Beispiel wenn alle sitzen.\n\nTipps: Mit dem Spiel verliert man die Angst vor Solo-Szenen, denn plötzlich steht man vielleicht allein auf der Bühne. Wer am Boden sitzt, hat mehr Platz und kann eine Szene beenden, indem er sich dort hinsetzt, wo er gespielt hat. Die Szenen dürfen an einem gemeinsamen Ort spielen, müssen aber nicht.\n\nVarianten: Ein hockender Spieler übernimmt die Rolle der Spielleitung, indem er klatscht und dann mitspielt. Stehen dieselben Spieler wieder auf, spielen sie ihre frühere Szene weiter, entweder genau dort, wo sie aufgehört haben, oder mit einem Zeitsprung. Oder die Spieler sitzen auf Stühlen und können sie nicht verlassen, dann sind die Szenen fast nur gesprochen.", "Day before – Day after": "2 bis 6 Spieler\n\nEine Startszene wird von mindestens zwei Spielern gespielt. Danach entscheidet das Publikum, ob die nächste Szene zeitlich davor („Day before“) oder danach („Day after“) spielt. Diese Szene wird gespielt, dann wird das Publikum erneut gefragt.\n\nJede neue Szene knüpft an die vorherigen an, zum Beispiel über Figuren, Orte oder Folgen. Muss eine Zeitebene noch einmal gespielt werden, geschieht das wie bei einem Replay: Details werden ergänzt oder verändert, und Informationen aus den anderen Szenen werden eingebaut.\n\nTipp: Die Startszene sollte klare Figuren zeigen, denn jede weitere Szene baut auf ihnen auf.\n\nDas Spiel lässt sich auch als Langform spielen und trainiert Erzählen und Figurenspiel.", "Grommolo Switch": "2 Spieler, dazu je eine steuernde Person\n\nZwei Spieler spielen eine beliebige Szene, mit oder ohne Vorgaben.\n\nVorher bekommt jeder der beiden Darsteller eine zuständige Person zugeteilt, entweder aus dem Publikum oder von den anderen Spielern, die der Szene zuschauen.\n\nSagt die zuständige Person „Switch“, muss der dazugehörige Darsteller sofort von Deutsch in die Gromolo-Sprache wechseln, also in eine frei erfundene Fantasiesprache. Beim nächsten „Switch“ wechselt er wieder zurück ins Deutsche. So wird jeder der beiden Darsteller von einer eigenen Person gesteuert.\n\nDie Wechsel sollen ohne Pause und wie selbstverständlich im Sprechfluss passieren. Auch in der Gromolo-Phase läuft die Szene weiter.", "Wachsmaske": "Eine Artikulationsübung für die ganze Gruppe\n\nAlle stehen im Kreis. Eine Person beginnt, schaut die nächste Person an und sagt „Whisky-Mixer“. Diese gibt es auf dieselbe Weise weiter, mit Blick und dem Wort „Whisky-Mixer“. So wandert das Wort entgegen dem Uhrzeigersinn durch den Kreis.\n\nDas geht so lange, bis jemand „Maskenwechsel“ sagt und dabei die Arme vor der Brust zu einem X kreuzt. Damit dreht sich die Richtung um: Jetzt geht es im Uhrzeigersinn weiter, und in dieser Richtung heißt das Wort „Wachsmaske“. Das gilt wieder so lange, bis jemand „Maskenwechsel“ sagt und die Richtung erneut wechselt.\n\nWer zu lange braucht, sich verspricht oder das falsche Wort sagt, läuft eine Runde um den Kreis."};
+const ZITATE_START = [
+  ['Die ganze Welt ist eine Bühne, und alle Männer und Frauen nur Spieler.', 'William Shakespeare, Wie es euch gefällt'],
+  ['Versuch es. Scheitere. Scheitere besser.', 'Samuel Beckett'],
+  ['Der Mensch spielt nur, wo er in voller Bedeutung des Worts Mensch ist, und er ist nur da ganz Mensch, wo er spielt.', 'Friedrich Schiller, Briefe über die ästhetische Erziehung']
+];
 const TEXT_TOD = 'Zwei Spieler beginnen eine Szene (gern mit Vorgaben aus dem Publikum), in der innerhalb einer Minute eine der beiden Figuren sterben muss.\n\nDanach wird dieselbe Szene noch einmal gespielt, aber nur noch 30 Sekunden lang. Es folgen 15 Sekunden, 10 Sekunden, 5 Sekunden und zum Schluss 1 Sekunde.\n\nDie Szene wird also sechsmal gespielt: in 1 Minute, in 30, 15, 10, 5 und 1 Sekunde.';
 const TEXT_GENREREPLAY = 'Mit der Vorgabe einer alltäglichen Handlung wird von zwei bis drei Spielern eine kurze Szene gespielt.\n\nDiese wird danach zwei- oder dreimal in verschiedenen Genres wiederholt (Replay).\n\nDie Wahl der Genres ist dem Publikum überlassen. Möglichst gegensätzliche Genres machen die Wiederholungen besonders unterhaltsam. Ideen findest du bei den Vorgaben unter Genre.';
 function startdaten(){
@@ -121,6 +127,12 @@ function startdaten(){
     schreibe('Spiele', sp);
     const weg = alle('Spiele').filter(s => s.titel === 'Whose Line is it anyways' || s.titel === 'Davor oder danach').map(s => s.id);
     weg.forEach(id => spielLoeschen({sid:id}));
+  }
+  if(props.getProperty('zitateStart') !== '1'){
+    props.setProperty('zitateStart','1');
+    if(alle('Zitate').length === 0){
+      schreibe('Zitate', ZITATE_START.map((z,i) => ({id:'z'+(i+1), text:z[0], autor:z[1]})));
+    }
   }
   if(props.getProperty('startdaten2') === '1'){ personenEinspielen(props, personenNachtragen); wikiEinspielen(props); return; }
   props.setProperty('startdaten2','1');
@@ -298,7 +310,7 @@ function fundusDaten(auchEntwuerfe){
     if(!vorgaben[s.kat]) vorgaben[s.kat] = [];
     vorgaben[s.kat].push({id: s.id, t: s.titel, e: liste(s.eig), h: s.ablauf || '', entwurf: s.entwurf === '1' ? '1' : ''});
   });
-  return {ok: true, uebungen: uebungen, vorgaben: vorgaben, uebungenReihe: reiheLesen('uebung'), vorgabenReihe: reiheLesen('vorgabe')};
+  return {ok: true, zitate: alle('Zitate').map(z => ({id: z.id, t: z.text, a: z.autor})), uebungen: uebungen, vorgaben: vorgaben, uebungenReihe: reiheLesen('uebung'), vorgabenReihe: reiheLesen('vorgabe')};
 }
 function doPost(e){
   let out;
@@ -329,6 +341,8 @@ function handle(req){
       case 'adminSpeichern':
       case 'adminLoeschen':
       case 'adminKat':
+      case 'adminZitat':
+      case 'adminImport':
       case 'adminVerschieben': return adminAktion(req);
       case 'adminListe':
       case 'adminHinzufuegen':
@@ -448,6 +462,8 @@ function adminAktion(req){
   if(erlaubt !== '1') return {ok:false, msg:'Bitte melde dich erneut als Admin an.'};
   if(req.action === 'adminLoeschen') return spielLoeschen(req);
   if(req.action === 'adminKat') return adminKat(req);
+  if(req.action === 'adminZitat') return adminZitat(req);
+  if(req.action === 'adminImport') return adminImport(req);
   if(req.action === 'adminVerschieben') return adminVerschieben(req);
   const f = req.eintrag || {};
   if(!String(f.titel || '').trim()) return {ok:false, msg:'Bitte einen Titel eingeben.'};
@@ -520,6 +536,72 @@ function adminVerschieben(req){
   const t = sp[i]; sp[i] = sp[j]; sp[j] = t;
   schreibe('Spiele', sp);
   return {ok:true};
+}
+
+/* ---------- Zitate des Tages ---------- */
+function adminZitat(req){
+  const z = alle('Zitate');
+  const t = String(req.t || '').trim().slice(0, 600);
+  const a = String(req.a || '').trim().slice(0, 200);
+  let n = 0;
+  if(req.op === 'loeschen'){
+    schreibe('Zitate', z.filter(x => x.id !== req.id));
+    return {ok:true};
+  }
+  if(req.op === 'mehrere'){
+    String(req.text || '').split('\n').forEach(zeile => {
+      const teile = zeile.split('|');
+      const text = (teile[0] || '').trim().replace(/^[„"]|[“"]$/g, '');
+      if(!text) return;
+      z.push({id:'z' + Date.now() + '_' + (n++), text:text.slice(0, 600), autor:(teile[1] || '').trim().slice(0, 200)});
+    });
+    schreibe('Zitate', z);
+    return {ok:true, anzahl:n};
+  }
+  if(!t) return {ok:false, msg:'Bitte ein Zitat eingeben.'};
+  if(req.op === 'bearbeiten'){
+    const e = z.find(x => x.id === req.id);
+    if(!e) return {ok:false, msg:'Zitat nicht gefunden.'};
+    e.text = t; e.autor = a;
+  } else {
+    z.push({id:'z' + Date.now(), text:t, autor:a});
+  }
+  schreibe('Zitate', z);
+  return {ok:true};
+}
+
+/* ---------- Import (Datei aus dem Export) ---------- */
+function adminImport(req){
+  const d = req.daten || {};
+  const sp = alle('Spiele');
+  const text = v => String(v == null ? '' : v);
+  const katVon = x => x.art === 'vorgabe' ? x.kat : (KAT_ALT[x.kat] || x.kat);
+  let neu = 0, akt = 0, zaehler = 0;
+  const einsortieren = f => {
+    if(!text(f.titel).trim() || !text(f.kat).trim()) return;
+    let e = f.id ? sp.find(x => x.id === text(f.id)) : null;
+    if(!e) e = sp.find(x => (x.art === 'vorgabe') === (f.art === 'vorgabe') && katVon(x) === text(f.kat) && x.titel === text(f.titel));
+    const werte = {titel:text(f.titel).slice(0,200), kat:text(f.kat).slice(0,100), art:f.art === 'vorgabe' ? 'vorgabe' : 'uebung',
+      tn:text(f.tn).slice(0,60), dauer:text(f.dauer).slice(0,60), level:text(f.level).slice(0,40), ablauf:text(f.ablauf).slice(0,20000),
+      eig:text(f.eig).slice(0,300), entwurf:text(f.entwurf) === '1' ? '1' : ''};
+    if(e){ Object.keys(werte).forEach(k => { e[k] = werte[k]; }); akt++; }
+    else { sp.push(Object.assign({id:'x' + Date.now() + 'i' + (zaehler++)}, werte)); neu++; }
+  };
+  (d.uebungen || []).forEach(u => einsortieren({id:u.id, titel:u.titel, kat:u.kat, art:'uebung', tn:u.tn, dauer:u.dauer, level:u.level, ablauf:u.ablauf,
+    eig:Array.isArray(u.eig) ? u.eig.join(',') : u.eig, entwurf:u.entwurf}));
+  Object.keys(d.vorgaben || {}).forEach(k => (d.vorgaben[k] || []).forEach(v => einsortieren({id:v.id, titel:v.t, kat:k, art:'vorgabe', ablauf:v.h,
+    eig:Array.isArray(v.e) ? v.e.join(',') : v.e, entwurf:v.entwurf})));
+  schreibe('Spiele', sp);
+  const z = alle('Zitate');
+  let zneu = 0;
+  (d.zitate || []).forEach(q => {
+    const t = text(q.t).trim();
+    if(!t || z.some(x => x.text === t)) return;
+    z.push({id:'z' + Date.now() + '_' + (zaehler++), text:t.slice(0,600), autor:text(q.a).slice(0,200)});
+    zneu++;
+  });
+  schreibe('Zitate', z);
+  return {ok:true, neu:neu, aktualisiert:akt, zitate:zneu};
 }
 
 /* ---------- Vorschlag einreichen (direkt aus der Maske) ---------- */
