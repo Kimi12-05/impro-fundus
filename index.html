@@ -693,16 +693,17 @@ function closeDlg() { $("#dlg").hidden = true; $("#dlgBox").innerHTML = ""; }
 function adminLogin() {
   openDlg(`<h2>Admin-Anmeldung</h2>
     <form id="adminForm" class="dlgform">
-      <label>PIN<input id="ap" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></label>
+      <label>Benutzername<input id="an" autocomplete="username" autocapitalize="none"></label>
+      <label>Passwort<input id="ap" type="password" autocomplete="current-password"></label>
       <p class="meta" id="am"></p>
       <div class="row"><button class="btn red" type="submit">Anmelden</button><button class="btn" type="button" data-dlg-close>Abbrechen</button></div>
     </form>`);
-  $("#ap").focus();
+  $("#an").focus();
   $("#adminForm").onsubmit = async e => {
     e.preventDefault();
     $("#am").textContent = "Einen Moment …";
     try {
-      const r = await apiPost({ action: "adminAnmelden", pin: $("#ap").value.trim() });
+      const r = await apiPost({ action: "adminAnmelden", name: $("#an").value.trim(), passwort: $("#ap").value });
       if (!r.ok) { $("#am").textContent = r.msg || "Anmeldung nicht möglich."; return; }
       ADMIN = r.token;
       try { sessionStorage.setItem("fundus-admin", ADMIN); } catch (x) {}
