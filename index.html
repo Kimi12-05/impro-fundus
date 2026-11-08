@@ -251,6 +251,19 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
 .chests{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:center;justify-items:center}
 .home .chests .chest .cbox,.home .chests .chest img{height:clamp(90px,13vh,140px)}
 .startbtns{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dlg{position:fixed;inset:0;background:var(--overlay);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
+.dlg[hidden]{display:none!important}
+.dlg-box{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;max-width:560px;width:100%;max-height:90vh;overflow:auto}
+.dlg-box h2{margin:0 0 12px}
+.dlgform{display:flex;flex-direction:column;gap:12px}
+.dlgform label{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--muted)}
+.dlgform input,.dlgform select,.dlgform textarea{font:inherit;font-size:16px;color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
+.dlgform textarea{min-height:140px;resize:vertical}
+.dlgform .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.dlgfields{display:flex;flex-direction:column;gap:12px}
+.dlgfields[hidden]{display:none!important}
+.adminbar{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 8px}
+button.loginbtn{border:0;cursor:pointer;font:inherit;font-weight:700;font-size:16px}
 </style>
 </head>
 <body>
@@ -267,7 +280,7 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
     <input id="q" class="qin" type="search" placeholder="Spiel oder Vorgabe suchen" aria-label="Suchen">
   </label>
-  <a class="loginbtn" href="app/">Anmelden</a>
+  <button class="loginbtn" id="adminBtn" type="button">Anmelden</button>
   </div>
 </header>
 </div>
@@ -280,6 +293,7 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
 <aside class="drawer" id="drawer" aria-label="Menü"></aside>
 <div class="scrim" id="scrim" hidden></div>
 <nav class="bottom" id="bottom" aria-label="Schnellmenü"></nav>
+<div class="dlg" id="dlg" hidden><div class="dlg-box" id="dlgBox" role="dialog" aria-modal="true"></div></div>
 
 <script>
 const CONFIG = {
@@ -325,7 +339,7 @@ const vCount = () => Object.values(VORG).reduce((a, x) => a + x.length, 0);
 
 function setData(d) {
   CATS = d.uebungenReihe.map(k => ({ id: k, name: k, desc: UE_INFO[k] || "" }));
-  ITEMS = d.uebungen.map(u => ({ id: u.id, cat: u.kat, title: u.titel, level: u.level || "", ab: u.ablauf || "", dauer: u.dauer || "", eig: u.eig || [] }));
+  ITEMS = d.uebungen.map(u => ({ id: u.id, cat: u.kat, title: u.titel, level: u.level || "", ab: u.ablauf || "", dauer: u.dauer || "", tn: u.tn || "", eig: u.eig || [] }));
   VORG = {};
   d.vorgabenReihe.forEach(k => { if (d.vorgaben[k]) VORG[k] = d.vorgaben[k]; });
   Object.keys(d.vorgaben).forEach(k => { if (!VORG[k]) VORG[k] = d.vorgaben[k]; });
@@ -397,7 +411,7 @@ const V = {
   },
 
   kats() {
-    return `<div class="pagehead"><h1>Übungen & Spiele</h1><p>Wähle einen Bereich.</p></div><div class="grid">${CATS.map(c => `<button class="tile" data-cat="${esc(c.id)}"><span class="meta">${ITEMS.filter(i => i.cat === c.id).length} Einträge</span><h3>${esc(c.name)}</h3><p>${esc(c.desc)}</p></button>`).join("")}</div>`;
+    return `<div class="pagehead"><h1>Übungen & Spiele</h1><p>Wähle einen Bereich.</p></div>${adminBar(`<button class="btn red" data-admin-new="uebung">+ Neue Übung</button>`)}<div class="grid">${CATS.map(c => `<button class="tile" data-cat="${esc(c.id)}"><span class="meta">${ITEMS.filter(i => i.cat === c.id).length} Einträge</span><h3>${esc(c.name)}</h3><p>${esc(c.desc)}</p></button>`).join("")}</div>`;
   },
 
   kat() {
@@ -405,6 +419,7 @@ const V = {
     const l = ITEMS.filter(i => i.cat === c.id && (S.level === "alle" || i.level === S.level));
     return `<div class="crumb"><button data-go="kats">Übungen & Spiele</button><span>›</span><span>${esc(c.name)}</span></div>
     <div class="pagehead"><h1>${esc(c.name)}</h1><p>${esc(c.desc)}</p></div>
+    ${adminBar(`<button class="btn red" data-admin-new="uebung" data-kat="${esc(c.id)}">+ Übung in „${esc(c.name)}“</button>`)}
     <div class="row"><label for="lvl" class="eyebrow">Niveau</label><select id="lvl" class="chip">${["alle", "Einsteiger", "Fortgeschritten"].map(x => `<option value="${x}" ${x === S.level ? "selected" : ""}>${x === "alle" ? "Alle" : x}</option>`).join("")}</select></div>
     <div class="list">${l.length ? l.map(card).join("") : '<div class="empty">Für diese Auswahl gibt es noch nichts.</div>'}</div>`;
   },
@@ -417,6 +432,7 @@ const V = {
     ${i.eig.length ? `<div class="taglist">${i.eig.map(e => `<span>${esc(e)}</span>`).join("")}</div>` : ""}
     ${i.ab ? `<section class="prose"><h2>So geht's</h2>${prose(i.ab)}</section>` : `<div class="tip"><strong>Hier fehlt noch eine Beschreibung.</strong> Du kennst das Spiel? <button class="linkbtn" data-go="einreichen">Beschreibung einreichen</button></div>`}
     </article>
+    ${adminBar(`<button class="btn" data-admin-edit="${esc(i.id)}">Bearbeiten</button>`)}
     <div class="row"><button class="btn" data-cat="${esc(c.id)}">← Zurück zur Liste</button></div>`;
   },
 
@@ -428,7 +444,8 @@ const V = {
     return `<div class="crumb"><button data-go="vorgaben">Vorgaben</button><span>›</span><span>${esc(S.vcat)}</span></div>
     <div class="pagehead"><h1>${esc(S.vcat)}</h1><p>${list.length} Vorgaben</p></div>
     <div class="chips mob" role="group" aria-label="Vorgaben-Bereich">${Object.keys(VORG).map(k => `<button class="chip" aria-pressed="${S.vcat === k}" data-v="${esc(k)}">${esc(k)}</button>`).join("")}</div>
-    <div class="vcols">${list.map(v => `<div class="vitem">${esc(v.t)}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}</div>`).join("")}</div>`;
+    ${adminBar(`<button class="btn red" data-admin-new="vorgabe" data-kat="${esc(S.vcat)}">+ Vorgabe in „${esc(S.vcat)}“</button>`)}
+    <div class="vcols">${list.map(v => `<div class="vitem">${esc(v.t)}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}${ADMIN && v.id ? `<br><button class="linkbtn" data-admin-vedit="${esc(v.id)}">bearbeiten</button>` : ""}</div>`).join("")}</div>`;
   },
 
   suche() {
@@ -529,6 +546,7 @@ const footHTML = () => `<footer class="foot"><button data-go="ueber">Über den F
 
 function render() {
   const sh = sideHTML();
+  const ab = $("#adminBtn"); if (ab) ab.textContent = ADMIN ? "Abmelden" : "Anmelden";
   $("#side").innerHTML = sh;
   $("#side").hidden = !sh;
   $("#topnav").innerHTML = topnavHTML();
@@ -575,9 +593,15 @@ function bindForm() {
 
 document.addEventListener("click", e => {
   if (e.target.closest("#menuBtn")) { openDrawer(); return; }
+  if (e.target.closest("#adminBtn")) { if (ADMIN) adminEnde(); else adminLogin(); return; }
+  if (e.target.id === "dlg") { closeDlg(); return; }
   const t = e.target.closest("button");
   if (!t) return;
   const d = t.dataset;
+  if (d.dlgClose !== undefined) { closeDlg(); return; }
+  if (d.adminNew !== undefined) { editor(null, d.adminNew, d.kat || ""); return; }
+  if (d.adminEdit !== undefined) { const i = findeItem(d.adminEdit); if (i) editor(i, "uebung"); return; }
+  if (d.adminVedit !== undefined) { const f = findeVorgabe(d.adminVedit); if (f) editor({ ...f.v, kat: f.k, title: f.v.t, ab: f.v.h }, "vorgabe"); return; }
   if (d.go) { go(d.go); return; }
   if (d.cat !== undefined) { go("kat", { cat: d.cat }); return; }
   if (d.item) { go("item", { id: d.item }); return; }
@@ -614,20 +638,134 @@ document.addEventListener("keydown", e => {
 });
 
 render();
-fetch(CONFIG.API + "?action=fundus")
-  .then(r => { if (!r.ok) throw new Error("http"); return r.json(); })
-  .then(d => {
-    if (!d.ok) throw new Error("data");
-    setData(d);
-    S.vcat = Object.keys(VORG)[0] || null;
-    S.draw = draw();
-    render();
-  })
-  .catch(() => {
-    FEHLER = "Die Liste kann gerade nicht geladen werden. Bitte später noch einmal versuchen.";
-    render();
-  });
+function laden() {
+  return fetch(CONFIG.API + "?action=fundus")
+    .then(r => { if (!r.ok) throw new Error("http"); return r.json(); })
+    .then(d => {
+      if (!d.ok) throw new Error("data");
+      setData(d);
+      if (!S.vcat || !VORG[S.vcat]) S.vcat = Object.keys(VORG)[0] || null;
+      if (!S.draw) S.draw = draw();
+      FEHLER = "";
+      render();
+    })
+    .catch(() => {
+      FEHLER = FEHLER || "Die Liste kann gerade nicht geladen werden. Bitte später noch einmal versuchen.";
+      render();
+    });
+}
+laden();
 
+/* ----- Admin: Anmeldung und Bearbeiten (nur Fundus-Website) ----- */
+var ADMIN = null;
+try { ADMIN = sessionStorage.getItem("fundus-admin"); } catch (e) {}
+const adminBar = html => ADMIN ? `<div class="adminbar">${html}</div>` : "";
+async function apiPost(obj) {
+  const r = await fetch(CONFIG.API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(obj) });
+  return r.json();
+}
+function adminEnde() {
+  ADMIN = null;
+  try { sessionStorage.removeItem("fundus-admin"); } catch (e) {}
+  closeDlg(); render();
+}
+function openDlg(html) {
+  $("#dlgBox").innerHTML = html;
+  $("#dlg").hidden = false;
+}
+function closeDlg() { $("#dlg").hidden = true; $("#dlgBox").innerHTML = ""; }
+function adminLogin() {
+  openDlg(`<h2>Admin-Anmeldung</h2>
+    <form id="adminForm" class="dlgform">
+      <label>PIN<input id="ap" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></label>
+      <p class="meta" id="am"></p>
+      <div class="row"><button class="btn red" type="submit">Anmelden</button><button class="btn" type="button" data-dlg-close>Abbrechen</button></div>
+    </form>`);
+  $("#ap").focus();
+  $("#adminForm").onsubmit = async e => {
+    e.preventDefault();
+    $("#am").textContent = "Einen Moment …";
+    try {
+      const r = await apiPost({ action: "adminAnmelden", pin: $("#ap").value.trim() });
+      if (!r.ok) { $("#am").textContent = r.msg || "Anmeldung nicht möglich."; return; }
+      ADMIN = r.token;
+      try { sessionStorage.setItem("fundus-admin", ADMIN); } catch (x) {}
+      closeDlg(); render();
+    } catch (x) { $("#am").textContent = "Keine Verbindung. Bitte später noch einmal versuchen."; }
+  };
+}
+function editor(item, art, kat) {
+  const vorgabe = art === "vorgabe";
+  const katListe = vorgabe ? Object.keys(VORG) : CATS.map(c => c.id);
+  const aktuell = item ? item.kat || item.cat || "" : (kat || "");
+  const eig = item && item.eig ? item.eig.join(", ") : "";
+  const txt = item ? (item.ab || item.h || "") : "";
+  openDlg(`<h2>${item ? "Bearbeiten" : "Neu anlegen"}: ${vorgabe ? "Vorgabe" : "Übung"}</h2>
+    <form id="edForm" class="dlgform">
+      <label>Art
+        <select id="edArt">
+          <option value="uebung" ${!vorgabe ? "selected" : ""}>Übung / Spiel</option>
+          <option value="vorgabe" ${vorgabe ? "selected" : ""}>Vorgabe</option>
+        </select></label>
+      <label>Titel<input id="edTitel" required value="${esc(item ? item.title || item.t : "")}"></label>
+      <label>Kategorie
+        <select id="edKat">${katListe.map(k => `<option value="${esc(k)}" ${k === aktuell ? "selected" : ""}>${esc(k)}</option>`).join("")}</select></label>
+      <label>Oder neue Kategorie (optional)<input id="edNeueKat" placeholder="z. B. Neue Kategorie"></label>
+      <div id="edUebung" ${vorgabe ? "hidden" : ""} class="dlgfields">
+        <label>Personen<input id="edTn" value="${esc(item ? item.tn || "" : "")}" placeholder="z. B. 2 oder 2–4"></label>
+        <label>Dauer<input id="edDauer" value="${esc(item ? item.dauer || "" : "")}" placeholder="z. B. 10 Min."></label>
+        <label>Niveau<select id="edLevel">${["", "Einsteiger", "Fortgeschritten"].map(x => `<option value="${x}" ${x === (item ? item.level || "" : "") ? "selected" : ""}>${x || "–"}</option>`).join("")}</select></label>
+        <label>Eigenschaften (mit Komma getrennt)<input id="edEig" value="${esc(eig)}"></label>
+      </div>
+      <label><span id="edTxtLbl">${vorgabe ? "Hinweis (optional)" : "Ablauf / Beschreibung"}</span><textarea id="edTxt">${esc(txt)}</textarea></label>
+      <p class="meta" id="edMsg"></p>
+      <div class="row">
+        <button class="btn red" type="submit">Speichern</button>
+        <button class="btn" type="button" data-dlg-close>Abbrechen</button>
+        ${item ? `<button class="btn" type="button" id="edDel" style="margin-left:auto">Löschen</button>` : ""}
+      </div>
+    </form>`);
+  $("#edArt").onchange = () => { const v = $("#edArt").value === "vorgabe"; $("#edUebung").hidden = v; $("#edTxtLbl").textContent = v ? "Hinweis (optional)" : "Ablauf / Beschreibung"; };
+  $("#edForm").onsubmit = async e => {
+    e.preventDefault();
+    const neu = $("#edNeueKat").value.trim();
+    const eintrag = {
+      art: $("#edArt").value,
+      titel: $("#edTitel").value.trim(),
+      kat: neu || $("#edKat").value,
+      tn: $("#edTn") ? $("#edTn").value.trim() : "",
+      dauer: $("#edDauer") ? $("#edDauer").value.trim() : "",
+      level: $("#edLevel") ? $("#edLevel").value : "",
+      eig: $("#edEig") ? $("#edEig").value.split(",").map(x => x.trim()).filter(Boolean).join(",") : "",
+      ablauf: $("#edTxt").value.trim()
+    };
+    if (item) eintrag.id = item.id;
+    await adminSende({ action: "adminSpeichern", eintrag });
+  };
+  if (item) $("#edDel").onclick = async () => {
+    if (!window.confirm("Wirklich löschen? Das kann nicht rückgängig gemacht werden.")) return;
+    await adminSende({ action: "adminLoeschen", sid: item.id });
+  };
+}
+async function adminSende(obj) {
+  $("#edMsg").textContent = "Einen Moment …";
+  try {
+    const r = await apiPost(Object.assign({ token: ADMIN }, obj));
+    if (!r.ok) {
+      $("#edMsg").textContent = r.msg || "Das hat nicht geklappt.";
+      if (/erneut/.test(r.msg || "")) adminEnde();
+      return;
+    }
+    closeDlg();
+    if (obj.action === "adminLoeschen" && S.view === "item") { S.view = "kats"; S.id = null; S.cat = null; }
+    await laden();
+  } catch (x) { $("#edMsg").textContent = "Keine Verbindung. Bitte später noch einmal versuchen."; }
+}
+const findeItem = id => ITEMS.find(x => x.id === id);
+const findeVorgabe = id => {
+  for (const [k, a] of Object.entries(VORG)) { const v = a.find(x => x.id === id); if (v) return { v, k }; }
+  return null;
+};
 </script>
 </body>
 </html>
