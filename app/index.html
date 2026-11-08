@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Impro">
-<meta name="theme-color" content="#d81b23">
+<meta name="theme-color" content="#B02E28">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="../icon.png">
 <title>Improtheater des Theater Brand</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;700&family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
 <style>
-:root{--red:#d81b23;--maroon:#8e2639;--bg:#ffffff;--card:#f4f4f2;--field:#f4f4f2;--line:#e3e2df;--fg:#161616;--muted:#6f6e6b;--ok:#2e9e5b;--no:#8e2639;--tileA:#e2dfdb;--tileB:#c9c1b9;--hintbg:#fff7e0;--hintline:#f0d890;--overlay:rgba(0,0,0,.45);color-scheme:light}
+:root{--red:#B02E28;--maroon:#8E2220;--bg:#F5F0E8;--card:#FFFFFF;--field:#FFFFFF;--line:#E6DFD4;--fg:#1F1B17;--muted:#6F665D;--ok:#2e9e5b;--no:#8E2220;--tileA:#e2dfdb;--tileB:#c9c1b9;--hintbg:#fff7e0;--hintline:#f0d890;--overlay:rgba(0,0,0,.45);color-scheme:light}
 @media (prefers-color-scheme:dark){:root{--bg:#0b0b0c;--card:#1b1b1c;--field:#232325;--line:#2d2d30;--fg:#f2f2f2;--muted:#9b9a97;--ok:#2e9e5b;--no:#a8324a;--tileA:#3b3734;--tileB:#28241f;--hintbg:#3a3320;--hintline:#6b5a22;--overlay:rgba(0,0,0,.6);color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{min-height:100%}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif;font-size:16px;background:var(--bg);color:var(--fg);-webkit-tap-highlight-color:transparent}
-body.hell{background:#fff;color:#161616}
+body.hell{background:#fff;color:#1F1B17}
 button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
 input,select,textarea{font:inherit;color:var(--fg)}
 #app{max-width:520px;margin:0 auto;min-height:100vh;padding-bottom:130px}
@@ -28,8 +28,8 @@ header.home h1{text-align:center;font-size:21px}
 .ib{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none;color:var(--fg)}
 .ib svg{width:24px;height:24px}
 .wrap{padding:16px;display:flex;flex-direction:column;gap:12px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
-.row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;min-height:56px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:14px 16px}
+.row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:14px 16px;min-height:56px}
 .row .grow{flex:1;min-width:0}
 .row .t{font-size:17px}
 .row .s{font-size:14px;color:var(--muted);margin-top:2px}
@@ -41,7 +41,7 @@ header.home h1{text-align:center;font-size:21px}
 .btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
 .btn.no{background:var(--no);border-color:var(--no);color:#fff}
 .btn.sm{min-height:42px;font-size:15px;font-weight:500;width:auto;padding:0 14px}
-.field{width:100%;background:var(--field);border:1px solid var(--line);border-radius:14px;padding:13px 14px;font-size:16px}
+.field{width:100%;background:var(--field);border:1px solid var(--line);border-radius:16px;padding:13px 14px;font-size:16px}
 textarea.field{min-height:110px;resize:vertical;line-height:1.4}
 .label{color:var(--muted);font-size:14px;margin:6px 0 -4px}
 .muted{color:var(--muted);font-size:14px}
@@ -52,7 +52,7 @@ textarea.field{min-height:110px;resize:vertical;line-height:1.4}
 .avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(var(--tileA),var(--tileB));background-size:cover;background-position:center;display:grid;place-items:center;font-weight:700;font-size:18px;flex:none;color:var(--muted)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .iconrow{display:flex;justify-content:space-around;gap:8px;flex-wrap:wrap}
-.iconrow > *{width:64px;height:64px;border-radius:18px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;font-size:26px;text-decoration:none;color:var(--fg);padding:0}
+.iconrow > *{width:64px;height:64px;border-radius:22px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;font-size:26px;text-decoration:none;color:var(--fg);padding:0}
 .linkbar{position:fixed;left:0;right:0;bottom:calc(84px + env(safe-area-inset-bottom));z-index:4;display:flex;justify-content:center;gap:72px}
 .linkbar a{width:56px;height:52px;display:grid;place-items:center;text-decoration:none}
 .linkbar svg{width:40px;height:40px}
@@ -93,20 +93,20 @@ nav.bar .home{width:64px;height:64px;min-width:0;border-radius:50%;background:va
 .sheet h2{margin:0;font-size:20px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(150px + env(safe-area-inset-bottom));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:15px;z-index:30;max-width:90%;text-align:center}
 .empty{color:var(--muted);margin:4px 0}
-.hint{background:var(--hintbg);border:1px solid var(--hintline);border-radius:14px;padding:10px 12px;font-size:14px}
+.hint{background:var(--hintbg);border:1px solid var(--hintline);border-radius:16px;padding:10px 12px;font-size:14px}
 .spin{text-align:center;color:var(--muted);padding:30px 0}
 .dots{display:flex;justify-content:center;gap:14px;margin:8px 0}
 
-.login{max-width:520px;margin:0 auto;padding:max(40px,env(safe-area-inset-top)) 22px 40px;font-family:'Gaegu','Bradley Hand','Segoe Print',cursive}
+.login{max-width:520px;margin:0 auto;padding:max(40px,env(safe-area-inset-top)) 22px 40px;font-family:'Courier Prime','Courier New',monospace}
 .login .head{text-align:center;margin:28px 0 56px}
 .login .head img{width:100%;max-width:340px;height:auto}
 .lrow{display:flex;gap:10px;align-items:center;margin-bottom:14px}
 .lrow .lf{position:relative;flex:1}
-.lin{width:100%;height:56px;border:2px solid #b9c3bf;border-radius:14px;background:#fff;padding:0 16px;font-family:inherit;font-size:22px;color:var(--fg);outline:none}
+.lin{width:100%;height:56px;border:2px solid #b9c3bf;border-radius:16px;background:#fff;padding:0 16px;font-family:inherit;font-size:22px;color:var(--fg);outline:none}
 .lin::placeholder{color:#222;opacity:1}
 .lin:focus{border-color:var(--red)}
 .lplus{position:absolute;right:8px;top:9px;width:38px;height:38px;border-radius:12px;border:0;background:none;font-size:28px;line-height:1;color:var(--muted)}
-.lgo{width:56px;height:56px;border:2px solid #b9c3bf;border-radius:14px;background:#fff;display:grid;place-items:center;flex:none;padding:0}
+.lgo{width:56px;height:56px;border:2px solid #b9c3bf;border-radius:16px;background:#fff;display:grid;place-items:center;flex:none;padding:0}
 .lgo img{width:38px;height:auto}
 
 /* ---- Computer-Ansicht: obere Reiterleiste statt unterer Navi ---- */
@@ -126,6 +126,10 @@ nav.bar .home{width:64px;height:64px;min-width:0;border-radius:50%;background:va
   .linkbar{left:auto;right:24px;bottom:24px;justify-content:flex-end;gap:16px}
   .linkbar a{width:48px;height:48px}
 }
+/* Design wie Fundus: Schreibmaschine für Titel, Handschrift für Namen, Phone-first */
+h1,h2{font-family:"Special Elite","Courier New",monospace;font-weight:400}
+button,input,select,textarea{font-family:"Courier Prime","Courier New",monospace}
+@media (max-width:899px){body{-webkit-font-smoothing:antialiased}}
 </style>
 </head>
 <body>
