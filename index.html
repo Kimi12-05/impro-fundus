@@ -338,6 +338,32 @@ button,input,select,textarea{font-size:inherit}
 .dopt:hover{background:var(--bg)}
 .dopt.on{color:var(--red);font-weight:700}
 .dicepop .slot strong{font-size:22px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ===== Handy-Ansicht ===== */
+@media (max-width:899px){
+  .topwrap{position:fixed;top:0;left:0;right:0}
+  .top{position:relative;justify-content:flex-start}
+  .top .logo{position:absolute;left:50%;transform:translateX(-50%)}
+  .top .rightbox{display:none}
+  .shell{padding-top:var(--hm,74px)}
+  main{padding:16px max(16px,env(safe-area-inset-left,0px)) calc(90px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px))}
+  .foot{display:none}
+  .dbubble{display:none!important}
+  .bottom{grid-template-columns:repeat(3,1fr);z-index:25}
+  .bottom button{font-size:12px}
+  .diceopen .bottom{z-index:61}
+  .dlg{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .home .inner{min-height:0;justify-content:flex-start;gap:18px}
+  .home .ttl{order:1}
+  .home .chests{order:2;grid-template-columns:1fr;gap:14px}
+  .home .quote{order:3}
+  .home .sep,.home .gen,.home .startbtns{display:none}
+  .home .chests .chest .cbox,.home .chests .chest img{height:clamp(78px,12.5vh,130px)}
+  .drawer{padding-top:max(16px,env(safe-area-inset-top,0px))}
+}
+.dsearch{margin:0 0 8px;background:none!important;border:0!important;padding:0!important;box-shadow:none!important}
+.dsearch input{width:100%;height:44px;border-radius:16px;border:1px solid var(--line);background:var(--field);padding:0 14px;font-size:16px;color:var(--fg)}
+.navbtn.small{font-size:14px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -425,11 +451,68 @@ function setData(d) {
 
 const S = { view: "start", cat: null, id: null, vcat: null, vprop: "alle", q: "", sent: false, level: "alle", p: "alle", draw: null };
 
+const VERLAUF = [];
+let PUSH_OK = true;
+const zustand = () => ({ view: S.view, cat: S.cat, id: S.id, vcat: S.vcat, q: S.q, y: window.scrollY });
 function go(view, o = {}) {
+  const vorher = zustand();
   Object.assign(S, { view, cat: null, id: null, vcat: view === "vorgaben" ? null : S.vcat }, o);
+  const gleich = vorher.view === S.view && vorher.cat === S.cat && vorher.id === S.id && vorher.vcat === S.vcat;
+  if (!gleich && !(vorher.view === "suche" && S.view === "suche")) {
+    VERLAUF.push(vorher);
+    try { history.pushState({ fundus: VERLAUF.length }, ""); } catch (e) { PUSH_OK = false; }
+  }
   if (view !== "einreichen") S.sent = false;
+  if (S.diceOpen) closeDlg();
   closeDrawer(); render(); window.scrollTo(0, 0);
 }
+function zurueckAnzeigen() {
+  const p = VERLAUF.pop();
+  if (p) Object.assign(S, { view: p.view, cat: p.cat, id: p.id, vcat: p.vcat, q: p.q });
+  else if (S.view !== "start") Object.assign(S, { view: "start", cat: null, id: null });
+  else return;
+  S.sent = false;
+  if (S.diceOpen) closeDlg();
+  if (!$("#dlg").hidden) closeDlg();
+  closeDrawer(); render(); window.scrollTo(0, p ? p.y : 0);
+}
+function zurueck() {
+  if (VERLAUF.length && PUSH_OK) { try { history.back(); return; } catch (e) {} }
+  zurueckAnzeigen();
+}
+window.addEventListener("popstate", zurueckAnzeigen);
+function kopfHoehe() {
+  const k = $(".topwrap");
+  if (k) document.documentElement.style.setProperty("--hm", k.offsetHeight + "px");
+}
+window.addEventListener("resize", kopfHoehe);
+/* Wischen nach rechts = zurück (nur Handy) */
+let wischX = null, wischY = 0;
+document.addEventListener("touchstart", e => {
+  wischX = null;
+  if (e.touches.length !== 1 || window.innerWidth >= 900) return;
+  if (e.target.closest(".chips, input, textarea, select, .dlg")) return;
+  const t = e.touches[0];
+  if (t.clientX < 24 && !$("#drawer").classList.contains("open")) return;
+  wischX = t.clientX; wischY = t.clientY;
+}, { passive: true });
+document.addEventListener("touchend", e => {
+  if (wischX === null) return;
+  const t = e.changedTouches[0], dx = t.clientX - wischX, dy = t.clientY - wischY;
+  wischX = null;
+  if (Math.abs(dx) < 80 || Math.abs(dx) < Math.abs(dy) * 2) return;
+  if ($("#drawer").classList.contains("open")) { if (dx < 0) closeDrawer(); return; }
+  if (dx > 0) zurueck();
+}, { passive: true });
+document.addEventListener("submit", e => {
+  if (e.target.id !== "dsearch") return;
+  e.preventDefault();
+  const v = e.target.querySelector(".dq").value.trim();
+  if (!v) return;
+  S.q = v;
+  const qi = $("#q"); if (qi) qi.value = v;
+  go("suche");
+});
 function closeDrawer() { $("#drawer").classList.remove("open"); $("#scrim").hidden = true; }
 function openDrawer() { $("#drawer").classList.add("open"); $("#scrim").hidden = false; }
 
@@ -442,30 +525,35 @@ const ICONS = {
 };
 
 function navHTML() {
-  const b = (on, attrs, label, extra = "") => `<button class="navbtn${on ? " on" : ""}" ${attrs}><span>${label}</span>${extra}</button>`;
-  let h = b(S.view === "start", 'data-go="start"', "Start");
-  h += `<div class="lbl">Übungen</div>`;
-  h += b(S.view === "alle", 'data-go="alle"', "Alle Übungen");
-  CATS.forEach(c => {
-    const n = ITEMS.filter(i => i.cat === c.id).length;
-    h += b(S.view === "kat" && S.cat === c.id, `data-cat="${esc(c.id)}"`, esc(c.name), `<span class="count">${n}</span>`);
-  });
-  h += `<div class="lbl">Vorgaben</div>`;
-  h += b(S.view === "vorgaben", 'data-go="vorgaben"', "Vorgaben-Sammlung", `<span class="count">${vCount()}</span>`);
-  h += `<div class="lbl">Mitmachen</div>`;
+  const b = (on, attrs, label) => `<button class="navbtn${on ? " on" : ""}" ${attrs}><span>${label}</span></button>`;
+  let h = `<form class="dsearch" id="dsearch" role="search"><input class="dq" type="search" enterkeyhint="search" placeholder="Spiel oder Vorgabe suchen" aria-label="Suchen" value="${esc(S.q || "")}"></form>`;
+  h += b(S.view === "start", 'data-go="start"', "Start");
+  h += b(["kats", "kat", "item", "alle"].includes(S.view), 'data-go="kats"', "Übungen");
+  h += b(S.view === "vorgaben", 'data-go="vorgaben"', "Vorgaben");
   h += b(S.view === "einreichen", 'data-go="einreichen"', "Vorschlag einreichen");
   h += b(S.view === "kontakt", 'data-go="kontakt"', "Kontakt");
   h += b(S.view === "spenden", 'data-go="spenden"', "Spenden");
-  h += `<div class="memberbox"><strong>Für die Impro-Gruppe</strong><p>Mitglieder melden sich mit Namen und PIN an.</p><a class="btn red block" href="app/">Mitglieder-Anmeldung</a></div>`;
+  h += `<div class="lbl">Mehr</div>`;
+  h += b(S.view === "impro", 'data-go="impro"', "Was ist Impro?");
+  h += b(false, 'data-pdf="1"', "PDF speichern");
+  h += `<div class="lbl">Über den Fundus</div>`;
+  h += b(S.view === "ueber", 'data-go="ueber"', "Alles über den Fundus");
+  h += b(S.view === "impressum", 'data-go="impressum"', "Impressum");
+  h += b(S.view === "datenschutz", 'data-go="datenschutz"', "Datenschutz");
+  h += b(S.view === "nutzung", 'data-go="nutzung"', "Nutzungsbedingungen");
+  if (ADMIN) {
+    h += `<div class="lbl">Admin</div>`;
+    h += b(false, "data-admin-users", "Admins verwalten") + b(false, "data-azit", "Zitate verwalten") + b(false, "data-aimp", "Import / Export");
+  }
+  h += `<button class="navbtn small" data-admin-toggle>${ADMIN ? "Admin abmelden" : "Admin-Anmeldung"}</button>`;
   return h;
 }
 
 function bottomHTML() {
-  const t = [["start", "Start"], ["kats", "Spiele"], ["vorgaben", "Vorgaben"], ["einreichen", "Einreichen"], ["spenden", "Spenden"]];
-  return t.map(([k, l]) => {
-    const on = S.view === k || (k === "kats" && (S.view === "kat" || S.view === "item"));
-    return `<button data-go="${k}" class="${on ? "on" : ""}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round">${ICONS[k]}</svg>${l}</button>`;
-  }).join("");
+  const ic = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+  return `<button data-back aria-label="Zurück">${ic('<path d="M15 5l-7 7 7 7"/>')}Zurück</button>`
+    + `<button data-go="start" class="${S.view === "start" ? "on" : ""}" aria-label="Startseite">${ic(ICONS.start)}Start</button>`
+    + `<button data-dicedlg class="${S.diceOpen ? "on" : ""}" aria-label="Szenenwürfel" aria-expanded="${!!S.diceOpen}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg>Würfel</button>`;
 }
 
 const card = i => `<button class="card" data-item="${esc(i.id)}"><span class="eyebrow">${esc(i.cat)}${i.dauer ? " · " + esc(i.dauer) : ""}</span><h3>${esc(i.title)}${i.draft ? '<span class="pill todo">Entwurf</span>' : ""}${!i.ab ? '<span class="pill todo">folgt</span>' : ""}</h3><p>${esc(shortOf(i))}</p><span class="meta">${i.level ? `<span>${esc(i.level)}</span>` : ""}</span></button>`;
@@ -745,6 +833,8 @@ function render() {
   document.querySelectorAll("#dicebar, .dbubble").forEach(x => x.remove());
   if (S.view !== "start") document.body.insertAdjacentHTML("beforeend", `<button class="dbubble${S.diceOpen ? " on" : ""}" data-dicedlg aria-label="${S.diceOpen ? "Szenenwürfel schließen" : "Szenenwürfel öffnen"}" aria-expanded="${!!S.diceOpen}" title="Szenenwürfel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg></button>`);
   if (S.diceOpen && !$("#dlg").hidden) $("#dlgBox").innerHTML = dicePop();
+  document.body.classList.toggle("diceopen", !!S.diceOpen);
+  kopfHoehe();
   if (S.view === "einreichen" && !S.sent) bindForm();
 }
 
@@ -788,6 +878,9 @@ document.addEventListener("click", e => {
   if (!t) return;
   const d = t.dataset;
   if (d.dlgClose !== undefined) { closeDlg(); return; }
+  if (d.back !== undefined) { zurueck(); return; }
+  if (t.closest("#drawer") && (d.pdf !== undefined || d.azit !== undefined || d.aimp !== undefined || d.adminUsers !== undefined || d.adminToggle !== undefined)) closeDrawer();
+  if (d.adminToggle !== undefined) { if (ADMIN) adminEnde(); else adminLogin(); return; }
   if (d.akat !== undefined) {
     const art = d.art, name = d.name || "";
     if (d.akat === "neu") { const n = window.prompt("Name der neuen Kategorie:"); if (n && n.trim()) admDirekt({ action: "adminKat", op: "neu", art, name: n.trim() }); return; }
