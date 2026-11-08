@@ -23,7 +23,8 @@ h2{font-family:Gaegu,cursive;font-size:28px;font-weight:700}
 h3{font-size:18px;font-weight:700}
 
 /* Kopfzeile */
-.top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top))}
+.topwrap{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.top{display:flex;align-items:center;gap:10px;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top))}
 .iconbtn{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;flex:none}
 .iconbtn svg{width:24px;height:24px}
 .logo{font-family:Gaegu,cursive;font-weight:700;font-size:28px;color:var(--red);line-height:1;white-space:nowrap}
@@ -52,9 +53,11 @@ main{flex:1;min-width:0;padding:20px 16px 110px}
 
 /* Computer: feste Seitenleiste */
 @media (min-width:900px){
-  .side{display:flex;flex-direction:column;gap:4px;width:290px;flex:none;border-right:1px solid var(--line);padding:20px 12px 24px;position:sticky;top:65px;height:calc(100dvh - 65px);overflow-y:auto;align-self:flex-start}
+  .side{display:flex;flex-direction:column;gap:4px;width:290px;flex:none;border-right:1px solid var(--line);padding:20px 12px 24px;position:sticky;top:113px;height:calc(100dvh - 113px);overflow-y:auto;align-self:flex-start}
   main{padding:32px 44px 60px}
   .drawer,.bottom,.menu-btn,.scrim{display:none!important}
+  .topwrap .topnav{display:flex}
+  .chips.mob{display:none}
 }
 
 /* Navigation */
@@ -70,6 +73,21 @@ main{flex:1;min-width:0;padding:20px 16px 110px}
 .subs .navbtn{font-size:15px;padding:7px 10px}
 .memberbox{margin-top:auto;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px}
 .memberbox p{margin:0;font-size:14px;color:var(--muted)}
+
+/* Obere Navigation (Computer) */
+.topnav{display:none;align-items:center;gap:2px;padding:0 16px;height:48px;background:var(--bg);overflow:visible}
+.topnav>button,.dd>button{height:36px;padding:0 12px;border-radius:10px;font-weight:700;font-size:15px;white-space:nowrap}
+.topnav>button:hover,.dd>button:hover,.dd:focus-within>button{background:var(--card)}
+.topnav>button.on,.dd>button.on{color:var(--red)}
+.dd{position:relative}
+.ddmenu{display:none;position:absolute;top:100%;left:0;min-width:260px;flex-direction:column;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:30}
+.dd:hover .ddmenu,.dd:focus-within .ddmenu{display:flex}
+.ddmenu button{text-align:left;padding:8px 12px;border-radius:10px;font-size:15px;width:100%}
+.ddmenu button:hover{background:var(--card);color:var(--red)}
+
+/* Fußzeile */
+.foot{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px}
+.foot button{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
 
 /* Karten und Inhalte */
 .hero{display:flex;flex-direction:column;gap:10px}
@@ -134,6 +152,7 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
 </head>
 <body>
 
+<div class="topwrap">
 <header class="top">
   <button class="iconbtn menu-btn" id="menuBtn" aria-label="Menü öffnen">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
@@ -145,6 +164,8 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
   </label>
   <a class="loginbtn" href="app/">Anmelden</a>
 </header>
+<nav class="topnav" id="topnav" aria-label="Hauptmenü"></nav>
+</div>
 
 <div class="shell">
   <aside class="side" id="side" aria-label="Hauptmenü"></aside>
@@ -182,7 +203,8 @@ const shortOf = i => {
   const z = i.ab.split(/\n/).find(l => l.trim().length > 30) || i.ab.split("\n")[0];
   return z.slice(0, 150);
 };
-const prose = t => t.split(/\n{2,}/).map(p => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join("");
+const seite = (titel, text) => `<div class="pagehead"><h1>${esc(titel)}</h1></div><div class="note">${esc(text)}</div>`;
+const prose = t =>t.split(/\n{2,}/).map(p => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join("");
 const pick = key => { const a = VORG[key] || []; return a.length ? a[Math.floor(Math.random() * a.length)].t : "–"; };
 const draw = () => ({ Ort: pick("Orte"), Beziehung: pick("Beziehungen"), Gefühl: pick("Gefühle"), Tätigkeit: pick("Tätigkeiten") });
 const vCount = () => Object.values(VORG).reduce((a, x) => a + x.length, 0);
@@ -286,7 +308,7 @@ const V = {
     const props = [...new Set(list.flatMap(x => x.e))];
     const sel = list.filter(x => S.vprop === "alle" || x.e.includes(S.vprop));
     return `<div class="pagehead"><h1>Vorgaben</h1><p>Anregungen für Szenen. Würfle eine Kombination oder stöbere in den Listen.</p></div>${genHTML()}
-    <div class="chips" role="group" aria-label="Vorgaben-Bereich">${keys.map(k => `<button class="chip" aria-pressed="${S.vcat === k}" data-v="${esc(k)}">${esc(k)} <span class="meta">${VORG[k].length}</span></button>`).join("")}</div>
+    <div class="chips mob" role="group" aria-label="Vorgaben-Bereich">${keys.map(k => `<button class="chip" aria-pressed="${S.vcat === k}" data-v="${esc(k)}">${esc(k)} <span class="meta">${VORG[k].length}</span></button>`).join("")}</div>
     <div class="row"><span class="eyebrow">Eigenschaft</span><div class="chips" role="group" aria-label="Eigenschaft"><button class="chip small" aria-pressed="${S.vprop === "alle"}" data-vp="alle">Alle</button>${props.map(p => `<button class="chip small" aria-pressed="${S.vprop === p}" data-vp="${esc(p)}">${esc(p)}</button>`).join("")}</div></div>
     <div class="taglist">${sel.map(v => `<span>${esc(v.t)}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}</span>`).join("")}</div>`;
   },
@@ -299,6 +321,16 @@ const V = {
     <div class="list">${l.length ? l.map(card).join("") : '<div class="empty">Nichts gefunden. Vielleicht magst du es einreichen?</div>'}</div>
     ${vs.length ? `<h2>Vorgaben</h2><div class="taglist">${vs.map(([k, t]) => `<span><span class="meta">${esc(k)}</span> ${esc(t)}</span>`).join("")}</div>` : ""}`;
   },
+
+  wuerfel() {
+    return `<div class="pagehead"><h1>Szenenwürfel</h1><p>Würfle eine zufällige Kombination aus Ort, Beziehung, Gefühl und Tätigkeit.</p></div>${genHTML()}`;
+  },
+
+  ueber() { return seite("Über den Fundus", "Hier kommt bald ein Text über den Fundus."); },
+  gruender() { return seite("Über den Gründer des Impro-Fundus", "Hier kommt bald ein Text über den Gründer."); },
+  impressum() { return seite("Impressum", "Inhalt folgt."); },
+  datenschutz() { return seite("Datenschutz", "Inhalt folgt."); },
+  nutzung() { return seite("Nutzungsbedingungen", "Inhalt folgt."); },
 
   einreichen() {
     if (S.sent) return `<div class="pagehead"><h1>Danke für deinen Vorschlag!</h1></div><div class="notice"><strong>Dein Mail-Programm wurde geöffnet.</strong><span>Schick die Mail ab, dann wird dein Vorschlag geprüft.</span></div><div class="row"><button class="btn" data-again>Noch etwas einreichen</button></div>`;
@@ -339,8 +371,39 @@ const V = {
   }
 };
 
+function sideHTML() {
+  if (!LOADED) return "";
+  const b = (on, attrs, label, extra = "") => `<button class="navbtn${on ? " on" : ""}" ${attrs}><span>${label}</span>${extra}</button>`;
+  if (["kats", "kat", "item"].includes(S.view)) {
+    const act = S.view === "item" ? ((ITEMS.find(x => x.id === S.id) || {}).cat) : S.cat;
+    return `<div class="lbl">Übungen & Spiele</div>` + CATS.map(c => b(act === c.id, `data-cat="${esc(c.id)}"`, esc(c.name), `<span class="count">${ITEMS.filter(i => i.cat === c.id).length}</span>`)).join("");
+  }
+  if (S.view === "vorgaben") {
+    return `<div class="lbl">Vorgaben</div>` + Object.keys(VORG).map(k => b(S.vcat === k, `data-v="${esc(k)}"`, esc(k), `<span class="count">${VORG[k].length}</span>`)).join("");
+  }
+  return "";
+}
+
+function topnavHTML() {
+  const act = v => (S.view === v ? "on" : "");
+  const ueAct = ["kats", "kat", "item"].includes(S.view) ? "on" : "";
+  const ue = CATS.map(c => `<button data-cat="${esc(c.id)}">${esc(c.name)}</button>`).join("");
+  const vo = Object.keys(VORG).map(k => `<button data-v="${esc(k)}">${esc(k)}</button>`).join("");
+  return `<div class="dd"><button class="${ueAct}" data-go="kats">Übungen ▾</button><div class="ddmenu">${ue}</div></div>`
+    + `<div class="dd"><button class="${act("vorgaben")}" data-go="vorgaben">Vorgaben ▾</button><div class="ddmenu">${vo}</div></div>`
+    + `<button class="${act("wuerfel")}" data-go="wuerfel">Szenenwürfel</button>`
+    + `<button class="${act("einreichen")}" data-go="einreichen">Eigene Idee einreichen</button>`
+    + `<button class="${act("spenden")}" data-go="spenden">Fundus unterstützen</button>`
+    + `<button class="${act("gruender")}" data-go="gruender">Über den Gründer</button>`;
+}
+
+const footHTML = () => `<footer class="foot"><button data-go="ueber">Über den Fundus</button><button data-go="impressum">Impressum</button><button data-go="datenschutz">Datenschutz</button><button data-go="nutzung">Nutzungsbedingungen</button></footer>`;
+
 function render() {
-  $("#side").innerHTML = navHTML();
+  const sh = sideHTML();
+  $("#side").innerHTML = sh;
+  $("#side").hidden = !sh;
+  $("#topnav").innerHTML = topnavHTML();
   $("#drawer").innerHTML = navHTML();
   $("#bottom").innerHTML = bottomHTML();
   if (!LOADED) {
@@ -348,7 +411,7 @@ function render() {
     return;
   }
   const fn = V[S.view] || V.start;
-  $("#main").innerHTML = `<div class="inner">${fn()}</div>`;
+  $("#main").innerHTML = `<div class="inner">${fn()}${footHTML()}</div>`;
   if (S.view === "einreichen" && !S.sent) bindForm();
 }
 
