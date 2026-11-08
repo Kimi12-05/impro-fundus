@@ -231,6 +231,7 @@ function handle(req){
       case 'anmelden':   return anmelden(req);
       case 'pinSetzen':  return pinSetzen(req);
       case 'anfrage':    return anfrage(req);
+      case 'kontakt':    return kontaktNachricht(req);
       case 'adminAnmelden': return adminAnmelden(req);
       case 'adminSpeichern':
       case 'adminLoeschen': return adminAktion(req);
@@ -392,6 +393,24 @@ function sendeMail(betreff, text){
 // Einmal im Editor ausführen: erlaubt dem Skript, dir E-Mails zu schicken
 function mailTest(){
   MailApp.sendEmail(LEITER_MAIL, 'Impro-App: Test', 'Wenn du diese Mail liest, funktionieren die Benachrichtigungen.');
+}
+// Kontaktformular der Fundus-Website: schickt die Nachricht per Mail an den Fundus
+const KONTAKT_EMPFAENGER = 'leon@impro-fundus.de';
+function kontaktNachricht(req){
+  const vn = String(req.vorname||'').trim().slice(0,60);
+  const mail = String(req.mail||'').trim().slice(0,120);
+  const bt = String(req.betreff||'').trim().slice(0,120);
+  const tx = String(req.text||'').trim().slice(0,5000);
+  if(!vn || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail) || !bt || tx.length < 20){
+    return {ok:false, msg:'Bitte alle Pflichtfelder ausfüllen.'};
+  }
+  MailApp.sendEmail({
+    to: KONTAKT_EMPFAENGER,
+    subject: 'Impro-Fundus Kontakt: ' + bt,
+    body: 'Von: ' + vn + '\nE-Mail: ' + mail + '\n\n' + tx,
+    replyTo: mail
+  });
+  return {ok:true};
 }
 function anfrage(req){
   const v = alle('Vorschlaege');
