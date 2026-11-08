@@ -277,9 +277,7 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
 .home .sep{margin:0}
 .chests{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:center;justify-items:center}
 .home .chests .chest .cbox,.home .chests .chest img{height:clamp(90px,13vh,140px)}
-.startbtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.startbtns .tile{padding:12px 14px;border-radius:16px;align-items:center;text-align:center}
-.startbtns .tile h3{margin:0;font-size:16px;line-height:1.2}
+.startbtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .dlg{position:fixed;inset:0;background:var(--overlay);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
 .dlg[hidden]{display:none!important}
 .dlg-box{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;max-width:560px;width:100%;max-height:90vh;overflow:auto}
@@ -500,10 +498,11 @@ const V = {
       <button class="chest" data-cat="Kennenlernspiele" aria-label="Kennenlernspiele"><span class="cbox"><img src="kiste-kennenlernen.png" alt="Kennenlernspiele"></span></button>
       <button class="chest" data-go="vorgaben" aria-label="Vorgaben"><span class="cbox"><img src="kiste-vorgaben.png" alt="Vorgaben"></span></button>
     </div>
+    ${genHTML()}
     <div class="startbtns">
-      <button class="tile" data-go="impro"><h3>Was ist Impro?</h3></button>
-      <button class="tile" data-go="einreichen"><h3>Idee einreichen</h3></button>
-      <button class="tile" data-pdf="1"><h3>PDF speichern</h3></button>
+      <button class="tile" data-go="impro"><h3>Was ist Impro?</h3><p>Eine kurze Einführung.</p></button>
+      <button class="tile" data-go="einreichen"><h3>Idee einreichen</h3><p>Ein Spiel fehlt? Schick es uns.</p></button>
+      <button class="tile" data-pdf="1"><h3>PDF speichern</h3><p>Übungen als PDF auswählen.</p></button>
     </div>`;
   },
 
