@@ -550,22 +550,22 @@ const V = {
   ueber() {
     const links = [
       ["Was ist der Impro-Fundus?", "Der Impro-Fundus ist eine Sammlung von Übungen, Spielen und Vorgaben für Improtheater. Alles ist nach Kategorien geordnet, damit du schnell findest, was du für deine Probe oder deinen Workshop brauchst."],
-      ["Was kostet die Nutzung?", "Nichts. Der Impro-Fundus ist kostenlos und ohne Anmeldung nutzbar."],
-      ["Gibt es Werbung?", "Nein. Auf dieser Seite gibt es keine Werbung."],
-      ["Wer steckt hinter dem Fundus?", "Ich bin Leon, Gruppenleiter der Impro-Gruppe im Theater Brand in Aachen-Brand. Den Fundus habe ich aus Freude am Improtheater aufgebaut und pflege ihn in meiner Freizeit."],
+      ["Was kostet die Nutzung?", "Nichts. Der Impro-Fundus ist kostenlos und ohne Anmeldung nutzbar. Er freut sich aber über jede Spende, damit er auch weiterhin werbefrei bleiben kann.", true],
+      ["Gibt es Werbung?", "Nein. Auf dieser Seite gibt es keine Werbung. Damit das so bleibt, freut sich der Fundus über jede Spende.", true],
+      ["Wer steckt hinter dem Fundus?", "Ich bin Leon. Ich spiele seit über 20 Jahren Theater und seit über 10 Jahren Improvisationstheater. Außerdem leite ich eine Improvisationstheatergruppe im Theater Brand in Aachen-Brand. Den Fundus habe ich aus Freude am Impro-Theater aufgebaut, damit alle Impro-Begeisterten und alle, die es noch werden wollen, davon profitieren können."],
       ["Für wen ist die Seite gedacht?", "Für alle, die Improtheater spielen: Anfängerinnen und Anfänger, erfahrene Spielerinnen und Spieler, Gruppenleitungen, Workshop-Leitungen und Lehrende."],
       ["Möchtest du den Fundus finanziell unterstützen?", "Das freut mich sehr. Der Fundus ist kostenlos, aber Domain, Hosting und neue Inhalte kosten Zeit und Geld. Die Spendenmöglichkeit wird noch eingerichtet.", true],
-      ["Hast du Lust, beim Fundus mitzuarbeiten?", "Sehr gern. Du kannst Übungen und Vorgaben einreichen, Fehler melden oder Ideen für neue Inhalte schicken. Auch beim Prüfen, Schreiben oder Gestalten bin ich dankbar für Unterstützung. Schreib mir einfach eine Mail."]
+      ["Hast du Lust, beim Fundus mitzuarbeiten?", "Sehr gern. Du kannst Übungen und Vorgaben einreichen, Fehler melden oder Ideen für neue Inhalte schicken. Auch beim Prüfen, Schreiben oder Gestalten bin ich dankbar für Unterstützung. Kontaktiere mich einfach. Das geht über das Formular unter {{KONTAKT}}."]
     ];
     const rechts = [
       ["Was passiert mit meinen eingereichten Übungen und Vorschlägen?", "Jeder Vorschlag wird von mir gelesen und geprüft. Passt er zum Fundus, wird er veröffentlicht oder vorher überarbeitet. Nicht jeder Vorschlag wird übernommen."],
       ["Bekomme ich eine Rückmeldung zu meinen Vorschlägen?", "Ja, wenn du in deiner Nachricht eine Mailadresse oder deinen Namen angibst, melde ich mich bei dir, sobald dein Vorschlag geprüft ist."],
       ["Kann ich mit meinem Namen genannt werden oder bleibe ich anonym?", "Beides ist möglich. Wenn du möchtest, nenne ich dich bei der Veröffentlichung mit deinem Vornamen. Ohne Angabe bleibt dein Beitrag anonym."],
-      ["Wohin wende ich mich bei Fragen, Fehlern oder anderen Anliegen?", "Am besten per Mail an " + CONFIG.KONTAKT_MAIL + ". Schreib dazu, worum es geht. Wenn du einen Fehler gefunden hast, nenne bitte die Seite, auf der du ihn gesehen hast."],
+      ["Wohin wende ich mich bei Fragen, Fehlern oder anderen Anliegen?", "Am besten über das Formular unter {{KONTAKT}}. Schreib dazu, worum es geht. Wenn du einen Fehler gefunden hast, nenne bitte die Seite, auf der du ihn gesehen hast."],
       ["Welche Daten werden gespeichert, wenn ich etwas einreiche?", "Beim Einreichen öffnet sich dein Mail-Programm mit deinem Vorschlag. Die Mail, die du abschickst, landet bei mir. Mehr dazu steht in der Datenschutzerklärung.", "datenschutz"],
       ["Wer darf Inhalte veröffentlichen oder ändern?", "Nur ich. Eingereichte Vorschläge übernehme ich erst nach Prüfung."]
     ];
-    const faq = (f) => `<details class="faq"><summary>${esc(f[0])}</summary><div class="faqa"><p>${esc(f[1])}</p>${f[2] === true ? `<p><button class="linkbtn" data-go="spenden">Zur Unterstützung</button></p>` : typeof f[2] === "string" ? `<p><button class="linkbtn" data-go="${esc(f[2])}">Zur Datenschutzerklärung</button></p>` : ""}</div></details>`;
+    const faq = (f) => `<details class="faq"><summary>${esc(f[0])}</summary><div class="faqa"><p>${esc(f[1]).replace("{{KONTAKT}}", '<button class="linkbtn" data-go="kontakt">Kontakt</button>')}</p>${f[2] === true ? `<p><button class="linkbtn" data-go="spenden">Zur Unterstützung</button></p>` : typeof f[2] === "string" ? `<p><button class="linkbtn" data-go="${esc(f[2])}">Zur Datenschutzerklärung</button></p>` : ""}</div></details>`;
     return `<div class="pagehead"><h1>Alles über den Fundus</h1></div>
       <div class="prose"><p>Der Impro-Fundus ist eine kostenlose, werbefreie Sammlung für alle, die Improtheater spielen. Hier findest du Warm-ups, Übungen, Szenenspiele und Vorgaben, nach Kategorien geordnet. Du kannst eigene Ideen einreichen und die Seite unterstützen.</p></div>
       <div class="faqwrap"><div class="faqcol">${links.map(faq).join("")}</div><div class="faqcol">${rechts.map(faq).join("")}</div></div>`;
