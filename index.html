@@ -402,7 +402,8 @@ const vCount = () => Object.values(VORG).reduce((a, x) => a + x.length, 0);
 
 function setData(d) {
   CATS = d.uebungenReihe.map(k => ({ id: k, name: k, desc: UE_INFO[k] || "" }));
-  ITEMS = d.uebungen.map(u => ({ id: u.id, cat: u.kat, title: u.titel, level: u.level || "", ab: u.ablauf || "", dauer: u.dauer || "", tn: u.tn || "", eig: u.eig || [] }));
+  const KAT_ALT = { "2er": "Zweierübungen", "3er": "Dreierübungen", "Gruppe": "Gruppenübungen", "Warm-Up": "Warm-Up-Spiele" };
+  ITEMS = d.uebungen.map(u => ({ id: u.id, cat: KAT_ALT[u.kat] || u.kat, title: u.titel, level: u.level || "", ab: u.ablauf || "", dauer: u.dauer || "", tn: u.tn || "", eig: u.eig || [] }));
   VORG = {};
   d.vorgabenReihe.forEach(k => { if (d.vorgaben[k]) VORG[k] = d.vorgaben[k]; });
   Object.keys(d.vorgaben).forEach(k => { if (!VORG[k]) VORG[k] = d.vorgaben[k]; });
