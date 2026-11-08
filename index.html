@@ -200,6 +200,8 @@ main.withdice{padding-bottom:230px}
 .admctl{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
 .admctl button{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:4px 10px;font-size:15px;cursor:pointer}
 .admctl button.del{color:var(--red)}
+.zlist{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow:auto;margin-bottom:12px}
+.zrow{display:flex;gap:10px;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:6px}
 .admrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .faqwrap{display:grid;gap:12px;grid-template-columns:1fr}
 @media (min-width:900px){.faqwrap{grid-template-columns:1fr 1fr;align-items:start}}
@@ -373,6 +375,7 @@ const CONFIG = {
   API: "https://script.google.com/macros/s/AKfycbwcGZii-rdT7MHU_vxgWMGMFsZIuwUW96_ECA8vTRAzEk8RbPszsdT2Dh8CPYJSWgqM/exec",
   // Adresse, an die Vorschläge gehen
   KONTAKT_MAIL: "leon@impro-fundus.de",
+  PAYPAL_URL: "https://paypal.me/leovogt12",
   // Website des Theater Brand (wird überall im Text verlinkt)
   THEATER_BRAND_URL: "https://theater-brand.clubdesk.com/home",
   // Spendenkonto. Solange leer, steht dort ein Hinweis.
@@ -408,7 +411,9 @@ const draw = () => {
 };
 const vCount = () => Object.values(VORG).reduce((a, x) => a + x.length, 0);
 
+var RAW = null, ZIT = [];
 function setData(d) {
+  RAW = d; ZIT = Array.isArray(d.zitate) ? d.zitate : [];
   CATS = d.uebungenReihe.map(k => ({ id: k, name: k, desc: UE_INFO[k] || "" }));
   const KAT_ALT = { "2er": "Zweierübungen", "3er": "Dreierübungen", "Gruppe": "Gruppenübungen", "Warm-Up": "Warm-Up-Spiele" };
   ITEMS = d.uebungen.map(u => ({ id: u.id, cat: KAT_ALT[u.kat] || u.kat, title: u.titel, level: u.level || "", draft: u.entwurf === "1", ab: u.ablauf || "", dauer: u.dauer || "", tn: u.tn || "", eig: u.eig || [] }));
@@ -620,7 +625,7 @@ const V = {
       <div class="faqwrap"><div class="faqcol">${links.map(faq).join("")}</div><div class="faqcol">${rechts.map(faq).join("")}</div></div>`;
   },
   impressum() { return "<div class=\"pagehead\"><h1>Impressum</h1></div><div class=\"prose\"><p>Angaben gemäß § 5 DDG</p><p>Leon E.<br>Marktplatz 13<br>52078 Aachen<br>Deutschland</p><p>Kontakt: leon@impro-fundus.de</p><p>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV: Leon E.</p><p>Der Impro-Fundus ist ein privates, nicht kommerzielles Angebot. Es gibt keinen Shop, keine Anmeldung für Besucher und keine Verträge. Die Nutzung ist kostenlos.</p><p><strong>Haftung für Inhalte</strong><br>Die Inhalte werden sorgfältig erstellt. Für Vollständigkeit, Richtigkeit und Aktualität wird keine Gewähr übernommen. Verpflichtungen zur Entfernung oder Sperrung von Informationen nach den allgemeinen Gesetzen bleiben unberührt.</p><p><strong>Haftung für Links</strong><br>Die Seite enthält Links zu fremden Websites. Für deren Inhalte ist der jeweilige Anbieter verantwortlich. Zum Zeitpunkt der Verlinkung waren keine Rechtsverstöße erkennbar. Bei Hinweisen auf Verstöße wird der Link entfernt.</p><p><strong>Urheberrecht</strong><br>Die Texte und die Gestaltung dieser Seite sind urheberrechtlich geschützt. Die Nutzungsbedingungen regeln, wie Inhalte verwendet werden dürfen.</p><p><strong>Verbraucherstreitbeilegung</strong><br>Der Betreiber ist nicht verpflichtet und nicht bereit, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p><p>Stand: 8. November 2026</p></div>"; },
-  datenschutz() { return "<div class=\"pagehead\"><h1>Datenschutz</h1></div><div class=\"prose\"><p><strong>Verantwortlich</strong><br>Leon E., Marktplatz 13, 52078 Aachen, leon@impro-fundus.de</p><p><strong>Hosting</strong><br>Die Seite wird über GitHub Pages bereitgestellt (GitHub Inc., USA). Beim Aufruf verarbeitet der Anbieter technisch notwendige Daten wie IP-Adresse, Zeitpunkt und aufgerufene Seite, um die Seite auszuliefern. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem stabilen Betrieb). Informationen: https://docs.github.com/site-policy/privacy-policies/github-privacy-statement</p><p><strong>Inhalte aus der Google-Tabelle</strong><br>Übungen und Vorgaben werden über ein Google Apps Script geladen, das auf eine Google-Tabelle zugreift. Dabei wird die IP-Adresse an Google übertragen. Personenbezogene Daten werden dabei nicht gespeichert. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO.</p><p><strong>Kontaktformular und Vorschläge</strong><br>Beim Absenden werden deine Angaben über das Google Apps Script des Fundus an die E-Mail-Adresse des Betreibers geschickt (dabei wird deine IP-Adresse an Google übertragen). Sie werden nicht auf der Website gespeichert. Name und Mailadresse bei Vorschlägen sind freiwillig; im Kontaktformular brauchen wir die Adresse, um zu antworten. Für die E-Mail-Dienste wird ein Dienstleister eingesetzt. Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Bearbeitung deiner Anfrage) bzw. lit. a DSGVO (Einwilligung bei Vorschlägen).</p><p><strong>Google Fonts</strong><br>Die Schrift Caveat wird von Google geladen. Dabei wird deine IP-Adresse an Google übertragen. Informationen: https://policies.google.com/privacy</p><p><strong>Cookies und Tracking</strong><br>Die Seite setzt keine Cookies und bindet keine Analyse- oder Werbedienste ein.</p><p><strong>Deine Rechte</strong><br>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch (Art. 15 bis 21 DSGVO). Wende dich dafür an leon@impro-fundus.de. Beschwerden kannst du bei der Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen einreichen (ldi.nrw.de).</p><p>Stand: 8. November 2026</p></div>"; },
+  datenschutz() { return "<div class=\"pagehead\"><h1>Datenschutz</h1></div><div class=\"prose\"><p><strong>Verantwortlich</strong><br>Leon E., Marktplatz 13, 52078 Aachen, leon@impro-fundus.de</p><p><strong>Hosting</strong><br>Die Seite wird über GitHub Pages bereitgestellt (GitHub Inc., USA). Beim Aufruf verarbeitet der Anbieter technisch notwendige Daten wie IP-Adresse, Zeitpunkt und aufgerufene Seite, um die Seite auszuliefern. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem stabilen Betrieb). Informationen: https://docs.github.com/site-policy/privacy-policies/github-privacy-statement</p><p><strong>Inhalte aus der Google-Tabelle</strong><br>Übungen und Vorgaben werden über ein Google Apps Script geladen, das auf eine Google-Tabelle zugreift. Dabei wird die IP-Adresse an Google übertragen. Personenbezogene Daten werden dabei nicht gespeichert. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO.</p><p><strong>Kontaktformular und Vorschläge</strong><br>Beim Absenden werden deine Angaben über das Google Apps Script des Fundus an die E-Mail-Adresse des Betreibers geschickt (dabei wird deine IP-Adresse an Google übertragen). Sie werden nicht auf der Website gespeichert. Name und Mailadresse bei Vorschlägen sind freiwillig; im Kontaktformular brauchen wir die Adresse, um zu antworten. Für die E-Mail-Dienste wird ein Dienstleister eingesetzt. Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Bearbeitung deiner Anfrage) bzw. lit. a DSGVO (Einwilligung bei Vorschlägen).</p><p><strong>Spenden</strong><br>Wenn du auf den PayPal-Knopf klickst, verlässt du diese Seite. Ab dann gelten die Datenschutzbestimmungen von PayPal. Auf dieser Website werden dazu keine Daten gespeichert.</p><p><strong>Google Fonts</strong><br>Die Schrift Caveat wird von Google geladen. Dabei wird deine IP-Adresse an Google übertragen. Informationen: https://policies.google.com/privacy</p><p><strong>Cookies und Tracking</strong><br>Die Seite setzt keine Cookies und bindet keine Analyse- oder Werbedienste ein.</p><p><strong>Deine Rechte</strong><br>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch (Art. 15 bis 21 DSGVO). Wende dich dafür an leon@impro-fundus.de. Beschwerden kannst du bei der Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen einreichen (ldi.nrw.de).</p><p>Stand: 8. November 2026</p></div>"; },
   nutzung() { return "<div class=\"pagehead\"><h1>Nutzungsbedingungen</h1></div><div class=\"prose\"><p><strong>1. Geltungsbereich</strong><br>Diese Bedingungen gelten für die Nutzung der Website impro-fundus.de.</p><p><strong>2. Kostenlose Nutzung</strong><br>Die Übungen, Spiele und Vorgaben sowie die App dürfen kostenlos genutzt werden, zum Beispiel in Gruppen, Workshops und Proben. Auch der PDF-Export ist kostenlos.</p><p><strong>3. Keine kommerzielle Nutzung</strong><br>Die Inhalte dürfen nicht verkauft und nicht zu kommerziellen Zwecken verwendet werden.</p><p><strong>4. Eingereichte Vorschläge</strong><br>Mit dem Einreichen eines Vorschlags erlaubst du dem Betreiber, ihn zu überarbeiten, unverändert oder verändert zu übernehmen und zu veröffentlichen. Der Betreiber ist nicht verpflichtet, Vorschläge zu veröffentlichen. Dein Name wird nur genannt, wenn du dem im Formular zustimmst.</p><p><strong>5. Verantwortung beim Spielen</strong><br>Impro ist körperliche und emotionale Aktivität. Übungen werden auf eigene Verantwortung durchgeführt. Gruppenleitungen achten auf die Sicherheit und das Wohlbefinden der Teilnehmenden.</p><p><strong>6. Änderungen</strong><br>Der Betreiber kann Inhalte und diese Bedingungen jederzeit ändern.</p><p><strong>7. Anwendbares Recht</strong><br>Es gilt deutsches Recht.</p><p><strong>Kontakt</strong><br>leon@impro-fundus.de</p><p>Stand: 8. November 2026</p></div>"; },
 
   einreichen() {
@@ -646,7 +651,7 @@ const V = {
     </form>`;
   },
 
-  spenden() { return "<div class=\"pagehead\"><h1>Den Fundus unterstützen</h1><p>Der Impro-Fundus ist kostenlos und werbefrei. Wenn du ihn unterstützen möchtest, kannst du mit einer Spende helfen. Wofür die Spende gedacht ist:</p></div><div class=\"prose\"><ul><li>Domain und Hosting von impro-fundus.de</li><li>Den Fundus werbefrei halten</li><li>Kosten für neue Funktionen, zum Beispiel die Verwaltung der Admins</li><li>Fotos und Grafiken für die Seite</li><li>Materialien für Anfänger-Workshops</li><li>Einen Puffer für die jährliche Verlängerung der Domain</li><li>Ein neues Projekt, das gerade in Planung ist</li><li>Eine freie Spende ohne Zweck: Danke für die Arbeit</li></ul><p><strong>Spenden für die Improvisationstheatergruppe:</strong> Wenn du bei der Spende ausdrücklich dafür bist, kommt sie der Improvisationstheatergruppe des Theater Brand in Aachen-Brand zugute.</p></div><div class=\"notice\" id=\"spendeBox\"><strong>Die Spendenmöglichkeit wird gerade eingerichtet.</strong><span>Bis dahin kannst du den Fundus bei Fragen über das Kontaktformular ansprechen.</span></div>"; }
+  spenden() { return "<div class=\"pagehead\"><h1>Den Fundus unterstützen</h1><p>Der Impro-Fundus ist kostenlos und werbefrei. Wenn du ihn unterstützen möchtest, kannst du mit einer Spende helfen. Wofür die Spende gedacht ist:</p></div><div class=\"prose\"><ul><li>Domain und Hosting von impro-fundus.de</li><li>Den Fundus werbefrei halten</li><li>Kosten für neue Funktionen, zum Beispiel die Verwaltung der Admins</li><li>Fotos und Grafiken für die Seite</li><li>Materialien für Anfänger-Workshops</li><li>Einen Puffer für die jährliche Verlängerung der Domain</li><li>Ein neues Projekt, das gerade in Planung ist</li><li>Eine freie Spende ohne Zweck: Danke für die Arbeit</li></ul><p><strong>Spenden für die Improvisationstheatergruppe:</strong> Wenn du bei der Spende ausdrücklich dafür bist, kommt sie der Improvisationstheatergruppe des Theater Brand in Aachen-Brand zugute.</p></div><div class=\"notice\" id=\"spendeBox\"><strong>Spenden per PayPal</strong><span>Mit einem Klick auf den Knopf öffnet sich PayPal in einem neuen Fenster. Du entscheidest dort selbst, wie viel du gibst.</span><a class=\"btn red\" href=\"" + CONFIG.PAYPAL_URL + "\" target=\"_blank\" rel=\"noopener\">Per PayPal spenden</a></div>"; }
 };
 
 function sideHTML() {
@@ -681,10 +686,11 @@ const ZITATE = [
 const zitatHeute = () => {
   const d = new Date();
   const tag = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
-  return ZITATE[tag % ZITATE.length];
+  const l = ZIT.length ? ZIT : ZITATE;
+  return l[tag % l.length];
 };
 
-const footHTML = () => `<footer class="foot"><button data-go="ueber">Alles über den Fundus</button><button data-go="spenden">Fundus unterstützen</button><button data-go="impressum">Impressum</button><button data-go="datenschutz">Datenschutz</button><button data-go="nutzung">Nutzungsbedingungen</button>${ADMIN ? '<button data-admin-users>Admins verwalten</button>' : ""}</footer>`;
+const footHTML = () => `<footer class="foot"><button data-go="ueber">Alles über den Fundus</button><button data-go="spenden">Fundus unterstützen</button><button data-go="impressum">Impressum</button><button data-go="datenschutz">Datenschutz</button><button data-go="nutzung">Nutzungsbedingungen</button>${ADMIN ? '<button data-admin-users>Admins verwalten</button><button data-azit>Zitate verwalten</button><button data-aimp>Import / Export</button>' : ""}</footer>`;
 
 // Verlinkt Namen aus dem Fundus (Kategorien, Vorgaben, Übungen) und den Theater Brand im sichtbaren Text
 function linkify(root) {
@@ -791,6 +797,11 @@ document.addEventListener("click", e => {
   }
   if (d.amove !== undefined) { admDirekt({ action: "adminVerschieben", sid: d.amove, richtung: +d.dir }); return; }
   if (d.adel !== undefined) { if (window.confirm("Diese Vorgabe wirklich löschen?")) admDirekt({ action: "adminLoeschen", sid: d.adel }); return; }
+  if (d.azit !== undefined) { zitateDialog(); return; }
+  if (d.zedit !== undefined) { const z = ZIT.find(x => x.id === d.zedit); if (z) { $("#zId").value = z.id; $("#zT").value = z.t; $("#zA").value = z.a || ""; $("#zT").focus(); } return; }
+  if (d.zdel !== undefined) { if (window.confirm("Dieses Zitat wirklich löschen?")) zitatSende({ action: "adminZitat", op: "loeschen", id: d.zdel }); return; }
+  if (d.aimp !== undefined) { importDialog(); return; }
+  if (d.aexport !== undefined) { exportieren(); return; }
   if (d.adminNew !== undefined) { editor(null, d.adminNew, d.kat || ""); return; }
   if (d.adminEdit !== undefined) { const i = findeItem(d.adminEdit); if (i) editor(i, "uebung"); return; }
   if (d.adminVedit !== undefined) { const f = findeVorgabe(d.adminVedit); if (f) editor({ ...f.v, kat: f.k, title: f.v.t, ab: f.v.h, entwurf: f.v.entwurf }, "vorgabe"); return; }
@@ -1066,6 +1077,84 @@ async function adminSende(obj) {
     if (obj.action === "adminLoeschen" && S.view === "item") { S.view = "kats"; S.id = null; S.cat = null; }
     await laden();
   } catch (x) { $("#edMsg").textContent = "Keine Verbindung. Bitte später noch einmal versuchen."; }
+}
+async function zitatSende(obj) {
+  const m = $("#zMsg"); if (m) m.textContent = "Einen Moment …";
+  try {
+    const r = await apiPost(Object.assign({ token: ADMIN }, obj));
+    if (!r.ok) { if (m) m.textContent = r.msg || "Das hat nicht geklappt."; if (/erneut/.test(r.msg || "")) adminEnde(); return; }
+    await laden(); zitateDialog();
+  } catch (x) { if (m) m.textContent = "Keine Verbindung. Bitte später noch einmal versuchen."; }
+}
+function zitateDialog() {
+  openDlg(`<h2>Zitate verwalten</h2>
+    <p class="meta">Jeden Tag wird eines dieser Zitate auf der Startseite gezeigt. Aktuell: ${ZIT.length}.</p>
+    <div class="zlist">${ZIT.map(z => `<div class="zrow"><span>„${esc(z.t)}“${z.a ? " — " + esc(z.a) : ""}</span><span class="admctl"><button type="button" data-zedit="${esc(z.id)}">bearbeiten</button><button type="button" class="del" data-zdel="${esc(z.id)}">löschen</button></span></div>`).join("") || "<p class=\"meta\">Noch keine Zitate.</p>"}</div>
+    <form id="zForm" class="dlgform">
+      <h3>Zitat hinzufügen oder ändern</h3>
+      <input type="hidden" id="zId">
+      <label>Zitat<textarea id="zT" required></textarea></label>
+      <label>Von wem (optional)<input id="zA" placeholder="z. B. Keith Johnstone"></label>
+      <div class="row"><button class="btn red" type="submit">Speichern</button></div>
+    </form>
+    <form id="zMore" class="dlgform">
+      <h3>Mehrere auf einmal</h3>
+      <label>Pro Zeile ein Zitat, Quelle mit | abtrennen<textarea id="zMany" placeholder="Zitat eins | Autorin&#10;Zitat zwei | Autor"></textarea></label>
+      <div class="row"><button class="btn" type="submit">Alle hinzufügen</button></div>
+    </form>
+    <p class="meta" id="zMsg"></p>
+    <div class="row"><button class="btn" type="button" data-dlg-close>Schließen</button></div>`);
+  $("#zForm").onsubmit = e => {
+    e.preventDefault();
+    const id = $("#zId").value;
+    zitatSende({ action: "adminZitat", op: id ? "bearbeiten" : "neu", id, t: $("#zT").value.trim(), a: $("#zA").value.trim() });
+  };
+  $("#zMore").onsubmit = e => {
+    e.preventDefault();
+    if (!$("#zMany").value.trim()) { $("#zMsg").textContent = "Bitte mindestens ein Zitat eintragen."; return; }
+    zitatSende({ action: "adminZitat", op: "mehrere", text: $("#zMany").value });
+  };
+}
+function exportieren() {
+  if (!RAW) return;
+  const out = Object.assign({}, RAW); delete out.ok;
+  const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "impro-fundus-" + new Date().toISOString().slice(0, 10) + ".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+function importDialog() {
+  const nU = ITEMS.length, nV = vCount();
+  openDlg(`<h2>Import / Export</h2>
+    <h3>Export</h3>
+    <p class="meta">Speichert alle Übungen, Vorgaben (auch Entwürfe) und Zitate in einer Datei. So hast du eine Sicherung.</p>
+    <div class="row"><button class="btn red" type="button" data-aexport>Datei herunterladen (${nU} Übungen, ${nV} Vorgaben)</button></div>
+    <h3>Import</h3>
+    <p class="meta">Wähle eine Datei, die du vorher exportiert hast. Gleiche Einträge werden aktualisiert, neue werden ergänzt. Es wird nichts gelöscht.</p>
+    <form id="impForm" class="dlgform">
+      <label>Datei<input id="impFile" type="file" accept=".json,application/json"></label>
+      <p class="meta" id="impMsg"></p>
+      <div class="row"><button class="btn red" type="submit">Importieren</button><button class="btn" type="button" data-dlg-close>Schließen</button></div>
+    </form>`);
+  $("#impForm").onsubmit = async e => {
+    e.preventDefault();
+    const msg = $("#impMsg"), f = $("#impFile").files[0];
+    if (!f) { msg.textContent = "Bitte zuerst eine Datei wählen."; return; }
+    let d;
+    try { d = JSON.parse(await f.text()); } catch (x) { msg.textContent = "Die Datei kann nicht gelesen werden. Ist es eine Export-Datei?"; return; }
+    if (!d || (!Array.isArray(d.uebungen) && !d.vorgaben && !Array.isArray(d.zitate))) { msg.textContent = "In der Datei wurden keine Übungen, Vorgaben oder Zitate gefunden."; return; }
+    const anz = (d.uebungen || []).length + Object.values(d.vorgaben || {}).reduce((a, x) => a + x.length, 0);
+    if (!window.confirm(anz + " Einträge aus der Datei importieren?")) return;
+    msg.textContent = "Einen Moment …";
+    try {
+      const r = await apiPost({ action: "adminImport", token: ADMIN, daten: d });
+      if (!r.ok) { msg.textContent = r.msg || "Das hat nicht geklappt."; if (/erneut/.test(r.msg || "")) adminEnde(); return; }
+      msg.textContent = "Fertig: " + r.neu + " neu, " + r.aktualisiert + " aktualisiert, " + r.zitate + " neue Zitate.";
+      await laden();
+    } catch (x) { msg.textContent = "Keine Verbindung oder die Datei ist zu groß."; }
+  };
 }
 const admTile = (tile, art, name) => !ADMIN ? tile : `<div class="admtile">${tile}<div class="admctl"><button data-akat="verschieben" data-art="${art}" data-name="${esc(name)}" data-dir="-1" title="nach vorn">←</button><button data-akat="verschieben" data-art="${art}" data-name="${esc(name)}" data-dir="1" title="nach hinten">→</button><button data-akat="umbenennen" data-art="${art}" data-name="${esc(name)}">umbenennen</button><button class="del" data-akat="loeschen" data-art="${art}" data-name="${esc(name)}">löschen</button></div></div>`;
 const admMove = (html, id) => !ADMIN ? html : `<div>${html}<div class="admrow admctl" style="justify-content:flex-start"><button data-amove="${esc(id)}" data-dir="-1" title="nach oben">↑ nach oben</button><button data-amove="${esc(id)}" data-dir="1" title="nach unten">↓ nach unten</button></div></div>`;
