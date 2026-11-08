@@ -66,6 +66,18 @@ main{flex:1;min-width:0;padding:20px 16px 110px}
   .chips.mob{display:none}
 }
 
+.sidesearch{margin:0 0 10px}
+.sidesearch input{width:100%;height:44px;border-radius:16px;border:1px solid var(--line);background:var(--field);padding:0 14px;font-size:16px}
+.dsel{width:100%;background:var(--field);border:1px solid var(--line);border-radius:12px;padding:6px 8px;font-size:14px}
+:root{--barb:76px}
+@media (min-width:900px){:root{--barb:58px}}
+.dicebar{position:fixed;left:0;right:0;bottom:var(--barb);z-index:18;background:var(--bg);border-top:1px solid var(--line);padding:8px 12px;display:flex;justify-content:center}
+.dicebar .gen{flex-direction:row;align-items:center;gap:10px;padding:6px 10px;max-width:920px;width:100%;border-radius:16px}
+.dicebar .gen-slots{flex:1;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.dicebar .slot{padding:4px 8px}
+.dicebar .slot strong{font-size:17px;display:block}
+.dicebar .eyebrow{display:none}
+main.withdice{padding-bottom:230px}
 /* Navigation */
 .navbtn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;padding:10px 12px;border-radius:12px;font-size:16px}
 .navbtn:hover{background:var(--card)}
@@ -357,14 +369,11 @@ const seite = (titel, text) => `<div class="pagehead"><h1>${esc(titel)}</h1></di
 const prose = t =>t.split(/\n{2,}/).map(p => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join("");
 const pickFrom = list => (list && list.length) ? list[Math.floor(Math.random() * list.length)].t : "–";
 const DICE = [["Ort", "ort"], ["Beziehung", "bezieh"], ["Gefühl", "gef"], ["Tätigkeit", "tät"]];
+const diceDefault = i => Object.keys(VORG).find(x => x.toLowerCase().includes(DICE[i][1])) || Object.keys(VORG)[i];
+const diceKeys = () => (S.dice && S.dice.length === 4) ? S.dice : [0, 1, 2, 3].map(diceDefault);
 const draw = () => {
-  const keys = Object.keys(VORG);
-  const out = {};
-  DICE.forEach(([label, word], i) => {
-    const k = keys.find(x => x.toLowerCase().includes(word)) || keys[i];
-    out[label] = pickFrom(k ? VORG[k] : []);
-  });
-  return out;
+  const ks = diceKeys();
+  return ks.map(k => [k, pickFrom(VORG[k])]);
 };
 const vCount = () => Object.values(VORG).reduce((a, x) => a + x.length, 0);
 
@@ -399,6 +408,7 @@ function navHTML() {
   const b = (on, attrs, label, extra = "") => `<button class="navbtn${on ? " on" : ""}" ${attrs}><span>${label}</span>${extra}</button>`;
   let h = b(S.view === "start", 'data-go="start"', "Start");
   h += `<div class="lbl">Übungen</div>`;
+  h += b(S.view === "alle", 'data-go="alle"', "Alle Übungen");
   CATS.forEach(c => {
     const n = ITEMS.filter(i => i.cat === c.id).length;
     h += b(S.view === "kat" && S.cat === c.id, `data-cat="${esc(c.id)}"`, esc(c.name), `<span class="count">${n}</span>`);
@@ -407,6 +417,7 @@ function navHTML() {
   h += b(S.view === "vorgaben", 'data-go="vorgaben"', "Vorgaben-Sammlung", `<span class="count">${vCount()}</span>`);
   h += `<div class="lbl">Mitmachen</div>`;
   h += b(S.view === "einreichen", 'data-go="einreichen"', "Vorschlag einreichen");
+  h += b(S.view === "kontakt", 'data-go="kontakt"', "Kontakt");
   h += b(S.view === "spenden", 'data-go="spenden"', "Spenden");
   h += `<div class="memberbox"><strong>Für die Impro-Gruppe</strong><p>Mitglieder melden sich mit Namen und PIN an.</p><a class="btn red block" href="app/">Mitglieder-Anmeldung</a></div>`;
   return h;
@@ -421,7 +432,29 @@ function bottomHTML() {
 }
 
 const card = i => `<button class="card" data-item="${esc(i.id)}"><span class="eyebrow">${esc(i.cat)}${i.dauer ? " · " + esc(i.dauer) : ""}</span><h3>${esc(i.title)}${!i.ab ? '<span class="pill todo">folgt</span>' : ""}</h3><p>${esc(shortOf(i))}</p><span class="meta">${i.level ? `<span>${esc(i.level)}</span>` : ""}</span></button>`;
-const genHTML = () => `<section class="gen" aria-live="polite"><span class="eyebrow">Szenen-Würfel</span><div class="gen-slots">${Object.entries(S.draw || {}).map(([k, v]) => `<div class="slot"><span>${k}</span><strong>${esc(v)}</strong></div>`).join("")}</div><div><button class="btn red" data-roll>Neu würfeln</button></div></section>`;
+const genHTML = () => {
+  const ks = diceKeys();
+  const res = S.draw || [];
+  const opts = sel => Object.keys(VORG).map(k => `<option ${k === sel ? "selected" : ""}>${esc(k)}</option>`).join("");
+  return `<section class="gen" aria-live="polite"><span class="eyebrow">Szenen-Würfel</span><div class="gen-slots">${ks.map((k, i) => `<div class="slot"><select class="dsel" data-die="${i}" aria-label="Art der Vorgabe für Würfel ${i + 1}">${opts(k)}</select><strong>${esc(res[i] ? res[i][1] : "–")}</strong></div>`).join("")}</div><div><button class="btn red" data-roll>Neu würfeln</button></div></section>`;
+};
+
+const levelChips = () => `<div class="row" role="group" aria-label="Niveau"><span class="eyebrow">Niveau</span>${[["Einsteiger", "Anfänger"], ["Fortgeschritten", "Fortgeschritten"]].map(([v, l]) => `<button class="chip" aria-pressed="${S.level === v}" data-level="${v}">${l}</button>`).join("")}</div>`;
+const sideTop = () => `<div class="sidesearch"><input id="allq" type="search" placeholder="Übungen suchen …" value="${esc(S.aq || "")}" aria-label="Übungen suchen"></div><button class="navbtn${S.view === "alle" ? " on" : ""}" data-go="alle"><span>Alle Übungen</span><span class="count">${ITEMS.length}</span></button>`;
+async function kontaktSenden() {
+  const vn = $("#k-vn").value.trim(), mail = $("#k-mail").value.trim(), bt = $("#k-betreff").value.trim(), tx = $("#k-text").value.trim();
+  const err = $("#k-err");
+  let m = "";
+  if (!vn) m = "Bitte gib deinen Vornamen ein.";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) m = "Bitte gib eine gültige E-Mail-Adresse ein.";
+  else if (!bt) m = "Bitte gib einen Betreff ein.";
+  else if (tx.length < 20) m = `Die Nachricht muss mindestens 20 Zeichen lang sein (aktuell ${tx.length}).`;
+  else if (!CONFIG.KONTAKT_MAIL) m = "Das Kontaktformular ist noch nicht eingerichtet.";
+  if (m) { err.textContent = m; err.hidden = false; return; }
+  err.hidden = true;
+  const body = `Von: ${vn}\nE-Mail: ${mail}\n\n${tx}`;
+  location.href = `mailto:${CONFIG.KONTAKT_MAIL}?subject=${encodeURIComponent("Kontakt: " + bt)}&body=${encodeURIComponent(body)}`;
+}
 
 const V = {
   start() {
@@ -442,7 +475,7 @@ const V = {
   },
 
   kats() {
-    return `<div class="pagehead"><h1>Übungen</h1><p>Wähle einen Bereich.</p></div>${adminBar(`<button class="btn red" data-admin-new="uebung">+ Neue Übung</button>`)}<div class="grid">${CATS.map(c => `<button class="tile" data-cat="${esc(c.id)}"><span class="meta">${ITEMS.filter(i => i.cat === c.id).length} Einträge</span><h3>${esc(c.name)}</h3><p>${esc(c.desc)}</p></button>`).join("")}</div>`;
+    return `<div class="pagehead"><h1>Übungen</h1><p>Wähle einen Bereich.</p></div>${adminBar(`<button class="btn red" data-admin-new="uebung">+ Neue Übung</button>`)}<div class="grid">${CATS.map(c => `<button class="vgtile" data-cat="${esc(c.id)}"><h3>${esc(c.name)}</h3></button>`).join("")}</div>`;
   },
 
   kat() {
@@ -451,7 +484,7 @@ const V = {
     return `<div class="crumb"><button data-go="kats">Übungen</button><span>›</span><span>${esc(c.name)}</span></div>
     <div class="pagehead"><h1>${esc(c.name)}</h1><p>${esc(c.desc)}</p></div>
     ${adminBar(`<button class="btn red" data-admin-new="uebung" data-kat="${esc(c.id)}">+ Übung in „${esc(c.name)}“</button>`)}
-    <div class="row"><label for="lvl" class="eyebrow">Niveau</label><select id="lvl" class="chip">${["alle", "Einsteiger", "Fortgeschritten"].map(x => `<option value="${x}" ${x === S.level ? "selected" : ""}>${x === "alle" ? "Alle" : x}</option>`).join("")}</select></div>
+    ${levelChips()}
     <div class="list">${l.length ? l.map(card).join("") : '<div class="empty">Für diese Auswahl gibt es noch nichts.</div>'}</div>`;
   },
 
@@ -469,7 +502,7 @@ const V = {
 
   vorgaben() {
     if (!S.vcat) {
-      return `<div class="pagehead"><h1>Vorgaben</h1><p>Wähle einen Bereich.</p></div><div class="grid">${Object.keys(VORG).map(k => `<button class="vgtile" data-v="${esc(k)}"><span class="meta">${VORG[k].length} Vorgaben</span><h3>${esc(k)}</h3></button>`).join("")}</div>`;
+      return `<div class="pagehead"><h1>Vorgaben</h1></div><div class="grid">${Object.keys(VORG).map(k => `<button class="vgtile" data-v="${esc(k)}"><h3>${esc(k)}</h3></button>`).join("")}</div>`;
     }
     const list = VORG[S.vcat] || [];
     return `<div class="crumb"><button data-go="vorgaben">Vorgaben</button><span>›</span><span>${esc(S.vcat)}</span></div>
@@ -477,6 +510,26 @@ const V = {
     <div class="chips mob" role="group" aria-label="Vorgaben-Bereich">${Object.keys(VORG).map(k => `<button class="chip" aria-pressed="${S.vcat === k}" data-v="${esc(k)}">${esc(k)}</button>`).join("")}</div>
     ${adminBar(`<button class="btn red" data-admin-new="vorgabe" data-kat="${esc(S.vcat)}">+ Vorgabe in „${esc(S.vcat)}“</button>`)}
     <div class="vcols">${list.map(v => `<div class="vitem">${esc(v.t)}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}${ADMIN && v.id ? `<br><button class="linkbtn" data-admin-vedit="${esc(v.id)}">bearbeiten</button>` : ""}</div>`).join("")}</div>`;
+  },
+
+  kontakt() {
+    return `<div class="pagehead"><h1>Kontakt</h1><p>Schreib mir eine Nachricht. Felder mit * sind Pflichtfelder.</p></div>
+    <form id="kf" novalidate>
+      <div class="field"><label for="k-vn">Vorname *</label><input id="k-vn" autocomplete="given-name"></div>
+      <div class="field"><label for="k-mail">E-Mail *</label><input id="k-mail" type="email" autocomplete="email"></div>
+      <div class="field"><label for="k-betreff">Betreff *</label><input id="k-betreff"></div>
+      <div class="field"><label for="k-text">Nachricht * <small>(mindestens 20 Zeichen)</small></label><textarea id="k-text"></textarea></div>
+      <p class="err" id="k-err" hidden></p>
+      <button class="btn red block" type="submit">Nachricht senden</button>
+    </form>`;
+  },
+
+  alle() {
+    const q = (S.aq || "").toLowerCase();
+    const l = ITEMS.filter(i => (S.level === "alle" || i.level === S.level) && (i.title + " " + i.ab + " " + i.cat).toLowerCase().includes(q));
+    return `<div class="pagehead"><h1>Alle Übungen</h1><p>${l.length} von ${ITEMS.length} Übungen</p></div>
+    ${levelChips()}
+    <div class="list">${l.length ? l.map(card).join("") : '<div class="empty">Keine Übung gefunden.</div>'}</div>`;
   },
 
   suche() {
@@ -562,9 +615,9 @@ const V = {
 function sideHTML() {
   if (!LOADED) return "";
   const b = (on, attrs, label, extra = "") => `<button class="navbtn${on ? " on" : ""}" ${attrs}><span>${label}</span>${extra}</button>`;
-  if (["kats", "kat", "item"].includes(S.view)) {
+  if (["kats", "kat", "item", "alle"].includes(S.view)) {
     const act = S.view === "item" ? ((ITEMS.find(x => x.id === S.id) || {}).cat) : S.cat;
-    return `<div class="lbl">Übungen</div>` + CATS.map(c => b(act === c.id, `data-cat="${esc(c.id)}"`, esc(c.name), `<span class="count">${ITEMS.filter(i => i.cat === c.id).length}</span>`)).join("") + `<button class="sidechest" data-go="einreichen" data-kind="Übung" aria-label="Weitere Übungen einreichen"><img src="kiste-neue-uebung.png" alt="Weitere Übungen einreichen"></button>`;
+    return sideTop() + `<div class="lbl">Übungen</div>` + CATS.map(c => b(act === c.id, `data-cat="${esc(c.id)}"`, esc(c.name), `<span class="count">${ITEMS.filter(i => i.cat === c.id).length}</span>`)).join("") + `<button class="sidechest" data-go="einreichen" data-kind="Übung" aria-label="Weitere Übungen einreichen"><img src="kiste-neue-uebung.png" alt="Weitere Übungen einreichen"></button>`;
   }
   if (S.view === "vorgaben") {
     return `<div class="lbl">Vorgaben</div>` + Object.keys(VORG).map(k => b(S.vcat === k, `data-v="${esc(k)}"`, esc(k), `<span class="count">${VORG[k].length}</span>`)).join("") + `<button class="sidechest" data-go="einreichen" data-kind="Vorgabe" aria-label="Neue Vorgaben einreichen"><img src="kiste-neue-vorgabe.png" alt="Neue Vorgaben einreichen"></button>`;
@@ -579,7 +632,7 @@ function topnavHTML() {
   const vo = Object.keys(VORG).map(k => `<button data-v="${esc(k)}">${esc(k)}</button>`).join("");
   return `<div class="dd"><button class="${ueAct}" data-go="kats">Übungen ▾</button><div class="ddmenu">${ue}</div></div>`
     + `<div class="dd"><button class="${act("vorgaben")}" data-go="vorgaben">Vorgaben ▾</button><div class="ddmenu">${vo}</div></div>`
-    + `<button class="${act("wuerfel")}" data-go="wuerfel">Szenenwürfel</button>`
+    + `<button class="${act("kontakt")}" data-go="kontakt">Kontakt</button>`
     + `<button class="${act("einreichen")}" data-go="einreichen">Eigene Idee einreichen</button>`;
 }
 
@@ -611,6 +664,10 @@ function render() {
   const fn = V[S.view] || V.start;
   $("#main").classList.toggle("home", S.view === "start");
   $("#main").innerHTML = `<div class="inner">${fn()}${footHTML()}</div>`;
+  const withDice = ["kats", "kat", "item", "alle"].includes(S.view);
+  $("#main").classList.toggle("withdice", withDice);
+  document.querySelectorAll("#dicebar").forEach(x => x.remove());
+  if (withDice) document.body.insertAdjacentHTML("beforeend", `<div class="dicebar" id="dicebar">${genHTML()}</div>`);
   if (S.view === "einreichen" && !S.sent) bindForm();
 }
 
@@ -655,6 +712,7 @@ document.addEventListener("click", e => {
   if (d.adminNew !== undefined) { editor(null, d.adminNew, d.kat || ""); return; }
   if (d.adminEdit !== undefined) { const i = findeItem(d.adminEdit); if (i) editor(i, "uebung"); return; }
   if (d.adminVedit !== undefined) { const f = findeVorgabe(d.adminVedit); if (f) editor({ ...f.v, kat: f.k, title: f.v.t, ab: f.v.h }, "vorgabe"); return; }
+  if (d.level !== undefined) { S.level = S.level === d.level ? "alle" : d.level; render(); return; }
   if (d.go) { if (d.kind) S.kind = d.kind; go(d.go); return; }
   if (d.cat !== undefined) { go("kat", { cat: d.cat }); return; }
   if (d.item) { go("item", { id: d.item }); return; }
@@ -674,8 +732,27 @@ document.addEventListener("click", e => {
   }
 });
 document.addEventListener("change", e => {
+  if (e.target.classList && e.target.classList.contains("dsel")) {
+    const ks = diceKeys().slice();
+    ks[+e.target.dataset.die] = e.target.value;
+    S.dice = ks;
+    S.draw = draw();
+    render();
+    return;
+  }
   if (e.target.id === "lvl") { S.level = e.target.value; render(); }
   if (e.target.id === "pp") { S.p = e.target.value; render(); }
+});
+document.addEventListener("focusin", e => {
+  if (e.target.id === "allq" && S.view !== "alle") { go("alle"); $("#allq").focus(); }
+});
+document.addEventListener("input", e => {
+  if (e.target.id !== "allq") return;
+  S.aq = e.target.value;
+  if (S.view === "alle") $("#main").innerHTML = `<div class="inner">${V.alle()}${footHTML()}</div>`;
+});
+document.addEventListener("submit", e => {
+  if (e.target.id === "kf") { e.preventDefault(); kontaktSenden(); }
 });
 $("#scrim").onclick = closeDrawer;
 document.addEventListener("input", e => {
