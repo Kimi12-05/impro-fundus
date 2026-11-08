@@ -188,10 +188,11 @@ const CONFIG = {
   SPENDE: { inhaber: "", iban: "", bic: "", zweck: "Spende Impro-Fundus" }
 };
 const UE_INFO = {
-  "2er": "Übungen für zwei Personen.",
-  "3er": "Übungen für drei Personen.",
-  "Gruppe": "Übungen für vier und mehr Personen.",
-  "Warm-Up": "Aufwärmen für den Probenbeginn."
+  "Zweierübungen": "Übungen für genau zwei Personen.",
+  "Dreierübungen": "Übungen für genau drei Personen.",
+  "Gruppenübungen": "Übungen für Gruppen.",
+  "Warm-Up-Spiele": "Aufwärmen für den Probenbeginn.",
+  "Kennenlernspiele": "Spiele, mit denen sich Gruppen besser kennenlernen."
 };
 
 let CATS = [], ITEMS = [], VORG = {}, LOADED = false, FEHLER = "";
@@ -199,7 +200,6 @@ let CATS = [], ITEMS = [], VORG = {}, LOADED = false, FEHLER = "";
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const catOf = id => CATS.find(c => c.id === id);
-const fits = (i, p) => p === "alle" || (p === "Gruppe" ? ((i.ex || 0) >= 4 || (i.bis || 0) >= 4) : (i.ex ? i.ex == p : (i.von && i.von <= +p && +p <= i.bis)));
 const shortOf = i => {
   if (!i.ab) return "Beschreibung folgt.";
   const z = i.ab.split(/\n/).find(l => l.trim().length > 30) || i.ab.split("\n")[0];
@@ -212,14 +212,8 @@ const draw = () => ({ Ort: pick("Orte"), Beziehung: pick("Beziehungen"), Gefühl
 const vCount = () => Object.values(VORG).reduce((a, x) => a + x.length, 0);
 
 function setData(d) {
-  CATS = d.uebungenReihe.filter(k => d.uebungen.some(u => u.kat === k)).map(k => ({ id: k, name: k, desc: UE_INFO[k] || "" }));
-  ITEMS = d.uebungen.map(u => {
-    const tn = String(u.tn || "").trim();
-    let ex = null, von = null, bis = null;
-    const m = tn.match(/^(\d+)\s*[–-]\s*(\d+)$/);
-    if (m) { von = +m[1]; bis = +m[2]; } else if (/^\d+$/.test(tn)) { ex = +tn; }
-    return { id: u.id, cat: u.kat, title: u.titel, ex, von, bis, pers: tn || "offen", level: u.level || "", ab: u.ablauf || "", dauer: u.dauer || "", eig: u.eig || [] };
-  });
+  CATS = d.uebungenReihe.map(k => ({ id: k, name: k, desc: UE_INFO[k] || "" }));
+  ITEMS = d.uebungen.map(u => ({ id: u.id, cat: u.kat, title: u.titel, level: u.level || "", ab: u.ablauf || "", dauer: u.dauer || "", eig: u.eig || [] }));
   VORG = {};
   d.vorgabenReihe.forEach(k => { if (d.vorgaben[k]) VORG[k] = d.vorgaben[k]; });
   Object.keys(d.vorgaben).forEach(k => { if (!VORG[k]) VORG[k] = d.vorgaben[k]; });
@@ -269,7 +263,7 @@ function bottomHTML() {
   }).join("");
 }
 
-const card = i => `<button class="card" data-item="${esc(i.id)}"><span class="eyebrow">${esc(i.cat)}${i.dauer ? " · " + esc(i.dauer) : ""}</span><h3>${esc(i.title)}${!i.ab ? '<span class="pill todo">folgt</span>' : ""}</h3><p>${esc(shortOf(i))}</p><span class="meta"><span>${esc(i.pers)} Pers.</span>${i.level ? `<span>${esc(i.level)}</span>` : ""}</span></button>`;
+const card = i => `<button class="card" data-item="${esc(i.id)}"><span class="eyebrow">${esc(i.cat)}${i.dauer ? " · " + esc(i.dauer) : ""}</span><h3>${esc(i.title)}${!i.ab ? '<span class="pill todo">folgt</span>' : ""}</h3><p>${esc(shortOf(i))}</p><span class="meta">${i.level ? `<span>${esc(i.level)}</span>` : ""}</span></button>`;
 const genHTML = () => `<section class="gen" aria-live="polite"><span class="eyebrow">Szenen-Würfel</span><div class="gen-slots">${Object.entries(S.draw || {}).map(([k, v]) => `<div class="slot"><span>${k}</span><strong>${esc(v)}</strong></div>`).join("")}</div><div><button class="btn red" data-roll>Neu würfeln</button></div></section>`;
 
 const V = {
@@ -279,7 +273,7 @@ const V = {
     <section class="hero"><span class="eyebrow">${ITEMS.length} Übungen · ${vCount()} Vorgaben</span><h1>Der Fundus für alle, die Impro spielen.</h1><p>Übungen für zwei, drei und mehr Personen, Warm-ups und Vorgaben für eure Szenen. Kostenlos und offen für eure Ideen.</p></section>
     <div class="grid">
       <button class="tile" data-go="kats"><h3>Übungen</h3><p>Übungen für zwei, drei und mehr Personen sowie Warm-ups.</p></button>
-      <button class="tile" data-go="kats"><h3>Kennenlernspiele</h3><p>Spiele, mit denen sich Gruppen besser kennenlernen.</p></button>
+      <button class="tile" data-cat="Kennenlernspiele"><h3>Kennenlernspiele</h3><p>Spiele, mit denen sich Gruppen besser kennenlernen.</p></button>
       <button class="tile" data-go="vorgaben"><h3>Vorgaben</h3><p>Orte, Gefühle, Ticks, Phobien, Berufe, Genres und mehr für eure Szenen.</p></button>
       <button class="tile" data-go="wuerfel"><h3>Szenenwürfel</h3><p>Würfle eine zufällige Kombination aus Ort, Beziehung, Gefühl und Tätigkeit.</p></button>
       <button class="tile" data-go="impro"><h3>Was ist eigentlich Impro?</h3><p>Eine kurze Einführung in das Improvisationstheater.</p></button>
@@ -295,10 +289,10 @@ const V = {
 
   kat() {
     const c = catOf(S.cat);
-    const l = ITEMS.filter(i => i.cat === c.id && (S.level === "alle" || i.level === S.level) && fits(i, S.p));
+    const l = ITEMS.filter(i => i.cat === c.id && (S.level === "alle" || i.level === S.level));
     return `<div class="crumb"><button data-go="kats">Übungen & Spiele</button><span>›</span><span>${esc(c.name)}</span></div>
     <div class="pagehead"><h1>${esc(c.name)}</h1><p>${esc(c.desc)}</p></div>
-    <div class="row"><label for="pp" class="eyebrow">Personen</label><select id="pp" class="chip">${[["alle", "Alle"], ["2", "2 Personen"], ["3", "3 Personen"], ["Gruppe", "Gruppe (4+)"]].map(([v, t]) => `<option value="${v}" ${v === S.p ? "selected" : ""}>${t}</option>`).join("")}</select><label for="lvl" class="eyebrow">Niveau</label><select id="lvl" class="chip">${["alle", "Einsteiger", "Fortgeschritten"].map(x => `<option value="${x}" ${x === S.level ? "selected" : ""}>${x === "alle" ? "Alle" : x}</option>`).join("")}</select></div>
+    <div class="row"><label for="lvl" class="eyebrow">Niveau</label><select id="lvl" class="chip">${["alle", "Einsteiger", "Fortgeschritten"].map(x => `<option value="${x}" ${x === S.level ? "selected" : ""}>${x === "alle" ? "Alle" : x}</option>`).join("")}</select></div>
     <div class="list">${l.length ? l.map(card).join("") : '<div class="empty">Für diese Auswahl gibt es noch nichts.</div>'}</div>`;
   },
 
@@ -306,7 +300,7 @@ const V = {
     const i = ITEMS.find(x => x.id === S.id), c = catOf(i.cat);
     return `<div class="crumb"><button data-go="kats">Übungen & Spiele</button><span>›</span><button data-cat="${esc(c.id)}">${esc(c.name)}</button></div>
     <article class="detail"><div class="pagehead"><span><span class="pill red">${esc(c.name)}</span></span><h1>${esc(i.title)}</h1></div>
-    <div class="facts"><div class="fact"><span>Personen</span><strong>${esc(i.pers)}</strong></div><div class="fact"><span>Dauer</span><strong>${esc(i.dauer || "–")}</strong></div><div class="fact"><span>Niveau</span><strong>${esc(i.level || "–")}</strong></div></div>
+    <div class="facts"><div class="fact"><span>Dauer</span><strong>${esc(i.dauer || "–")}</strong></div><div class="fact"><span>Niveau</span><strong>${esc(i.level || "–")}</strong></div></div>
     ${i.eig.length ? `<div class="taglist">${i.eig.map(e => `<span>${esc(e)}</span>`).join("")}</div>` : ""}
     ${i.ab ? `<section class="prose"><h2>So geht's</h2>${prose(i.ab)}</section>` : `<div class="tip"><strong>Hier fehlt noch eine Beschreibung.</strong> Du kennst das Spiel? <button class="linkbtn" data-go="einreichen">Beschreibung einreichen</button></div>`}
     </article>
@@ -316,12 +310,9 @@ const V = {
   vorgaben() {
     const keys = Object.keys(VORG);
     const list = VORG[S.vcat] || [];
-    const props = [...new Set(list.flatMap(x => x.e))];
-    const sel = list.filter(x => S.vprop === "alle" || x.e.includes(S.vprop));
     return `<div class="pagehead"><h1>Vorgaben</h1><p>Anregungen für Szenen. Stöbere in den Listen.</p></div>
     <div class="chips mob" role="group" aria-label="Vorgaben-Bereich">${keys.map(k => `<button class="chip" aria-pressed="${S.vcat === k}" data-v="${esc(k)}">${esc(k)} <span class="meta">${VORG[k].length}</span></button>`).join("")}</div>
-    <div class="row"><span class="eyebrow">Eigenschaft</span><div class="chips" role="group" aria-label="Eigenschaft"><button class="chip small" aria-pressed="${S.vprop === "alle"}" data-vp="alle">Alle</button>${props.map(p => `<button class="chip small" aria-pressed="${S.vprop === p}" data-vp="${esc(p)}">${esc(p)}</button>`).join("")}</div></div>
-    <div class="taglist">${sel.map(v => `<span>${esc(v.t)}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}</span>`).join("")}</div>`;
+    <div class="taglist">${list.map(v => `<span>${esc(v.t)}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}</span>`).join("")}</div>`;
   },
 
   suche() {
