@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#D63368">
+<meta name="theme-color" content="#B02E28">
 <meta name="description" content="Impro-Fundus: Warm-ups, Übungen, Szenenspiele und Vorgaben für Improtheater.">
 <title>Impro-Fundus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;700&family=Courier+Prime:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
 <style>
-:root{--red:#D63368;--maroon:#B82A57;--bg:#F5F0E8;--card:#FFFFFF;--field:#FFFFFF;--line:#E6DFD4;--fg:#1F1B17;--muted:#6F665D;--ok:#2e9e5b;--no:#B82A57;--hintbg:#fff7e0;--overlay:rgba(0,0,0,.45);color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1A1714;--card:#2A2622;--field:#2A2622;--line:#3A342E;--fg:#F3ECE3;--muted:#ABA196;--red:#E2558A;--maroon:#E2558A;--ok:#2e9e5b;--no:#a8324a;--hintbg:#3a3320;--overlay:rgba(0,0,0,.6);color-scheme:dark}}
+:root{--red:#B02E28;--maroon:#8E2220;--bg:#F5F0E8;--card:#FFFFFF;--field:#FFFFFF;--line:#E6DFD4;--fg:#1F1B17;--muted:#6F665D;--ok:#2e9e5b;--no:#8E2220;--hintbg:#fff7e0;--overlay:rgba(0,0,0,.45);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1A1714;--card:#2A2622;--field:#2A2622;--line:#3A342E;--fg:#F3ECE3;--muted:#ABA196;--red:#D8564F;--maroon:#D8564F;--ok:#2e9e5b;--no:#a8324a;--hintbg:#3a3320;--overlay:rgba(0,0,0,.6);color-scheme:dark}}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
 body{background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif;font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
@@ -58,10 +58,10 @@ main{flex:1;min-width:0;padding:20px 16px 110px}
   main{padding:32px 44px 60px}
   .drawer,.bottom,.menu-btn,.scrim{display:none!important}
   .top{display:grid;grid-template-columns:1fr auto 1fr;gap:16px}
-  .logo{justify-self:start}
+  .logo{justify-self:center}
   .topwrap .topnav{display:flex;height:auto;padding:0;justify-content:center}
-  .rightbox{justify-self:end;flex:none}
-  .search{width:200px;max-width:200px;flex:none}
+  .rightbox{justify-self:stretch;width:100%;min-width:0}
+  .search{flex:0 1 380px;width:380px;max-width:380px;min-width:0;margin:0 auto}
   .topnav>button,.dd>button{padding:0 10px}
   .chips.mob{display:none}
 }
@@ -117,11 +117,11 @@ main{flex:1;min-width:0;padding:20px 16px 110px}
   .home .quote{padding:12px 20px}
   .home .quote p{font-size:26px}
   .start-grid{gap:18px}
-  .home .start-grid .tile{min-height:100px;padding:12px 16px}
-  .home .start-grid .gen .btn{min-height:40px}
+  .home .tile{min-height:100px;padding:12px 16px}
+  .home .gen .btn{min-height:40px}
 }
 @media (min-width:900px) and (max-height:800px){
-  .home .start-grid .tile{min-height:86px}
+  .home .tile{min-height:86px}
   .home .inner{gap:10px}
   main.home{padding-bottom:20px}
   .start-grid{gap:14px}
@@ -131,11 +131,11 @@ main{flex:1;min-width:0;padding:20px 16px 110px}
   .home .chest img{height:108px}
   .home .hero h1{font-size:36px}
   .home .quote p{font-size:22px}
-  .home .start-grid .gen{padding:10px 14px}
-  .home .start-grid .slot strong{font-size:18px}
-  .home .start-grid .gen{padding:12px 16px;gap:8px}
-  .home .start-grid .gen-slots{gap:8px}
-  .home .start-grid .slot{padding:6px 10px}
+  .home .gen{padding:10px 14px}
+  .home .slot strong{font-size:18px}
+  .home .gen{padding:12px 16px;gap:8px}
+  .home .gen-slots{gap:8px}
+  .home .slot{padding:6px 10px}
 }
 .start-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
 .start-grid .s2{grid-column:span 2;min-height:200px}
@@ -217,35 +217,40 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
 .ttl{margin:4px 0 0}
 .ttl svg{display:block;width:100%;height:auto;overflow:visible}
 .ttl text{font-family:Caveat,cursive;font-weight:400;font-size:58px;fill:var(--fg)}
-.home .quote{position:relative;text-align:left;display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid var(--line);border-radius:6px;box-shadow:0 1px 2px rgba(60,45,30,.06);transform:rotate(-.3deg);margin:16px 12px 8px;padding:24px 28px 16px}
+.home .quote{position:relative;text-align:left;display:flex;flex-direction:column;gap:6px;background:#FFFFFF;border:1px solid var(--line);border-radius:6px;box-shadow:0 1px 2px rgba(60,45,30,.06);transform:rotate(-.3deg);margin:0 12px;padding:24px 28px 16px}
 .home .quote .tape{position:absolute;top:-9px;width:64px;height:18px;background:rgba(232,214,140,.35);box-shadow:none}
 .home .quote .tape.l{left:12%;transform:rotate(-4deg)}
 .home .quote .tape.r{right:12%;transform:rotate(3deg)}
 .home .quote p{font-family:Caveat,cursive;font-size:34px;line-height:1.15;color:var(--fg)}
 .home .quote .meta{font-family:Caveat,cursive;font-size:21px;color:var(--muted)}
 .home .copybtn{color:var(--muted)}
-.home .start-grid .gen{background:var(--card);border:1px solid var(--line);box-shadow:0 1px 2px rgba(60,45,30,.06);border-radius:22px;padding:20px 22px;gap:14px}
-.home .start-grid .gen .eyebrow{font-size:13px;letter-spacing:.08em}
-.home .start-grid .slot{background:#fff;border:1px solid #e0d9cf;border-radius:12px;padding:10px 14px;min-height:76px}
-.home .start-grid .slot span{font-size:12px}
-.home .start-grid .slot strong{font-family:Caveat,cursive;font-weight:400;font-size:26px;line-height:1.1;display:block;margin-top:8px}
-.home .start-grid .gen-slots{grid-template-columns:repeat(4,minmax(0,1fr))}
-.home .start-grid .chest .cbox,.home .start-grid .chest img{height:clamp(90px,13vh,140px)}
+.home .gen{background:var(--card);border:1px solid var(--line);box-shadow:0 1px 2px rgba(60,45,30,.06);border-radius:22px;padding:20px 22px;gap:14px}
+.home .gen .eyebrow{font-size:13px;letter-spacing:.08em}
+.home .slot{background:#fff;border:1px solid #e0d9cf;border-radius:12px;padding:10px 14px;min-height:76px}
+.home .slot span{font-size:12px}
+.home .slot strong{font-family:Caveat,cursive;font-weight:400;font-size:26px;line-height:1.1;display:block;margin-top:8px}
+.home .gen-slots{grid-template-columns:repeat(4,minmax(0,1fr))}
+.home .chest .cbox,.home .chest img{height:clamp(90px,13vh,140px)}
 @media (min-width:900px) and (max-height:800px){
   .home .quote{padding:12px 22px 10px}
   .home .quote p{font-size:24px}
   .home .quote .meta{font-size:17px}
-  .home .start-grid .gen{padding:12px 16px;gap:8px}
-  .home .start-grid .slot{min-height:56px;padding:6px 10px}
-  .home .start-grid .slot strong{font-size:22px;margin-top:2px}
-  .home .start-grid .tile{min-height:70px;padding:10px 14px}
-  .home .start-grid .tile h3{font-size:18px}
+  .home .gen{padding:12px 16px;gap:8px}
+  .home .slot{min-height:56px;padding:6px 10px}
+  .home .slot strong{font-size:22px;margin-top:2px}
+  .home .tile{min-height:70px;padding:10px 14px}
+  .home .tile h3{font-size:18px}
 }
 /* Vorgaben-Einträge als Notizzettel wie das Zitat */
 .vcols{column-width:260px;column-gap:24px}
-.vitem{position:relative;break-inside:avoid;margin:0 0 22px;padding:20px 18px 14px;background:#FFFFFF;border:1px solid var(--line);border-radius:6px;box-shadow:0 1px 2px rgba(60,45,30,.06);font-family:Caveat,cursive;font-size:24px;line-height:1.2;color:var(--fg);transform:rotate(-.4deg)}
-.vitem:nth-child(even){transform:rotate(.4deg)}
+.vitem{break-inside:avoid;margin:0 0 22px;padding:30px 30px 24px;min-height:124px;background:url(note-a.png) center/100% 100% no-repeat;border:0;font-family:Caveat,cursive;font-size:24px;line-height:1.2;color:var(--fg)}
+.vitem:nth-child(even){background-image:url(note-b.png)}
 .vitem .meta{display:block;margin-top:6px;font-family:Caveat,cursive;font-size:18px;color:var(--muted);letter-spacing:0}
+.home .inner{min-height:calc(100dvh - var(--hh) - 96px);justify-content:space-evenly;gap:12px}
+.home .sep{margin:0}
+.chests{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:center;justify-items:center}
+.home .chests .chest .cbox,.home .chests .chest img{height:clamp(90px,13vh,140px)}
+.startbtns{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 </style>
 </head>
 <body>
@@ -379,13 +384,15 @@ const V = {
     return `<h1 class="ttl"><svg viewBox="0 0 920 80" role="img" aria-label="Der Fundus für alle, die Impro spielen."><text x="0" y="62" textLength="920" lengthAdjust="spacingAndGlyphs">Der Fundus für alle, die Impro spielen.</text></svg></h1>
     <div class="quote"><span class="tape l"></span><span class="tape r"></span><p>„${esc(z.t)}“</p><div class="qfoot"><span class="meta">— ${esc(z.a)}</span><button class="copybtn" data-quote="1" data-txt="${esc("„" + z.t + "“ – " + z.a)}" aria-label="Zitat kopieren" title="Zitat kopieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></div></div>
     <hr class="sep">
-    <div class="start-grid">
-      <button class="chest s2" data-go="kats" aria-label="Übungen"><span class="cbox"><img src="kiste-uebungen.png" alt="Übungen"></span></button>
-      <button class="chest s2" data-cat="Kennenlernspiele" aria-label="Kennenlernspiele"><span class="cbox"><img src="kiste-kennenlernen.png" alt="Kennenlernspiele"></span></button>
-      <button class="chest s2" data-go="vorgaben" aria-label="Vorgaben"><span class="cbox"><img src="kiste-vorgaben.png" alt="Vorgaben"></span></button>
-      <div class="s6">${genHTML()}</div>
-      <button class="tile s3" data-go="impro"><h3>Was ist eigentlich Impro?</h3><p>Eine kurze Einführung in das Improvisationstheater.</p></button>
-      <button class="tile s3" data-go="einreichen"><h3>Eigene Idee einreichen</h3><p>Du kennst ein Spiel, das hier fehlt? Schick es uns, dann prüfen wir es.</p></button>
+    <div class="chests">
+      <button class="chest" data-go="kats" aria-label="Übungen"><span class="cbox"><img src="kiste-uebungen.png" alt="Übungen"></span></button>
+      <button class="chest" data-cat="Kennenlernspiele" aria-label="Kennenlernspiele"><span class="cbox"><img src="kiste-kennenlernen.png" alt="Kennenlernspiele"></span></button>
+      <button class="chest" data-go="vorgaben" aria-label="Vorgaben"><span class="cbox"><img src="kiste-vorgaben.png" alt="Vorgaben"></span></button>
+    </div>
+    ${genHTML()}
+    <div class="startbtns">
+      <button class="tile" data-go="impro"><h3>Was ist eigentlich Impro?</h3><p>Eine kurze Einführung in das Improvisationstheater.</p></button>
+      <button class="tile" data-go="einreichen"><h3>Eigene Idee einreichen</h3><p>Du kennst ein Spiel, das hier fehlt? Schick es uns, dann prüfen wir es.</p></button>
     </div>`;
   },
 
@@ -472,10 +479,10 @@ const V = {
       : `<div class="notice"><strong>Die Spendenfunktion wird später eingebaut.</strong><span>Bis dahin kannst du den Fundus bei Fragen direkt ansprechen.</span></div>` + `<svg viewBox="0 0 320 180" width="100%" role="img" aria-label="Kommt bald" style="max-width:320px;height:auto;display:block;margin:0 auto">
   <rect width="320" height="180" rx="18" fill="#FFFFFF"/>
   <rect x="0" y="0" width="320" height="180" rx="18" fill="none" stroke="#E6DFD4"/>
-  <path d="M40 60 h120 a16 16 0 0 1 16 16 v38 a16 16 0 0 1 -16 16 h-74 l-22 18 v-18 h-24 a16 16 0 0 1 -16 -16 v-38 a16 16 0 0 1 16 -16 z" fill="#D63368"/>
+  <path d="M40 60 h120 a16 16 0 0 1 16 16 v38 a16 16 0 0 1 -16 16 h-74 l-22 18 v-18 h-24 a16 16 0 0 1 -16 -16 v-38 a16 16 0 0 1 16 -16 z" fill="#B02E28"/>
   <circle cx="72" cy="95" r="6" fill="#fff"/><circle cx="100" cy="95" r="6" fill="#fff"/><circle cx="128" cy="95" r="6" fill="#fff"/>
-  <path d="M200 96 h80 a14 14 0 0 1 14 14 v28 a14 14 0 0 1 -14 14 h-60 l-14 14 v-14 h-6 a14 14 0 0 1 -14 -14 v-28 a14 14 0 0 1 14 -14 z" fill="#ffffff" stroke="#B82A57" stroke-width="3"/>
-  <path d="M258 40 l5 12 13 2 -10 8 3 13 -11 -7 -11 7 3 -13 -10 -8 13 -2 z" fill="#B82A57"/>
+  <path d="M200 96 h80 a14 14 0 0 1 14 14 v28 a14 14 0 0 1 -14 14 h-60 l-14 14 v-14 h-6 a14 14 0 0 1 -14 -14 v-28 a14 14 0 0 1 14 -14 z" fill="#ffffff" stroke="#8E2220" stroke-width="3"/>
+  <path d="M258 40 l5 12 13 2 -10 8 3 13 -11 -7 -11 7 3 -13 -10 -8 13 -2 z" fill="#8E2220"/>
   <text x="160" y="172" text-anchor="middle" font-family="Caveat,cursive" font-size="20" fill="#1F1B17">Kommt bald</text>
 </svg>`;
     return `<div class="pagehead"><h1>Den Fundus unterstützen</h1><p>Der Impro-Fundus ist kostenlos und werbefrei. Mit einer Spende hilfst du bei Hosting, Pflege und neuen Inhalten.</p></div>
