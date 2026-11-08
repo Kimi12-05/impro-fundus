@@ -398,6 +398,8 @@ function mailTest(){
 const KONTAKT_EMPFAENGER = 'leon@impro-fundus.de';
 function kontaktNachricht(req){
   const vn = String(req.vorname||'').trim().slice(0,60);
+  const nn = String(req.nachname||'').trim().slice(0,60);
+  const tel = String(req.telefon||'').trim().slice(0,40);
   const mail = String(req.mail||'').trim().slice(0,120);
   const bt = String(req.betreff||'').trim().slice(0,120);
   const tx = String(req.text||'').trim().slice(0,5000);
@@ -407,7 +409,7 @@ function kontaktNachricht(req){
   MailApp.sendEmail({
     to: KONTAKT_EMPFAENGER,
     subject: 'Impro-Fundus Kontakt: ' + bt,
-    body: 'Von: ' + vn + '\nE-Mail: ' + mail + '\n\n' + tx,
+    body: 'Von: ' + vn + ' ' + nn + '\nE-Mail: ' + mail + (tel ? '\nHandy: ' + tel : '') + '\n\n' + tx,
     replyTo: mail
   });
   return {ok:true};
