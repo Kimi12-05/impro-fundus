@@ -234,6 +234,9 @@ function handle(req){
       case 'adminAnmelden': return adminAnmelden(req);
       case 'adminSpeichern':
       case 'adminLoeschen': return adminAktion(req);
+      case 'adminListe':
+      case 'adminHinzufuegen':
+      case 'adminEntfernen': return adminVerwaltung(req);
     }
     const a = berechtigt(req);
     if(!a.ok) return a;
@@ -324,6 +327,25 @@ function adminAnmelden(req){
   }
   props.setProperty(key, JSON.stringify(f));
   return {ok:false, msg:'Benutzername oder Passwort falsch (' + (MAX_FEHLER - f.n) + ' Versuche übrig).'};
+}
+// Admins über die Website verwalten (nur für angemeldete Admins)
+function adminVerwaltung(req){
+  const erlaubt = CacheService.getScriptCache().get('adm_' + String(req.token || ''));
+  if(erlaubt !== '1') return {ok:false, msg:'Bitte melde dich erneut als Admin an.'};
+  if(req.action === 'adminListe') return {ok:true, admins: adminListeLesen().map(a => a.name)};
+  if(req.action === 'adminHinzufuegen'){
+    try { adminHinzufuegenWerte(req.name, req.passwort); }
+    catch(e){ return {ok:false, msg:e.message}; }
+    return {ok:true, admins: adminListeLesen().map(a => a.name)};
+  }
+  if(req.action === 'adminEntfernen'){
+    const n = String(req.name || '').trim().toLowerCase();
+    const liste = adminListeLesen();
+    if(liste.length <= 1) return {ok:false, msg:'Es muss mindestens ein Admin bleiben.'};
+    adminListeSchreiben(liste.filter(a => a.name !== n));
+    return {ok:true, admins: adminListeLesen().map(a => a.name)};
+  }
+  return {ok:false, msg:'Unbekannte Aktion.'};
 }
 function adminAktion(req){
   const erlaubt = CacheService.getScriptCache().get('adm_' + String(req.token || ''));
