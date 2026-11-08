@@ -118,6 +118,8 @@ main{flex:1;min-width:0;padding:20px 16px 110px}
 .pagehead{display:flex;flex-direction:column;gap:6px}
 .pagehead p{margin:0;color:var(--muted);max-width:62ch}
 .chips{display:flex;gap:8px;flex-wrap:wrap}
+.vcols{column-width:260px;column-gap:28px}
+.vitem{break-inside:avoid;padding:10px 0;border-bottom:1px solid var(--line);font-size:16px}
 .chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-size:14px}
 .chip[aria-pressed="true"]{background:var(--red);border-color:var(--red);color:#fff}
 .chip.small{padding:3px 10px;font-size:13px}
@@ -232,7 +234,7 @@ function setData(d) {
 const S = { view: "start", cat: null, id: null, vcat: null, vprop: "alle", q: "", sent: false, level: "alle", p: "alle", draw: null };
 
 function go(view, o = {}) {
-  Object.assign(S, { view, cat: null, id: null }, o);
+  Object.assign(S, { view, cat: null, id: null, vcat: view === "vorgaben" ? null : S.vcat }, o);
   if (view !== "einreichen") S.sent = false;
   closeDrawer(); render(); window.scrollTo(0, 0);
 }
@@ -315,11 +317,14 @@ const V = {
   },
 
   vorgaben() {
-    const keys = Object.keys(VORG);
+    if (!S.vcat) {
+      return `<div class="pagehead"><h1>Vorgaben</h1><p>Wähle einen Bereich.</p></div><div class="grid">${Object.keys(VORG).map(k => `<button class="tile" data-v="${esc(k)}"><span class="meta">${VORG[k].length} Vorgaben</span><h3>${esc(k)}</h3></button>`).join("")}</div>`;
+    }
     const list = VORG[S.vcat] || [];
-    return `<div class="pagehead"><h1>Vorgaben</h1><p>Anregungen für Szenen. Stöbere in den Listen.</p></div>
-    <div class="chips mob" role="group" aria-label="Vorgaben-Bereich">${keys.map(k => `<button class="chip" aria-pressed="${S.vcat === k}" data-v="${esc(k)}">${esc(k)} <span class="meta">${VORG[k].length}</span></button>`).join("")}</div>
-    <div class="taglist">${list.map(v => `<span>${esc(v.t)}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}</span>`).join("")}</div>`;
+    return `<div class="crumb"><button data-go="vorgaben">Vorgaben</button><span>›</span><span>${esc(S.vcat)}</span></div>
+    <div class="pagehead"><h1>${esc(S.vcat)}</h1><p>${list.length} Vorgaben</p></div>
+    <div class="chips mob" role="group" aria-label="Vorgaben-Bereich">${Object.keys(VORG).map(k => `<button class="chip" aria-pressed="${S.vcat === k}" data-v="${esc(k)}">${esc(k)}</button>`).join("")}</div>
+    <div class="vcols">${list.map(v => `<div class="vitem">${esc(v.t)}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}</div>`).join("")}</div>`;
   },
 
   suche() {
