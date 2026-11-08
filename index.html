@@ -241,6 +241,11 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
   .home .start-grid .tile{min-height:70px;padding:10px 14px}
   .home .start-grid .tile h3{font-size:18px}
 }
+/* Vorgaben-Einträge als Notizzettel wie das Zitat */
+.vcols{column-width:260px;column-gap:24px}
+.vitem{position:relative;break-inside:avoid;margin:0 0 22px;padding:20px 18px 14px;background:#FFFFFF;border:1px solid var(--line);border-radius:6px;box-shadow:0 1px 2px rgba(60,45,30,.06);font-family:Caveat,cursive;font-size:24px;line-height:1.2;color:var(--fg);transform:rotate(-.4deg)}
+.vitem:nth-child(even){transform:rotate(.4deg)}
+.vitem .meta{display:block;margin-top:6px;font-family:Caveat,cursive;font-size:18px;color:var(--muted);letter-spacing:0}
 </style>
 </head>
 <body>
