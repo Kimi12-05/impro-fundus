@@ -282,6 +282,9 @@ button,input,select,textarea{font-size:inherit}
 .ttl,.ttl *,.quote,.quote *,.vitem,.vitem *,.vgtile,.vgtile *,.slot strong,.slot strong *{font-size-adjust:none}
 .sidebtn{margin-top:auto;margin-bottom:8px;display:block;width:100%;background:var(--red);color:#fff;border:0;border-radius:16px;padding:14px 16px;font:inherit;font-size:20px;font-weight:700;text-align:center;cursor:pointer}
 .sidebtn:hover{background:var(--maroon)}
+.sidechest{margin-top:auto;margin-bottom:8px;display:block;width:100%;background:none;border:0;padding:0;cursor:pointer}
+.sidechest img{display:block;width:100%;height:auto}
+.sidechest:hover img{opacity:.9}
 </style>
 </head>
 <body>
@@ -530,10 +533,10 @@ function sideHTML() {
   const b = (on, attrs, label, extra = "") => `<button class="navbtn${on ? " on" : ""}" ${attrs}><span>${label}</span>${extra}</button>`;
   if (["kats", "kat", "item"].includes(S.view)) {
     const act = S.view === "item" ? ((ITEMS.find(x => x.id === S.id) || {}).cat) : S.cat;
-    return `<div class="lbl">Übungen</div>` + CATS.map(c => b(act === c.id, `data-cat="${esc(c.id)}"`, esc(c.name), `<span class="count">${ITEMS.filter(i => i.cat === c.id).length}</span>`)).join("") + `<button class="sidebtn" data-go="einreichen" data-kind="Übung">Weitere Übungen einreichen</button>`;
+    return `<div class="lbl">Übungen</div>` + CATS.map(c => b(act === c.id, `data-cat="${esc(c.id)}"`, esc(c.name), `<span class="count">${ITEMS.filter(i => i.cat === c.id).length}</span>`)).join("") + `<button class="sidechest" data-go="einreichen" data-kind="Übung" aria-label="Weitere Übungen einreichen"><img src="kiste-neue-uebung.png" alt="Weitere Übungen einreichen"></button>`;
   }
   if (S.view === "vorgaben") {
-    return `<div class="lbl">Vorgaben</div>` + Object.keys(VORG).map(k => b(S.vcat === k, `data-v="${esc(k)}"`, esc(k), `<span class="count">${VORG[k].length}</span>`)).join("") + `<button class="sidebtn" data-go="einreichen" data-kind="Vorgabe">Neue Vorgaben einreichen</button>`;
+    return `<div class="lbl">Vorgaben</div>` + Object.keys(VORG).map(k => b(S.vcat === k, `data-v="${esc(k)}"`, esc(k), `<span class="count">${VORG[k].length}</span>`)).join("") + `<button class="sidechest" data-go="einreichen" data-kind="Vorgabe" aria-label="Neue Vorgaben einreichen"><img src="kiste-neue-vorgabe.png" alt="Neue Vorgaben einreichen"></button>`;
   }
   return "";
 }
