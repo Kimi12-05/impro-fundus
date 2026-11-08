@@ -312,6 +312,7 @@ button,input,select,textarea{font-size:inherit}
 .dbubble{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;border:0;background:var(--red);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.25);display:grid;place-items:center;cursor:pointer;z-index:17}
 .dbubble svg{width:28px;height:28px}
 .dbubble:focus-visible{outline:3px solid var(--fg);outline-offset:3px}
+.dbubble.on{z-index:61;background:var(--fg);color:var(--bg)}
 .dicepop .gen{display:flex;flex-direction:column;gap:14px}
 .dicepop .gen .eyebrow{display:block}
 .dicepop .gen-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -499,7 +500,6 @@ const V = {
       <button class="chest" data-cat="Kennenlernspiele" aria-label="Kennenlernspiele"><span class="cbox"><img src="kiste-kennenlernen.png" alt="Kennenlernspiele"></span></button>
       <button class="chest" data-go="vorgaben" aria-label="Vorgaben"><span class="cbox"><img src="kiste-vorgaben.png" alt="Vorgaben"></span></button>
     </div>
-    ${genHTML()}
     <div class="startbtns">
       <button class="tile" data-go="impro"><h3>Was ist Impro?</h3></button>
       <button class="tile" data-go="einreichen"><h3>Idee einreichen</h3></button>
@@ -720,7 +720,7 @@ function render() {
   linkify($("#main"));
   $("#main").classList.toggle("withdice", false);
   document.querySelectorAll("#dicebar, .dbubble").forEach(x => x.remove());
-  if (S.view !== "start") document.body.insertAdjacentHTML("beforeend", `<button class="dbubble" data-dicedlg aria-label="Szenenwürfel öffnen" title="Szenenwürfel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/><circle cx="16" cy="16" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg></button>`);
+  document.body.insertAdjacentHTML("beforeend", `<button class="dbubble${S.diceOpen ? " on" : ""}" data-dicedlg aria-label="${S.diceOpen ? "Szenenwürfel schließen" : "Szenenwürfel öffnen"}" aria-expanded="${!!S.diceOpen}" title="Szenenwürfel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg></button>`);
   if (S.diceOpen && !$("#dlg").hidden) $("#dlgBox").innerHTML = dicePop();
   if (S.view === "einreichen" && !S.sent) bindForm();
 }
@@ -776,7 +776,10 @@ document.addEventListener("click", e => {
   if (d.item) { go("item", { id: d.item }); return; }
   if (d.v) { go("vorgaben", { vcat: d.v, vprop: "alle" }); return; }
   if (d.vp) { S.vprop = d.vp; render(); return; }
-  if (d.dicedlg !== undefined) { S.diceOpen = true; S.draw = S.draw || draw(); openDlg(dicePop()); return; }
+  if (d.dicedlg !== undefined) {
+    if (S.diceOpen) { closeDlg(); render(); return; }
+    S.diceOpen = true; S.draw = S.draw || draw(); openDlg(dicePop()); render(); return;
+  }
   if (d.dtog !== undefined) { S.dpick = S.dpick === +d.dtog ? null : +d.dtog; render(); return; }
   if (d.dset !== undefined) { const ks = diceKeys().slice(); ks[+d.dset] = d.val; S.dice = ks; S.dpick = null; S.draw = draw(); render(); return; }
   if (d.kneu !== undefined) { S.kSent = false; render(); return; }
