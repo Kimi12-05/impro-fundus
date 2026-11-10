@@ -289,11 +289,38 @@ function pruefePin(m, pin){
 }
 
 /* ---------- Schnittstelle für die Website ---------- */
+// Zwischenspeicher für die öffentliche Fundus-Antwort (macht die Website deutlich schneller).
+// Wird bei jeder Änderung über die Website geleert; Änderungen direkt im Sheet erscheinen nach spätestens 10 Minuten.
+const FD_KEY = 'fd15_', FD_STUECK = 30000, FD_SEKUNDEN = 600;
+function fundusCacheLesen(){
+  try {
+    const c = CacheService.getScriptCache();
+    const n = Number(c.get(FD_KEY + 'n') || 0);
+    if(!n) return null;
+    let t = '';
+    for(let i = 0; i < n; i++){ const p = c.get(FD_KEY + i); if(p === null) return null; t += p; }
+    return t;
+  } catch(err){ return null; }
+}
+function fundusCacheSchreiben(t){
+  try {
+    const c = CacheService.getScriptCache(), alle = {};
+    const n = Math.ceil(t.length / FD_STUECK);
+    for(let i = 0; i < n; i++) alle[FD_KEY + i] = t.substr(i * FD_STUECK, FD_STUECK);
+    alle[FD_KEY + 'n'] = String(n);
+    c.putAll(alle, FD_SEKUNDEN);
+  } catch(err){}
+}
+function fundusCacheLeeren(){
+  try { CacheService.getScriptCache().remove(FD_KEY + 'n'); } catch(err){}
+}
 function doGet(e){
   if(e && e.parameter && e.parameter.action === 'fundus'){
-    return ContentService.createTextOutput(JSON.stringify(fundusDaten())).setMimeType(ContentService.MimeType.JSON);
+    let t = fundusCacheLesen();
+    if(!t){ t = JSON.stringify(fundusDaten()); fundusCacheSchreiben(t); }
+    return ContentService.createTextOutput(t).setMimeType(ContentService.MimeType.JSON);
   }
-  return ContentService.createTextOutput('Impro-Gruppe läuft – Version 14').setMimeType(ContentService.MimeType.TEXT);
+  return ContentService.createTextOutput('Impro-Gruppe läuft – Version 15').setMimeType(ContentService.MimeType.TEXT);
 }
 
 // Öffentlich lesbar (ohne PIN): nur Übungen und Vorgaben, keine Mitgliederdaten.
@@ -316,10 +343,12 @@ function doPost(e){
   let out;
   const t0 = Date.now();
   try {
+    fundusCacheLeeren();
     out = handle(JSON.parse(e.postData.contents));
   } catch(err){
     out = {ok:false, msg:'Fehler: ' + err.message};
   }
+  fundusCacheLeeren();
   if(out && typeof out === 'object') out.ms = Date.now() - t0;
   return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);
 }
