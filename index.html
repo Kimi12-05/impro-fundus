@@ -475,6 +475,17 @@ html body .card .meta{display:flex;justify-content:flex-end;text-align:right}
   html body .home .chests{margin-top:20px}
   html body .home .chests .chest .cbox{--ch:clamp(76px,10.5vh,116px)}
 }
+/* Suchvorschläge */
+#sugg{position:fixed;z-index:400;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(60,45,30,.2);max-height:min(70vh,480px);overflow:auto;padding:6px;box-sizing:border-box}
+#sugg[hidden]{display:none}
+#sugg .sh{font-family:"Coming Soon",cursive;font-size:13px;color:#6F665D;padding:8px 10px 4px}
+#sugg button{display:flex;justify-content:space-between;align-items:baseline;gap:12px;width:100%;text-align:left;background:none;border:0;border-radius:10px;padding:9px 10px;cursor:pointer;color:inherit}
+#sugg button:hover,#sugg button.on{background:var(--card)}
+#sugg .st{font-family:"Architects Daughter",cursive;font-size:18px;min-width:0}
+#sugg .st b{color:var(--red)}
+#sugg .sm{font-family:"Coming Soon",cursive;font-size:12.5px;color:#6F665D;white-space:nowrap}
+#sugg .sall{justify-content:center;font-family:"Coming Soon",cursive;font-size:14px;color:var(--red);margin-top:4px;border-top:1px solid var(--line);border-radius:0 0 10px 10px}
+#sugg .sleer{font-family:"Architects Daughter",cursive;padding:12px 10px;color:#6F665D}
 /* Kleine Titel auf der Startseite unterstrichen */
 html body .home h3{text-decoration:underline!important}
 /* Nur Handy: hier kommen später die Anpassungen für die Handyversion hin */
@@ -1130,17 +1141,84 @@ document.addEventListener("submit", e => {
   if (e.target.id === "kf") { e.preventDefault(); kontaktSenden(); }
 });
 $("#scrim").onclick = closeDrawer;
+/* Suche mit Vorschlägen: schon beim Tippen erscheint unter dem Suchfeld eine Auswahl */
+const SG = { inp: null, idx: -1 };
+const SG_MAX_UEB = 6, SG_MAX_VOR = 4;
+function suggHl(t, q) {
+  const i = t.toLowerCase().indexOf(q.toLowerCase());
+  if (i < 0 || !q) return esc(t);
+  return esc(t.slice(0, i)) + "<b>" + esc(t.slice(i, i + q.length)) + "</b>" + esc(t.slice(i + q.length));
+}
+function suggHide() { const b = $("#sugg"); if (b) b.hidden = true; SG.idx = -1; }
+function suggZeigen(inp) {
+  const q = inp.value.trim();
+  S.q = q;
+  if (!q) { suggHide(); return; }
+  const ql = q.toLowerCase();
+  const rang = i => { const t = i.title.toLowerCase(); return t.startsWith(ql) ? 0 : t.includes(ql) ? 1 : 2; };
+  const ueb = ITEMS.filter(i => (i.title + " " + (i.ab || "")).toLowerCase().includes(ql)).sort((a, b) => rang(a) - rang(b));
+  const vor = Object.entries(VORG).flatMap(([k, a]) => a.filter(v => v.t.toLowerCase().includes(ql)).map(v => [k, v.t]));
+  let h = "";
+  if (ueb.length) {
+    h += `<div class="sh">Übungen</div>` + ueb.slice(0, SG_MAX_UEB).map(i => `<button type="button" data-sitem="${esc(i.id)}"><span class="st">${suggHl(i.title, q)}</span><span class="sm">${esc(katLabel(i.cat))}</span></button>`).join("");
+  }
+  if (vor.length) {
+    h += `<div class="sh">Vorgaben</div>` + vor.slice(0, SG_MAX_VOR).map(([k, t]) => `<button type="button" data-svorg="${esc(k)}"><span class="st">${suggHl(t, q)}</span><span class="sm">${esc(k)}</span></button>`).join("");
+  }
+  if (!h) h = `<div class="sleer">Nichts gefunden.</div>`;
+  else h += `<button type="button" class="sall" data-sall="1">Alle ${ueb.length + vor.length} Ergebnisse anzeigen</button>`;
+  let box = $("#sugg");
+  if (!box) { box = document.createElement("div"); box.id = "sugg"; box.setAttribute("role", "listbox"); document.body.appendChild(box); }
+  box.innerHTML = h; SG.inp = inp; SG.idx = -1;
+  const r = inp.getBoundingClientRect(), w = Math.min(Math.max(r.width, 280), 520);
+  box.style.width = Math.min(w, innerWidth - 16) + "px";
+  box.style.left = Math.max(8, Math.min(r.left, innerWidth - Math.min(w, innerWidth - 16) - 8)) + "px";
+  box.style.top = (r.bottom + 6) + "px";
+  box.hidden = false;
+}
+function suggWaehlen(b) {
+  const d = b.dataset;
+  const leeren = () => { S.q = ""; document.querySelectorAll(".qin,.dq").forEach(x => x.value = ""); suggHide(); };
+  if (d.sitem) { leeren(); go("item", { id: d.sitem }); }
+  else if (d.svorg) { leeren(); go("vorgaben", { vcat: d.svorg }); }
+  else if (d.sall) { suggHide(); go("suche"); }
+}
 document.addEventListener("input", e => {
-  if (!e.target.classList.contains("qin")) return;
-  S.q = e.target.value.trim();
-  if (S.q && S.view !== "start") go("suche");
-  else if (!S.q && S.view === "suche") go("start");
+  const t = e.target;
+  if (!t.classList || !(t.classList.contains("qin") || t.classList.contains("dq"))) return;
+  if (S.view === "suche" && t.classList.contains("qin")) {
+    S.q = t.value.trim();
+    suggHide();
+    if (S.q) go("suche"); else go("start");
+    return;
+  }
+  suggZeigen(t);
 });
 document.addEventListener("keydown", e => {
-  if (e.key !== "Enter" || !e.target.classList.contains("qin")) return;
-  S.q = e.target.value.trim();
-  if (S.q) go("suche");
+  const t = e.target;
+  if (!t.classList || !(t.classList.contains("qin") || t.classList.contains("dq"))) return;
+  const box = $("#sugg"), offen = box && !box.hidden;
+  const bs = offen ? [...box.querySelectorAll("button")] : [];
+  if (e.key === "Escape") { suggHide(); return; }
+  if (offen && (e.key === "ArrowDown" || e.key === "ArrowUp") && bs.length) {
+    e.preventDefault();
+    SG.idx = e.key === "ArrowDown" ? (SG.idx + 1) % bs.length : (SG.idx <= 0 ? bs.length - 1 : SG.idx - 1);
+    bs.forEach((b, i) => b.classList.toggle("on", i === SG.idx));
+    bs[SG.idx].scrollIntoView({ block: "nearest" });
+    return;
+  }
+  if (e.key !== "Enter") return;
+  if (offen && SG.idx >= 0 && bs[SG.idx]) { e.preventDefault(); suggWaehlen(bs[SG.idx]); return; }
+  S.q = t.value.trim();
+  suggHide();
+  if (S.q && t.classList.contains("qin")) go("suche");
 });
+document.addEventListener("click", e => {
+  const sb = e.target.closest("#sugg button");
+  if (sb) { e.stopPropagation(); suggWaehlen(sb); return; }
+  if (!e.target.closest("#sugg") && !e.target.closest(".qin,.dq")) suggHide();
+}, true);
+window.addEventListener("resize", suggHide);
 
 render();
 function laden() {
