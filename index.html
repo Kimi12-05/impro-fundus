@@ -443,7 +443,12 @@ html body .navbtn:not(.small),html body .ddmenu button{font-size:20px!important}
 @media (min-width:900px){
   .top .search{margin:0 0 0 auto}
 }
+/* Computer: Suche steht nicht ganz am Rand, sondern wie das Logo etwas eingerückt */
+@media (min-width:1500px){
+  html body .top .search{margin-right:clamp(40px,calc(25vw - 322px),400px)}
+}
 @media (min-width:900px) and (max-width:1499px){
+  html body .top{padding-left:40px;padding-right:40px}
   .top{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"logo right" "nav nav";row-gap:2px}
   .top .logo{grid-area:logo;justify-self:start}
   .top .rightbox{grid-area:right}
