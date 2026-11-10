@@ -494,6 +494,11 @@ html body .card .meta{display:flex;justify-content:flex-end;text-align:right}
 #sugg .sm{font-family:"Coming Soon",cursive;font-size:12.5px;color:#6F665D;white-space:nowrap}
 #sugg .sall{justify-content:center;font-family:"Coming Soon",cursive;font-size:14px;color:var(--red);margin-top:4px;border-top:1px solid var(--line);border-radius:0 0 10px 10px}
 #sugg .sleer{font-family:"Architects Daughter",cursive;padding:12px 10px;color:#6F665D}
+/* Spielliste-Dialog: Bereiche zum Aufklappen */
+.dlgform details.pdfgrp{border:1px solid var(--line);border-radius:12px;padding:4px 12px}
+.dlgform details.pdfgrp>summary{cursor:pointer;font-weight:700;padding:8px 0;color:var(--fg);display:flex;gap:8px;align-items:baseline}
+.dlgform details.pdfgrp .check{margin:6px 0}
+.dlgform details.pdfgrp .pdfall{padding-bottom:6px;border-bottom:1px solid var(--line)}
 /* Kleine Titel auf der Startseite unterstrichen */
 html body .home h3{text-decoration:underline!important}
 /* Nur Handy: hier kommen später die Anpassungen für die Handyversion hin */
@@ -1360,39 +1365,102 @@ function adminVerwalten() {
   };
 }
 function pdfDialog() {
-  const ue = CATS.map(c => `<label class="check"><input type="checkbox" name="pu" value="${esc(c.id)}"> ${esc(c.name)} (${ITEMS.filter(i => i.cat === c.id).length})</label>`).join("");
-  const vo = Object.keys(VORG).map(k => `<label class="check"><input type="checkbox" name="pv" value="${esc(k)}"> ${esc(k)} (${VORG[k].length})</label>`).join("");
+  const grp = (name, cnt, rows) => `<details class="pdfgrp"><summary>${esc(name)} <span class="meta" data-cnt data-max="${cnt}">0 von ${cnt}</span></summary><label class="check pdfall"><input type="checkbox" data-all> <b>Alle auswählen</b></label>${rows}</details>`;
+  const ue = CATS.map(c => {
+    const l = ITEMS.filter(i => i.cat === c.id && !i.draft);
+    return l.length ? grp(c.name, l.length, l.map(i => `<label class="check"><input type="checkbox" name="pu" value="${esc(i.id)}"> ${esc(i.title)}</label>`).join("")) : "";
+  }).join("");
+  const vo = Object.keys(VORG).map(k => {
+    const l = (VORG[k] || []).filter(x => x.entwurf !== "1");
+    return l.length ? grp(k, l.length, l.map(x => `<label class="check"><input type="checkbox" name="pv" value="${esc(x.id)}"> ${esc(x.t)}</label>`).join("")) : "";
+  }).join("");
   openDlg(`<h2>Eigene Spielliste erstellen</h2>
     <form id="pdfForm" class="dlgform">
+      <p class="meta">Klappe die Bereiche auf und wähle die Übungen und Vorgaben aus, die auf deine Liste sollen. Daraus entsteht dein PDF.</p>
       <h3>Übungen</h3>${ue}
       <h3>Vorgaben</h3>${vo}
       <p class="meta" id="pdfm">Dein Browser öffnet danach das Druckfenster. Wähle dort „Als PDF speichern“.</p>
-      <div class="row"><button class="btn red" type="submit">PDF erstellen</button><button class="btn" type="button" data-dlg-close>Abbrechen</button></div>
+      <div class="row"><button class="btn red" type="submit">PDF erstellen</button><button class="btn" type="button" data-dlg-close>Abbrechen</button><span class="meta" id="pdfc">Noch nichts ausgewählt</span></div>
     </form>`);
-  $("#pdfForm").onsubmit = e => {
+  const form = $("#pdfForm");
+  const zaehlen = () => {
+    form.querySelectorAll(".pdfgrp").forEach(g => {
+      const boxes = [...g.querySelectorAll("input[name]")], n = boxes.filter(x => x.checked).length;
+      g.querySelector("[data-cnt]").textContent = n + " von " + boxes.length;
+      const all = g.querySelector("[data-all]"); all.checked = n === boxes.length && n > 0;
+    });
+    const u = form.querySelectorAll("input[name=pu]:checked").length, v = form.querySelectorAll("input[name=pv]:checked").length;
+    $("#pdfc").textContent = (u || v) ? `${u} ${u === 1 ? "Übung" : "Übungen"}, ${v} ${v === 1 ? "Vorgabe" : "Vorgaben"} gewählt` : "Noch nichts ausgewählt";
+  };
+  form.addEventListener("change", e => {
+    if (e.target.dataset && e.target.dataset.all !== undefined) e.target.closest(".pdfgrp").querySelectorAll("input[name]").forEach(x => x.checked = e.target.checked);
+    zaehlen();
+  });
+  form.onsubmit = e => {
     e.preventDefault();
-    const u = [...document.querySelectorAll('input[name=pu]:checked')].map(x => x.value);
-    const v = [...document.querySelectorAll('input[name=pv]:checked')].map(x => x.value);
-    if (!u.length && !v.length) { $("#pdfm").textContent = "Bitte wähle mindestens eine Übung oder Vorgabe aus."; return; }
+    const u = new Set([...form.querySelectorAll("input[name=pu]:checked")].map(x => x.value));
+    const v = new Set([...form.querySelectorAll("input[name=pv]:checked")].map(x => x.value));
+    if (!u.size && !v.size) { $("#pdfm").textContent = "Bitte wähle mindestens eine Übung oder Vorgabe aus."; return; }
     pdfErstellen(u, v);
   };
 }
+/* PDF der eigenen Spielliste. Gestaltung (Kopfzeile, Schriften, Abstände) hier in PDF_STIL ändern */
+const PDF_STIL = {
+  rot: "#B02E28", text: "#1F1B17", grau: "#6F665D",
+  titel: "Caveat", kategorie: "Indie Flower", name: "Caveat", info: "Coming Soon", fliess: "Architects Daughter"
+};
 function pdfErstellen(u, v) {
   const w = window.open("", "_blank");
   if (!w) { alert("Bitte erlaube Pop-ups für diese Seite, damit das PDF erstellt werden kann."); return; }
+  const z = PDF_STIL;
+  const personen = tn => tn ? tn + (String(tn).trim() === "1" ? " Person" : " Personen") : "";
   let body = "";
-  u.forEach(id => {
-    const c = catOf(id);
+  CATS.forEach(c => {
+    const l = ITEMS.filter(i => i.cat === c.id && u.has(i.id));
+    if (!l.length) return;
     body += `<h2>${esc(c.name)}</h2>`;
-    ITEMS.filter(i => i.cat === id && !i.draft).forEach(i => {
-      const meta = [i.dauer, i.level].filter(Boolean).join(" · ");
-      body += `<h3>${esc(i.title)}</h3><p class="m">${esc(meta)}</p>${i.ab ? `<div class="t">${prose(i.ab)}</div>` : '<p class="m">Beschreibung folgt.</p>'}`;
+    l.forEach(i => {
+      const info = [personen(i.tn), i.dauer, i.level].filter(Boolean).join(" · ");
+      body += `<div class="card"><div class="box"></div><div class="cb"><div class="nm">${esc(i.title)}</div>${info ? `<div class="inf">${esc(info)}</div>` : ""}<div class="tx">${i.ab ? prose(i.ab) : "<p>Beschreibung folgt.</p>"}</div></div></div>`;
     });
   });
-  v.forEach(k => {
-    body += `<h2>Vorgaben: ${esc(k)}</h2><ul>${(VORG[k] || []).filter(x => x.entwurf !== "1").map(x => `<li>${esc(x.t)}${x.h ? ` <span class="m">(${esc(x.h)})</span>` : ""}</li>`).join("")}</ul>`;
+  Object.keys(VORG).forEach(k => {
+    const l = (VORG[k] || []).filter(x => v.has(x.id));
+    if (!l.length) return;
+    body += `<h2>Vorgaben: ${esc(k)}</h2><ul class="vl">${l.map(x => `<li><span class="bx"></span><span>${esc(x.t)}${x.h ? ` <span class="hint">(${esc(x.h)})</span>` : ""}</span></li>`).join("")}</ul>`;
   });
-  w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Impro-Fundus</title><style>body{font:14px/1.5 Arial,sans-serif;color:#000;margin:24px}h1{font-size:22px}h2{margin-top:28px;border-bottom:1px solid #ccc;padding-bottom:4px}h3{margin:14px 0 2px;font-size:16px}.m{color:#666;margin:0 0 4px}.t p{margin:0 0 6px}ul{columns:2}</style></head><body><h1>Impro-Fundus – Auszug</h1><p class="m">impro-fundus.de</p>${body}<script>window.onload=function(){window.print();}<\/script></body></html>`);
+  const logo = new URL("logo.png", location.href).href;
+  const datum = new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+  const css = `
+@page{size:A4;margin:20mm 20mm 22mm;@bottom-left{content:"impro-fundus.de";font:10pt '${z.info}',cursive;color:${z.grau}}@bottom-right{content:"Seite " counter(page) " von " counter(pages);font:10pt '${z.info}',cursive;color:${z.grau}}}
+*{box-sizing:border-box}
+body{margin:0;font:11.5pt/1.4 '${z.fliess}',cursive;color:${z.text}}
+table.s{width:100%;border-collapse:collapse}
+.hd{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;padding-bottom:8px;border-bottom:2px solid ${z.rot}}
+.hd img{height:36px;width:auto;display:block}
+.hd .t{font:700 30pt '${z.titel}',cursive;color:${z.rot};text-align:center}
+.hd .d{font:9.5pt '${z.info}',cursive;color:${z.grau};text-align:right;white-space:nowrap}
+.sp{height:24px}
+.probe{display:flex;flex-wrap:wrap;gap:12px 24px;margin:0 0 14px}
+.probe .fld{display:flex;align-items:flex-end;gap:6px;flex:1 1 200px}
+.probe .fld i{flex:1;border-bottom:1px solid #444;height:1.3em}
+h2{font:700 19pt '${z.kategorie}',cursive;text-decoration:underline;margin:16px 0 6px;break-after:avoid}
+.card{display:flex;gap:10px;align-items:flex-start;padding:0 0 10px;break-inside:avoid}
+.box{flex:none;width:15px;height:15px;border:1.5px solid #333;border-radius:3px;margin-top:6px}
+.cb{flex:1;min-width:0}
+.nm{font:700 20pt/1.15 '${z.name}',cursive}
+.inf{font:9.5pt '${z.info}',cursive;color:${z.grau};padding:1px 0 4px}
+.tx p{margin:0 0 4px}
+.vl{list-style:none;margin:0;padding:0;columns:2;column-gap:22px}
+.vl li{display:flex;gap:8px;align-items:flex-start;break-inside:avoid;padding:2px 0}
+.bx{flex:none;width:12px;height:12px;border:1.4px solid #333;border-radius:2px;margin-top:4px}
+.hint{color:${z.grau}}
+.notiz{break-before:page}
+.notiz .nl{height:26px;border-bottom:1px solid #bbb}
+@media screen{body{padding:20px}}`;
+  const probe = ["Probe am", "Ort", "Gruppe"].map(x => `<div class="fld"><span>${x}:</span><i></i></div>`).join("");
+  const notiz = `<div class="notiz"><h2>Notizen</h2>${"<div class='nl'></div>".repeat(16)}</div>`;
+  w.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Meine Spielliste – Impro-Fundus</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Indie+Flower&family=Architects+Daughter&family=Coming+Soon&display=swap" rel="stylesheet"><style>${css}</style></head><body><table class="s"><thead><tr><td><div class="hd"><div><img src="${logo}" alt=""></div><div class="t">Meine Spielliste</div><div class="d">${datum}</div></div><div class="sp"></div></td></tr></thead><tbody><tr><td><div class="probe">${probe}</div>${body}${notiz}</td></tr></tbody></table><script>(function(){var done=false;function p(){if(done)return;done=true;window.focus();window.print();}var f=document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve();Promise.race([f.then(function(){return new Promise(function(r){setTimeout(r,300)})}),new Promise(function(r){setTimeout(r,4000)})]).then(p);})();<\/script></body></html>`);
   w.document.close();
 }
 
