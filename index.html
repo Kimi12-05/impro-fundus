@@ -213,7 +213,7 @@ main.withdice{padding-bottom:230px}
 @media (min-width:900px){.faqwrap{grid-template-columns:1fr 1fr;align-items:start}}
 .faqcol{display:flex;flex-direction:column;gap:12px;min-width:0}
 .faq{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 18px}
-.faq summary{cursor:pointer;list-style:none;font-size:26px;line-height:1.2;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.faq summary{cursor:pointer;list-style:none;font-size:20px;line-height:1.2;display:flex;justify-content:space-between;align-items:center;gap:12px}
 .faq summary::-webkit-details-marker{display:none}
 .faq summary::after{content:"+";font-size:30px;line-height:1;color:var(--red);flex:none}
 .faq[open] summary::after{content:"–"}
@@ -387,9 +387,6 @@ button,input,select,textarea{font-size:inherit}
 .spsteps li.done span{background:var(--red);border-color:var(--red);color:#fff}.spsteps li.done::after{background:var(--red)}
 .spbox{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
 .spbox h2{margin:0;font-size:22px}
-.sprange{display:flex;align-items:center;gap:10px}
-.sprange input{flex:1;accent-color:var(--red)}
-.spround{width:44px;height:44px;border-radius:50%;border:2px solid var(--red);background:var(--card);color:var(--red);font-size:24px;line-height:1;flex:none;cursor:pointer}
 .spbetrag{max-width:220px}
 .spform{display:flex;flex-direction:column;gap:12px;max-width:560px}
 .spsum{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0}
@@ -436,6 +433,18 @@ html body .vgtile h3{font-family:"Indie Flower",cursive!important;font-size:33px
 html body .vitem{font-family:"Indie Flower",cursive!important;font-size:17.5px!important}
 html body .vgtile .meta,html body .vitem .meta{font-family:"Indie Flower",cursive!important;font-size:20.8px!important}
 html body .vitem .linkbtn{font-family:"Indie Flower",cursive!important;font-size:19.8px!important}
+/* Reiter (obere Leiste) 25 px, Menüpunkte (Seitenmenü und Aufklappmenüs) 20 px */
+html body .topnav>button,html body .dd>button{font-size:25px!important;height:auto!important;min-height:36px}
+html body .navbtn:not(.small),html body .ddmenu button{font-size:20px!important}
+/* Computer: bei 25 px Reiterschrift bekommt die Leiste eine eigene Zeile unter Logo und Suche, damit nichts gequetscht wird */
+@media (min-width:900px){
+  .top{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"logo right" "nav nav";row-gap:2px}
+  .top .logo{grid-area:logo;justify-self:start}
+  .top .rightbox{grid-area:right}
+  .top .topnav,.topwrap .topnav{grid-area:nav;justify-content:center;flex-wrap:wrap}
+}
+/* Kleine Titel auf der Startseite unterstrichen */
+html body .home h3{text-decoration:underline!important}
 /* Nur Handy: hier kommen später die Anpassungen für die Handyversion hin */
 @media (max-width:899px){
 }
@@ -833,9 +842,8 @@ const V = {
       body = `<h2>Wofür möchtest du spenden?</h2>
         <div class="chips" role="group" aria-label="Zweck"><button class="chip" data-sp-zweck="fundus" aria-pressed="${sp.zweck === "fundus"}">Impro-Fundus</button><button class="chip" data-sp-zweck="gruppe" aria-pressed="${sp.zweck === "gruppe"}">Impro-Gruppe des Theater Brand</button></div>
         <h2>Wie viel möchtest du geben?</h2>
-        <div class="chips" role="group" aria-label="Betrag">${[5, 10, 20, 50].map(b => `<button class="chip" data-sp-betrag="${b}" aria-pressed="${sp.betrag === b}">${b} €</button>`).join("")}</div>
-        <div class="sprange"><button class="spround" data-sp-plus="-1" aria-label="Weniger">−</button><input type="range" id="spR" min="1" max="100" step="1" value="${Math.min(sp.betrag, 100)}" aria-label="Betrag"><button class="spround" data-sp-plus="1" aria-label="Mehr">+</button></div>
-        <div class="field spbetrag"><label for="spN">Betrag in Euro</label><input id="spN" type="number" inputmode="decimal" min="1" max="10000" step="1" value="${sp.betrag}"></div>
+        <div class="chips" role="group" aria-label="Betrag">${[5, 10, 15, 25, 50].map(b => `<button class="chip" data-sp-betrag="${b}" aria-pressed="${sp.betrag === b}">${b} €</button>`).join("")}</div>
+        <div class="field spbetrag"><label for="spN">Oder gib einen eigenen Betrag ein (in Euro)</label><input id="spN" type="number" inputmode="decimal" min="1" max="10000" step="1" placeholder="z. B. 30" value="${[5, 10, 15, 25, 50].includes(sp.betrag) ? "" : sp.betrag}"></div>
         <p class="meta">Einmalige Spende über PayPal. Der Fundus ist kein eingetragener Verein, deshalb gibt es keine Spendenquittung.</p>
         <div class="row"><button class="btn red" data-sp-step="2">Weiter →</button></div>`;
     } else if (sp.step === 2) {
@@ -1018,7 +1026,6 @@ document.addEventListener("click", e => {
   if (d.aexport !== undefined) { exportieren(); return; }
   if (d.spZweck !== undefined) { S.sp.zweck = d.spZweck; render(); return; }
   if (d.spBetrag !== undefined) { spBetrag(d.spBetrag); render(); return; }
-  if (d.spPlus !== undefined) { spBetrag(S.sp.betrag + Number(d.spPlus)); render(); return; }
   if (d.spStep !== undefined) {
     spAngabenMerken();
     const z = Number(d.spStep);
@@ -1123,6 +1130,16 @@ function laden() {
     });
 }
 laden();
+
+/* Computer: Höhe der festen Kopfzeile messen (sie hängt von der Schrift der Reiter ab) */
+function kopfHoehe() {
+  const t = document.querySelector(".topwrap");
+  if (t && window.matchMedia("(min-width:900px)").matches) document.documentElement.style.setProperty("--hh", t.offsetHeight + "px");
+  else document.documentElement.style.removeProperty("--hh");
+}
+window.addEventListener("resize", kopfHoehe);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(kopfHoehe);
+kopfHoehe();
 
 /* ----- Admin: Anmeldung und Bearbeiten (nur Fundus-Website) ----- */
 var ADMIN = null;
@@ -1400,10 +1417,9 @@ function spAngabenMerken() {
   if ($("#spName")) { S.sp.name = $("#spName").value.trim(); S.sp.mail = $("#spMail").value.trim(); S.sp.text = $("#spText").value.trim(); }
 }
 document.addEventListener("input", e => {
-  if (e.target.id !== "spR" && e.target.id !== "spN") return;
+  if (e.target.id !== "spN") return;
   if (e.target.value === "") return;
   spBetrag(e.target.value);
-  if (e.target.id === "spR") $("#spN").value = S.sp.betrag; else $("#spR").value = Math.min(S.sp.betrag, 100);
   document.querySelectorAll("[data-sp-betrag]").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.spBetrag === S.sp.betrag)));
 });
 const admTile = (tile, art, name) => !ADMIN ? tile : `<div class="admtile">${tile}<div class="admctl"><button data-akat="verschieben" data-art="${art}" data-name="${esc(name)}" data-dir="-1" title="nach vorn">←</button><button data-akat="verschieben" data-art="${art}" data-name="${esc(name)}" data-dir="1" title="nach hinten">→</button><button data-akat="umbenennen" data-art="${art}" data-name="${esc(name)}">umbenennen</button><button class="del" data-akat="loeschen" data-art="${art}" data-name="${esc(name)}">löschen</button></div></div>`;
