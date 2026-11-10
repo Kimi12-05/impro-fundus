@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /verwaltung/
+
+Sitemap: https://impro-fundus.de/sitemap.xml
