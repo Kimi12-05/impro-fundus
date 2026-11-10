@@ -67,6 +67,21 @@ details.grp>summary .n{color:var(--muted);font-weight:400;font-size:14px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media (max-width:560px){.grid2{grid-template-columns:1fr}.item{flex-wrap:wrap}}
 .hint{color:var(--muted);font-size:14px;margin:0 0 10px}
+.stkwrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stk{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:2px}
+.stk span{color:var(--muted);font-size:13px}
+.stk strong{font-size:28px;line-height:1.1}
+.stk small{color:var(--muted);font-size:12px}
+.saeulen{display:flex;align-items:flex-end;gap:3px;height:120px;padding:6px;background:var(--bg);border:1px solid var(--line);border-radius:12px}
+.sae{flex:1;height:100%;display:flex;align-items:flex-end}
+.sae i{display:block;width:100%;background:var(--red);border-radius:3px 3px 0 0}
+.saeulenfuss{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:4px}
+.tabw{overflow-x:auto}
+.stt{width:100%;border-collapse:collapse;font-size:15px}
+.stt th,.stt td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right}
+.stt th:first-child,.stt td:first-child{text-align:left}
+.stt th{color:var(--muted);font-weight:600;font-size:13px}
+.stt .m{color:var(--muted);font-size:13px}
 </style>
 </head>
 <body>
@@ -135,6 +150,7 @@ async function laden() {
   daten(r);
 }
 async function start() {
+  try { localStorage.setItem("fundus-nicht-zaehlen", "1"); } catch (e) {}
   $("#app").innerHTML = `<div class="wrap"><p class="hint" style="padding-top:40px">Einen Moment, die Daten werden geladen …</p></div>`;
   try { await laden(); if (!gestartet) { gestartet = true; if (IDEEN.length) tab = "ide"; } seite(); }
   catch (x) { if (TOKEN) $("#app").innerHTML = `<div class="wrap"><div class="panel"><p class="msg err">${esc(x.message)}</p><div class="row"><button class="btn" onclick="start()">Noch einmal versuchen</button><button class="btn" onclick="abmelden()">Abmelden</button></div></div></div>`; }
@@ -147,9 +163,9 @@ async function aktion(obj, nach) {
 }
 
 /* ---------- Seitengerüst ---------- */
-const TABS = [["ide", "Vorschläge"], ["ueb", "Übungen"], ["vor", "Vorgaben"], ["zit", "Zitate"], ["imp", "Import / Export"], ["adm", "Admins"]];
+const TABS = [["ide", "Vorschläge"], ["ueb", "Übungen"], ["vor", "Vorgaben"], ["zit", "Zitate"], ["imp", "Import / Export"], ["sta", "Besucher"], ["adm", "Admins"]];
 function seite() {
-  const inhalt = { ide: tabIde, ueb: tabUeb, vor: tabVor, zit: tabZit, imp: tabImp, adm: tabAdm }[tab]();
+  const inhalt = { ide: tabIde, ueb: tabUeb, vor: tabVor, zit: tabZit, imp: tabImp, sta: tabSta, adm: tabAdm }[tab]();
   const alt = $("#suche"), hadFocus = alt && document.activeElement === alt, pos = hadFocus ? alt.selectionStart : 0;
   $("#app").innerHTML = `<div class="top"><div class="wrap"><img src="../logo.png" alt=""><h1>Verwaltung</h1><a class="btn" href="../" style="text-decoration:none">Zur Website</a><button class="btn" id="out">Abmelden</button></div></div>
     <div class="wrap"><div class="tabs" role="tablist">${TABS.map(([k, t]) => `<button role="tab" data-tab="${k}" aria-pressed="${tab === k}">${t}${k === "ide" && IDEEN.length ? ` <span class="pill" style="background:var(--red);color:#fff">${IDEEN.length}</span>` : ""}</button>`).join("")}</div>${inhalt}</div>`;
@@ -256,6 +272,148 @@ function tabImp() {
     <form class="form" id="impForm"><label>Datei<input id="impFile" type="file" accept=".json,application/json"></label><p class="msg" id="impMsg"></p><div class="row"><button class="btn red" type="submit">Importieren</button></div></form></div>`;
 }
 
+/* ---------- Besucher (Statistik und iPhone-Widget) ---------- */
+let STAT = null, STAT_LAEDT = false, WIDGET_KEY = null;
+const slugV = s => String(s ?? "").toLowerCase().replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const tagMinus = (tag, n) => { const m = tag.split("-").map(Number); return new Date(Date.UTC(m[0], m[1] - 1, m[2] - n, 12)).toISOString().slice(0, 10); };
+const zahl = n => Number(n || 0).toLocaleString("de-DE");
+const tagDe = t => { const m = t.split("-"); return `${m[2]}.${m[1]}.`; };
+function kw(tag) {
+  const m = tag.split("-").map(Number), d = new Date(Date.UTC(m[0], m[1] - 1, m[2]));
+  const n = (d.getUTCDay() + 6) % 7; d.setUTCDate(d.getUTCDate() - n + 3);
+  const j = new Date(Date.UTC(d.getUTCFullYear(), 0, 4));
+  return 1 + Math.round(((d - j) / 86400000 - 3 + ((j.getUTCDay() + 6) % 7)) / 7);
+}
+function seitenName(p) {
+  const fest = { "/": "Startseite", "/uebungen/": "Übungen", "/alle-uebungen/": "Alle Übungen", "/vorgaben/": "Vorgaben", "/was-ist-impro/": "Was ist Impro?", "/ueber-den-fundus/": "Alles über den Fundus", "/kontakt/": "Kontakt", "/spenden/": "Spenden", "/vorschlag-einreichen/": "Vorschlag einreichen", "/impressum/": "Impressum", "/datenschutz/": "Datenschutz", "/nutzungsbedingungen/": "Nutzungsbedingungen", "/suche/": "Suche" };
+  if (fest[p]) return fest[p];
+  const t = p.split("/").filter(Boolean);
+  if (t[0] === "uebung") { const i = ITEMS.find(x => slugV(x.title) === t[1] || slugV(x.title + " " + x.id) === t[1]); return i ? "Übung: " + i.title : "Übung: " + t[1]; }
+  if (t[0] === "uebungen") return "Kategorie: " + (UKATS.find(k => slugV(k.replace("Zweierübungen", "2er-Übungen").replace("Dreierübungen", "3er-Übungen")) === t[1]) || t[1]);
+  if (t[0] === "vorgaben") return "Vorgaben: " + (Object.keys(VORG).find(k => slugV(k) === t[1]) || t[1]);
+  return p;
+}
+function tabSta() {
+  if (!STAT) return `<div class="panel"><h2>Besucher</h2><p class="hint">Die Zahlen werden geladen …</p></div>`;
+  const h = STAT.heute, T = STAT.tage;
+  const summe = (von, bis) => { let b = 0, a = 0; for (let i = von; i <= bis; i++) { const t = T[tagMinus(h, i)]; if (t) { b += t.b; a += t.a; } } return { b, a }; };
+  const kachel = (name, v) => `<div class="stk"><span>${name}</span><strong>${zahl(v.b)}</strong><small>${zahl(v.a)} Seitenaufrufe</small></div>`;
+  const tage30 = [];
+  for (let i = 29; i >= 0; i--) { const d = tagMinus(h, i), t = T[d] || { b: 0, a: 0 }; tage30.push({ d, ...t }); }
+  const max = Math.max(1, ...tage30.map(x => x.b));
+  const saeulen = tage30.map(x => `<div class="sae" title="${tagDe(x.d)}: ${x.b} Besuche, ${x.a} Seitenaufrufe"><i style="height:${Math.max(2, Math.round(x.b / max * 100))}%"></i></div>`).join("");
+  // Wochen (Montag bis Sonntag)
+  const m = h.split("-").map(Number), wt = (new Date(Date.UTC(m[0], m[1] - 1, m[2])).getUTCDay() + 6) % 7;
+  const wochen = [];
+  for (let i = 0; i < 8; i++) {
+    const startTag = tagMinus(h, wt + i * 7), endTag = tagMinus(h, Math.max(0, wt + i * 7 - 6));
+    const s = summe(i === 0 ? 0 : wt + (i - 1) * 7 + 1, wt + i * 7);
+    wochen.push(`<tr><td>KW ${kw(startTag)} <span class="m">${tagDe(startTag)}–${tagDe(endTag)}</span></td><td>${zahl(s.b)}</td><td>${zahl(s.a)}</td></tr>`);
+  }
+  // Monate
+  const MON = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+  const proMonat = {};
+  Object.keys(T).forEach(d => { const k = d.slice(0, 7), o = proMonat[k] || (proMonat[k] = { b: 0, a: 0 }); o.b += T[d].b; o.a += T[d].a; });
+  const monate = [];
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(Date.UTC(m[0], m[1] - 1 - i, 1)), k = d.toISOString().slice(0, 7);
+    if (i > 0 && STAT.seit && k < STAT.seit.slice(0, 7)) break;
+    const o = proMonat[k] || { b: 0, a: 0 };
+    monate.push(`<tr><td>${MON[d.getUTCMonth()]} ${d.getUTCFullYear()}</td><td>${zahl(o.b)}</td><td>${zahl(o.a)}</td></tr>`);
+  }
+  const top = STAT.top.length ? STAT.top.map(t => `<tr><td>${esc(seitenName(t.pfad))}</td><td>${zahl(t.a)}</td></tr>`).join("") : `<tr><td colspan="2" class="empty">Noch keine Daten.</td></tr>`;
+  const tr = "<thead><tr><th></th><th>Besuche</th><th>Seitenaufrufe</th></tr></thead>";
+  return `<div class="panel"><h2>Besucher</h2>
+    <p class="hint">${STAT.seit ? "Gezählt wird seit dem " + datumDe(STAT.seit) + "." : "Es wurde noch nichts gezählt."} <b>Besuche</b> sind Aufrufe der Website (jedes Öffnen oder Neuladen). <b>Seitenaufrufe</b> zählen jede angesehene Seite, auch beim Weiterklicken. Gezählt wird anonym: ohne Cookies und ohne IP-Adresse, deshalb lassen sich einzelne Personen nicht unterscheiden. Deine eigenen Besuche zählen nicht, wenn du dich auf diesem Gerät hier angemeldet hast.</p>
+    <div class="stkwrap">${kachel("Heute", summe(0, 0))}${kachel("Gestern", summe(1, 1))}${kachel("Letzte 7 Tage", summe(0, 6))}${kachel("Letzte 30 Tage", summe(0, 29))}${kachel("Gesamt", { b: STAT.gesamt.b, a: STAT.gesamt.a })}</div>
+    <h3>Besuche pro Tag (letzte 30 Tage)</h3><div class="saeulen">${saeulen}</div><div class="saeulenfuss"><span>${tagDe(tage30[0].d)}</span><span>Heute</span></div>
+    <div class="row" style="margin-top:12px"><button class="btn" id="statNeu">Aktualisieren</button></div></div>
+    <div class="panel"><h3 style="margin-top:0">Pro Woche</h3><div class="tabw"><table class="stt">${tr}<tbody>${wochen.join("")}</tbody></table></div>
+    <h3>Pro Monat</h3><div class="tabw"><table class="stt">${tr}<tbody>${monate.join("")}</tbody></table></div></div>
+    <div class="panel"><h3 style="margin-top:0">Beliebteste Seiten (letzte 30 Tage)</h3><div class="tabw"><table class="stt"><thead><tr><th></th><th>Aufrufe</th></tr></thead><tbody>${top}</tbody></table></div></div>
+    <div class="panel"><h2>Widget auf dem iPhone</h2>${widgetHTML()}</div>`;
+}
+function widgetSkript() {
+  const url = API + "?action=statistikKurz&schluessel=" + WIDGET_KEY;
+  return `// Impro-Fundus: Besucherzahlen (Scriptable)
+const ADRESSE = "${url}";
+let d = null;
+try { d = await new Request(ADRESSE).loadJSON(); } catch (e) {}
+const w = new ListWidget();
+w.backgroundColor = new Color("#F5F0E8");
+w.setPadding(12, 14, 12, 14);
+const titel = w.addText("Impro-Fundus");
+titel.font = Font.boldSystemFont(14);
+titel.textColor = new Color("#B02E28");
+w.addSpacer(6);
+if (!d || !d.ok) {
+  const f = w.addText("Keine Daten");
+  f.font = Font.systemFont(12);
+  f.textColor = new Color("#6F665D");
+} else {
+  const zeile = (name, v) => {
+    const s = w.addStack();
+    const a = s.addText(name);
+    a.font = Font.systemFont(12);
+    a.textColor = new Color("#6F665D");
+    s.addSpacer();
+    const b = s.addText(String(v.besuche));
+    b.font = Font.boldSystemFont(13);
+    b.textColor = new Color("#1F1B17");
+    w.addSpacer(3);
+  };
+  zeile("Heute", d.heute);
+  zeile("Gestern", d.gestern);
+  zeile("7 Tage", d.woche);
+  zeile("30 Tage", d.monat);
+  zeile("Gesamt", d.gesamt);
+}
+w.refreshAfterDate = new Date(Date.now() + 15 * 60 * 1000);
+if (config.runsInWidget) { Script.setWidget(w); } else { await w.presentSmall(); }
+Script.complete();`;
+}
+function widgetHTML() {
+  if (WIDGET_KEY === null) return `<p class="hint">Wird geladen …</p>`;
+  if (!WIDGET_KEY) return `<p class="hint">Mit einem Widget siehst du die Besucherzahlen direkt auf dem Home-Bildschirm deines iPhones. Dafür brauchst du die kostenlose App „Scriptable“ aus dem App Store. Zuerst erzeugst du hier einen geheimen Schlüssel.</p><button class="btn red" id="wKey">Widget einrichten</button>`;
+  return `<p class="hint">Das Widget zeigt die Besuche von heute, gestern, den letzten 7 und 30 Tagen und insgesamt.</p>
+    <ol class="hint" style="padding-left:20px;line-height:1.7">
+      <li>Lade im App Store die kostenlose App <b>Scriptable</b> herunter und öffne sie.</li>
+      <li>Tippe oben rechts auf <b>+</b>. Es öffnet sich ein leeres Skript.</li>
+      <li>Öffne diese Verwaltungsseite auf dem iPhone und tippe unten auf <b>Skript kopieren</b>. Wechsle zu Scriptable, halte im leeren Skript den Finger auf die Fläche und wähle <b>Einsetzen</b>.</li>
+      <li>Tippe oben links auf den Namen und nenne das Skript <b>Besucher</b>. Tippe oben links auf <b>Fertig</b>.</li>
+      <li>Halte auf dem Home-Bildschirm eine freie Stelle gedrückt, tippe oben links auf <b>+</b> und wähle <b>Scriptable</b>. Wähle das kleine Widget und tippe auf <b>Widget hinzufügen</b>.</li>
+      <li>Tippe auf das neue Widget, dann bei „Script“ auf <b>Besucher</b>. Fertig.</li>
+    </ol>
+    <textarea id="wText" readonly style="min-height:120px;font-family:ui-monospace,Menlo,monospace;font-size:12px">${esc(widgetSkript())}</textarea>
+    <div class="row" style="margin-top:10px"><button class="btn red" id="wCopy">Skript kopieren</button><button class="btn del" id="wKey">Neuen Schlüssel erzeugen</button><span class="msg" id="wMsg"></span></div>
+    <p class="hint" style="margin-top:10px">Der Schlüssel ist wie ein Passwort: Gib das Skript nicht weiter. Mit „Neuen Schlüssel erzeugen“ wird das alte Widget ungültig.</p>`;
+}
+async function statLaden(frisch) {
+  STAT_LAEDT = true;
+  try {
+    const r = await api({ action: "adminStatistik" });
+    if (r.ok) STAT = r; else throw new Error(r.msg || "Die Zahlen konnten nicht geladen werden.");
+    if (WIDGET_KEY === null) { const k = await api({ action: "adminWidgetSchluessel", op: "lesen" }); WIDGET_KEY = k.ok ? k.schluessel : ""; }
+  } catch (x) { if (TOKEN) alert(x.message); STAT = STAT || { heute: new Date().toISOString().slice(0, 10), seit: "", tage: {}, gesamt: { b: 0, a: 0 }, top: [] }; }
+  STAT_LAEDT = false;
+  if (tab === "sta") seite();
+}
+function bindSta() {
+  if ((!STAT || WIDGET_KEY === null) && !STAT_LAEDT) statLaden();
+  const n = $("#statNeu"); if (n) n.onclick = () => { n.disabled = true; n.textContent = "Wird geladen …"; statLaden(true); };
+  const k = $("#wKey");
+  if (k) k.onclick = async () => {
+    if (WIDGET_KEY && !confirm("Das bisherige Widget funktioniert danach nicht mehr, bis du das neue Skript eingefügt hast. Wirklich einen neuen Schlüssel erzeugen?")) return;
+    try { const r = await api({ action: "adminWidgetSchluessel", op: "neu" }); if (!r.ok) throw new Error(r.msg); WIDGET_KEY = r.schluessel; seite(); } catch (x) { fehler(x); }
+  };
+  const c = $("#wCopy");
+  if (c) c.onclick = async () => {
+    const m = $("#wMsg"), t = $("#wText");
+    try { await navigator.clipboard.writeText(t.value); m.className = "msg ok"; m.textContent = "Kopiert."; }
+    catch (x) { t.focus(); t.select(); m.className = "msg"; m.textContent = "Bitte markieren und kopieren."; }
+  };
+}
+
 /* ---------- Admins ---------- */
 function tabAdm() {
   return `<div class="panel"><h2>Admins</h2><p class="hint">Diese Personen können sich hier anmelden.</p><div id="admList"><p class="hint">Wird geladen …</p></div>
@@ -352,6 +510,7 @@ function bindTab() {
   if (tab === "zit") bindZit();
   if (tab === "imp") bindImp();
   if (tab === "adm") bindAdm();
+  if (tab === "sta") bindSta();
 }
 function bindZit() {
   const msg = (t, c) => { const m = $("#zMsg"); if (m) { m.className = "msg " + (c || ""); m.textContent = t; } };
