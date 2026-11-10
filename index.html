@@ -436,12 +436,14 @@ html body .vitem .linkbtn{font-family:"Indie Flower",cursive!important;font-size
 /* Reiter (obere Leiste) 25 px, Menüpunkte (Seitenmenü und Aufklappmenüs) 20 px */
 html body .topnav>button,html body .dd>button{font-size:25px!important;height:auto!important;min-height:36px}
 html body .navbtn:not(.small),html body .ddmenu button{font-size:20px!important}
-/* Computer: bei 25 px Reiterschrift bekommt die Leiste eine eigene Zeile unter Logo und Suche, damit nichts gequetscht wird */
+/* Computer: Suche immer oben rechts. Auf schmaleren Fenstern (unter 1500 px) steht die Reiter-Leiste in einer eigenen Zeile, damit nichts gequetscht wird */
 @media (min-width:900px){
+  .top .search{margin:0 0 0 auto}
+}
+@media (min-width:900px) and (max-width:1499px){
   .top{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"logo right" "nav nav";row-gap:2px}
   .top .logo{grid-area:logo;justify-self:start}
   .top .rightbox{grid-area:right}
-  .top .search{margin:0 0 0 auto}
   .top .topnav,.topwrap .topnav{grid-area:nav;justify-content:center;flex-wrap:wrap}
 }
 /* Kleine Titel auf der Startseite unterstrichen */
