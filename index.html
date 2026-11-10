@@ -205,13 +205,6 @@ main.withdice{padding-bottom:230px}
 .prose{display:flex;flex-direction:column;gap:10px}
 .prose p{margin:0;line-height:1.75}
 .detail .prose{gap:20px}
-.admtile{display:flex;flex-direction:column;gap:8px}
-.admctl{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
-.admctl button{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:4px 10px;font-size:15px;cursor:pointer}
-.admctl button.del{color:var(--red)}
-.zlist{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow:auto;margin-bottom:12px}
-.zrow{display:flex;gap:10px;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:6px}
-.admrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .faqwrap{display:grid;gap:12px;grid-template-columns:1fr}
 @media (min-width:900px){.faqwrap{grid-template-columns:1fr 1fr;align-items:start}}
 .faqcol{display:flex;flex-direction:column;gap:12px;min-width:0}
@@ -308,7 +301,6 @@ form{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1
 .dlgform .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .dlgfields{display:flex;flex-direction:column;gap:12px}
 .dlgfields[hidden]{display:none!important}
-.adminbar{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0 8px}
 button.loginbtn{border:0;cursor:pointer;font:inherit;font-weight:700;font-size:16px}
 /* Schriften nach Design: Schreibmaschine für Titel und Bedienelemente, Handschrift für Notizen */
 h1,h2,.pagehead h1{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif;font-weight:700;letter-spacing:0}
@@ -683,11 +675,6 @@ function navHTML() {
   h += b(S.view === "impressum", 'data-go="impressum"', "Impressum");
   h += b(S.view === "datenschutz", 'data-go="datenschutz"', "Datenschutz");
   h += b(S.view === "nutzung", 'data-go="nutzung"', "Nutzungsbedingungen");
-  if (ADMIN) {
-    h += `<div class="lbl">Admin</div>`;
-    h += b(false, "data-admin-users", "Admins verwalten") + b(false, "data-azit", "Zitate verwalten") + b(false, "data-aimp", "Import / Export");
-  }
-  if (ADMIN) h += `<button class="navbtn small" data-admin-toggle>Admin abmelden</button>`;
   return h;
 }
 
@@ -759,7 +746,7 @@ const V = {
   },
 
   kats() {
-    return `<div class="pagehead"><h1>Übungen</h1></div>${adminBar(`<button class="btn red" data-admin-new="uebung">+ Neue Übung</button><button class="btn" data-akat="neu" data-art="uebung">+ Neue Kategorie</button>`)}<div class="grid tgrid kgrid">${CATS.map(c => admTile(`<button class="vgtile" data-cat="${esc(c.id)}"><h3>${esc(c.name)}</h3></button>`, "uebung", c.id)).join("")}</div>`;
+    return `<div class="pagehead"><h1>Übungen</h1></div><div class="grid tgrid kgrid">${CATS.map(c => `<button class="vgtile" data-cat="${esc(c.id)}"><h3>${esc(c.name)}</h3></button>`).join("")}</div>`;
   },
 
   kat() {
@@ -767,34 +754,30 @@ const V = {
     const l = ITEMS.filter(i => i.cat === c.id && (S.level === "alle" || i.level === S.level));
     return `<div class="crumb"><button data-go="kats">Übungen</button><span>›</span><span>${esc(c.name)}</span></div>
     <div class="pagehead"><h1>${esc(c.name)}</h1></div>
-    ${adminBar(`<button class="btn red" data-admin-new="uebung" data-kat="${esc(c.id)}">+ Übung in „${esc(c.name)}“</button>`)}
     ${levelChips()}
-    <div class="list">${l.length ? l.map(i => admMove(card(i, true), i.id)).join("") : '<div class="empty">Für diese Auswahl gibt es noch nichts.</div>'}</div>`;
+    <div class="list">${l.length ? l.map(i => card(i, true)).join("") : '<div class="empty">Für diese Auswahl gibt es noch nichts.</div>'}</div>`;
   },
 
   item() {
     const i = ITEMS.find(x => x.id === S.id), c = catOf(i.cat);
     return `<div class="crumb"><button data-go="kats">Übungen</button><span>›</span><button data-cat="${esc(c.id)}">${esc(c.name)}</button></div>
-    ${i.draft ? '<div class="notice"><strong>Entwurf</strong><span>Diese Übung ist noch nicht online. Nur du siehst sie im Admin-Modus.</span></div>' : ""}
     <article class="detail"><div class="pagehead"><span><span class="pill red">${esc(c.name)}</span></span><h1>${esc(i.title)}</h1></div>
     <div class="facts"><div class="fact"><span>Dauer</span><strong>${esc(i.dauer || "–")}</strong></div><div class="fact"><span>Niveau</span><strong>${esc(i.level || "–")}</strong></div></div>
     ${i.eig.length ? `<div class="taglist">${i.eig.map(e => `<span>${esc(e)}</span>`).join("")}</div>` : ""}
     ${i.ab ? `<section class="prose"><h2>So geht's</h2>${prose(i.ab)}</section>` : `<div class="tip"><strong>Hier fehlt noch eine Beschreibung.</strong> Du kennst das Spiel? <button class="linkbtn" data-go="einreichen">Beschreibung einreichen</button></div>`}
     </article>
-    ${adminBar(`<button class="btn" data-admin-edit="${esc(i.id)}">Bearbeiten</button>`)}
     <div class="row"><button class="btn" data-cat="${esc(c.id)}">← Zurück zur Liste</button></div>`;
   },
 
   vorgaben() {
     if (!S.vcat) {
-      return `<div class="pagehead"><h1>Vorgaben</h1></div>${adminBar(`<button class="btn" data-akat="neu" data-art="vorgabe">+ Neue Kategorie</button>`)}<div class="grid tgrid">${Object.keys(VORG).map(k => admTile(`<button class="vgtile" data-v="${esc(k)}"><h3>${esc(k)}</h3></button>`, "vorgabe", k)).join("")}</div>`;
+      return `<div class="pagehead"><h1>Vorgaben</h1></div><div class="grid tgrid">${Object.keys(VORG).map(k => `<button class="vgtile" data-v="${esc(k)}"><h3>${esc(k)}</h3></button>`).join("")}</div>`;
     }
     const list = VORG[S.vcat] || [];
     return `<div class="crumb"><button data-go="vorgaben">Vorgaben</button><span>›</span><span>${esc(S.vcat)}</span></div>
     <div class="pagehead"><h1>${esc(S.vcat)}</h1></div>
     <div class="chips mob" role="group" aria-label="Vorgaben-Bereich">${Object.keys(VORG).map(k => `<button class="chip" aria-pressed="${S.vcat === k}" data-v="${esc(k)}">${esc(k)}</button>`).join("")}</div>
-    ${adminBar(`<button class="btn red" data-admin-new="vorgabe" data-kat="${esc(S.vcat)}">+ Vorgabe in „${esc(S.vcat)}“</button>`)}
-    <div class="vcols">${list.map(v => `<div class="vitem">${esc(v.t)}${v.entwurf === "1" ? '<br><span class="meta">(Entwurf, nur für dich sichtbar)</span>' : ""}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}${ADMIN && v.id ? `<div class="admctl"><button data-amove="${esc(v.id)}" data-dir="-1" title="nach oben">↑</button><button data-amove="${esc(v.id)}" data-dir="1" title="nach unten">↓</button><button data-admin-vedit="${esc(v.id)}">bearbeiten</button><button class="del" data-adel="${esc(v.id)}">löschen</button></div>` : ""}</div>`).join("")}</div>`;
+    <div class="vcols">${list.map(v => `<div class="vitem">${esc(v.t)}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}</div>`).join("")}</div>`;
   },
 
   kontakt() {
@@ -857,8 +840,7 @@ const V = {
     const faq = (f) => `<details class="faq"><summary>${esc(f[0])}</summary><div class="faqa"><p>${esc(f[1]).replace("{{KONTAKT}}", '<button class="linkbtn" data-go="kontakt">Kontakt</button>')}</p>${f[2] === true ? `<p><button class="linkbtn" data-go="spenden">Zur Unterstützung</button></p>` : typeof f[2] === "string" ? `<p><button class="linkbtn" data-go="${esc(f[2])}">Zur Datenschutzerklärung</button></p>` : ""}</div></details>`;
     return `<div class="pagehead"><h1>Alles über den Fundus</h1></div>
       <div class="prose"><p>Der Impro-Fundus ist eine kostenlose, werbefreie Sammlung für alle, die Improtheater spielen. Hier findest du Warm-ups, Übungen, Szenenspiele und Vorgaben, nach Kategorien geordnet. Du kannst eigene Ideen einreichen und die Seite unterstützen.</p></div>
-      <div class="faqwrap"><div class="faqcol">${links.map(faq).join("")}</div><div class="faqcol">${rechts.map(faq).join("")}</div></div>
-      <div class="row"><button class="btn" data-admin-toggle>${ADMIN ? "Admin abmelden" : "Admin-Anmeldung"}</button></div>`;
+      <div class="faqwrap"><div class="faqcol">${links.map(faq).join("")}</div><div class="faqcol">${rechts.map(faq).join("")}</div></div>`;
   },
   impressum() { return "<div class=\"pagehead\"><h1>Impressum</h1></div><div class=\"prose\"><p>Angaben gemäß § 5 DDG</p><p>Leon E.<br>Marktplatz 13<br>52078 Aachen<br>Deutschland</p><p>Kontakt: leon@impro-fundus.de</p><p>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV: Leon E.</p><p>Der Impro-Fundus ist ein privates, nicht kommerzielles Angebot. Es gibt keinen Shop, keine Anmeldung für Besucher und keine Verträge. Die Nutzung ist kostenlos.</p><p><strong>Haftung für Inhalte</strong><br>Die Inhalte werden sorgfältig erstellt. Für Vollständigkeit, Richtigkeit und Aktualität wird keine Gewähr übernommen. Verpflichtungen zur Entfernung oder Sperrung von Informationen nach den allgemeinen Gesetzen bleiben unberührt.</p><p><strong>Haftung für Links</strong><br>Die Seite enthält Links zu fremden Websites. Für deren Inhalte ist der jeweilige Anbieter verantwortlich. Zum Zeitpunkt der Verlinkung waren keine Rechtsverstöße erkennbar. Bei Hinweisen auf Verstöße wird der Link entfernt.</p><p><strong>Urheberrecht</strong><br>Die Texte und die Gestaltung dieser Seite sind urheberrechtlich geschützt. Die Nutzungsbedingungen regeln, wie Inhalte verwendet werden dürfen.</p><p><strong>Verbraucherstreitbeilegung</strong><br>Der Betreiber ist nicht verpflichtet und nicht bereit, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p><p>Stand: 8. November 2026</p></div>"; },
   datenschutz() { return "<div class=\"pagehead\"><h1>Datenschutz</h1></div><div class=\"prose\"><p><strong>Verantwortlich</strong><br>Leon E., Marktplatz 13, 52078 Aachen, leon@impro-fundus.de</p><p><strong>Hosting</strong><br>Die Seite wird über GitHub Pages bereitgestellt (GitHub Inc., USA). Beim Aufruf verarbeitet der Anbieter technisch notwendige Daten wie IP-Adresse, Zeitpunkt und aufgerufene Seite, um die Seite auszuliefern. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem stabilen Betrieb). Informationen: https://docs.github.com/site-policy/privacy-policies/github-privacy-statement</p><p><strong>Inhalte aus der Google-Tabelle</strong><br>Übungen und Vorgaben werden über ein Google Apps Script geladen, das auf eine Google-Tabelle zugreift. Dabei wird die IP-Adresse an Google übertragen. Personenbezogene Daten werden dabei nicht gespeichert. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO.</p><p><strong>Kontaktformular und Vorschläge</strong><br>Beim Absenden werden deine Angaben über das Google Apps Script des Fundus an die E-Mail-Adresse des Betreibers geschickt (dabei wird deine IP-Adresse an Google übertragen). Sie werden nicht auf der Website gespeichert. Name und Mailadresse bei Vorschlägen sind freiwillig; im Kontaktformular brauchen wir die Adresse, um zu antworten. Für die E-Mail-Dienste wird ein Dienstleister eingesetzt. Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Bearbeitung deiner Anfrage) bzw. lit. a DSGVO (Einwilligung bei Vorschlägen).</p><p><strong>Spenden</strong><br>Wenn du auf den PayPal-Knopf klickst, verlässt du diese Seite. Ab dann gelten die Datenschutzbestimmungen von PayPal. Auf dieser Website werden dazu keine Daten gespeichert.</p><p><strong>Google Fonts</strong><br>Die Schrift Caveat wird von Google geladen. Dabei wird deine IP-Adresse an Google übertragen. Informationen: https://policies.google.com/privacy</p><p><strong>Cookies und Tracking</strong><br>Die Seite setzt keine Cookies und bindet keine Analyse- oder Werbedienste ein.</p><p><strong>Deine Rechte</strong><br>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch (Art. 15 bis 21 DSGVO). Wende dich dafür an leon@impro-fundus.de. Beschwerden kannst du bei der Landesbeauftragten für Datenschutz und Informationsfreiheit Nordrhein-Westfalen einreichen (ldi.nrw.de).</p><p>Stand: 8. November 2026</p></div>"; },
@@ -964,7 +946,7 @@ const zitatHeute = () => {
   return l[tag % l.length];
 };
 
-const footHTML = () => `<footer class="foot"><button data-go="ueber">Alles über den Fundus</button><button data-go="spenden">Fundus unterstützen</button><button data-go="impressum">Impressum</button><button data-go="datenschutz">Datenschutz</button><button data-go="nutzung">Nutzungsbedingungen</button>${ADMIN ? '<button data-admin-users>Admins verwalten</button><button data-azit>Zitate verwalten</button><button data-aimp>Import / Export</button>' : ""}</footer>`;
+const footHTML = () => `<footer class="foot"><button data-go="ueber">Alles über den Fundus</button><button data-go="spenden">Fundus unterstützen</button><button data-go="impressum">Impressum</button><button data-go="datenschutz">Datenschutz</button><button data-go="nutzung">Nutzungsbedingungen</button></footer>`;
 
 // Verlinkt Namen aus dem Fundus (Kategorien, Vorgaben, Übungen) und den Theater Brand im sichtbaren Text
 function linkify(root) {
@@ -1001,7 +983,6 @@ function linkify(root) {
 
 function render() {
   const sh = sideHTML();
-  const ab = $("#adminBtn"); if (ab) ab.textContent = ADMIN ? "Abmelden" : "Anmelden";
   $("#side").innerHTML = sh;
   $("#side").hidden = !sh;
   $("#topnav").innerHTML = topnavHTML();
@@ -1058,29 +1039,13 @@ function bindForm() {
 
 document.addEventListener("click", e => {
   if (e.target.closest("#menuBtn")) { openDrawer(); return; }
-  if (e.target.closest("#adminBtn")) { if (ADMIN) adminEnde(); else adminLogin(); return; }
   if (e.target.id === "dlg") { closeDlg(); return; }
   const t = e.target.closest("button");
   if (!t) return;
   const d = t.dataset;
   if (d.dlgClose !== undefined) { closeDlg(); return; }
   if (d.back !== undefined) { zurueck(); return; }
-  if (t.closest("#drawer") && (d.pdf !== undefined || d.azit !== undefined || d.aimp !== undefined || d.adminUsers !== undefined || d.adminToggle !== undefined)) closeDrawer();
-  if (d.adminToggle !== undefined) { if (ADMIN) adminEnde(); else adminLogin(); return; }
-  if (d.akat !== undefined) {
-    const art = d.art, name = d.name || "";
-    if (d.akat === "neu") { const n = window.prompt("Name der neuen Kategorie:"); if (n && n.trim()) admDirekt({ action: "adminKat", op: "neu", art, name: n.trim() }); return; }
-    if (d.akat === "umbenennen") { const n = window.prompt("Neuer Name für „" + name + "“:", name); if (n && n.trim() && n.trim() !== name) admDirekt({ action: "adminKat", op: "umbenennen", art, name, neu: n.trim() }); return; }
-    if (d.akat === "loeschen") { if (window.confirm("Kategorie „" + name + "“ wirklich löschen? Das geht nur, wenn sie leer ist.")) admDirekt({ action: "adminKat", op: "loeschen", art, name }); return; }
-    if (d.akat === "verschieben") { admDirekt({ action: "adminKat", op: "verschieben", art, name, richtung: +d.dir }); return; }
-  }
-  if (d.amove !== undefined) { admDirekt({ action: "adminVerschieben", sid: d.amove, richtung: +d.dir }); return; }
-  if (d.adel !== undefined) { if (window.confirm("Diese Vorgabe wirklich löschen?")) admDirekt({ action: "adminLoeschen", sid: d.adel }); return; }
-  if (d.azit !== undefined) { zitateDialog(); return; }
-  if (d.zedit !== undefined) { const z = ZIT.find(x => x.id === d.zedit); if (z) { $("#zId").value = z.id; $("#zT").value = z.t; $("#zA").value = z.a || ""; $("#zT").focus(); } return; }
-  if (d.zdel !== undefined) { if (window.confirm("Dieses Zitat wirklich löschen?")) zitatSende({ action: "adminZitat", op: "loeschen", id: d.zdel }); return; }
-  if (d.aimp !== undefined) { importDialog(); return; }
-  if (d.aexport !== undefined) { exportieren(); return; }
+  if (t.closest("#drawer") && d.pdf !== undefined) closeDrawer();
   if (d.spZweck !== undefined) { S.sp.zweck = d.spZweck; render(); return; }
   if (d.spBetrag !== undefined) { spBetrag(d.spBetrag); render(); return; }
   if (d.spStep !== undefined) {
@@ -1098,13 +1063,8 @@ document.addEventListener("click", e => {
     }
     S.sp.danke = true; render(); window.scrollTo(0, 0); return;
   }
-  if (d.adminNew !== undefined) { editor(null, d.adminNew, d.kat || ""); return; }
-  if (d.adminEdit !== undefined) { const i = findeItem(d.adminEdit); if (i) editor(i, "uebung"); return; }
-  if (d.adminVedit !== undefined) { const f = findeVorgabe(d.adminVedit); if (f) editor({ ...f.v, kat: f.k, title: f.v.t, ab: f.v.h, entwurf: f.v.entwurf }, "vorgabe"); return; }
   if (d.level !== undefined) { S.level = S.level === d.level ? "alle" : d.level; render(); return; }
   if (d.pdf !== undefined) { pdfDialog(); return; }
-  if (d.adminUsers !== undefined) { adminVerwalten(); return; }
-  if (d.admDel !== undefined) { admEntfernen(d.admDel); return; }
   if (d.go) { if (d.kind) S.kind = d.kind; go(d.go); return; }
   if (d.cat !== undefined) { go("kat", { cat: d.cat }); return; }
   if (d.item) { go("item", { id: d.item }); return; }
@@ -1241,7 +1201,7 @@ function laden() {
   const normal = () => fetch(CONFIG.API + "?action=fundus").then(r => { if (!r.ok) throw new Error("http"); return r.json(); });
   /* Schnellstart: zuletzt gemerkte Daten sofort anzeigen, frische Daten im Hintergrund holen */
   let schnell = false, alt = "";
-  if (!ADMIN && !LOADED) {
+  if (!LOADED) {
     const c = cacheLesen();
     if (c) {
       try {
@@ -1252,13 +1212,10 @@ function laden() {
       } catch (e) { schnell = false; }
     }
   }
-  const quelle = ADMIN
-    ? apiPost({ action: "fundusAdmin", token: ADMIN }).then(d => { if (d && d.ok) return d; if (d && /erneut/.test(d.msg || "")) { ADMIN = null; try { sessionStorage.removeItem("fundus-admin"); } catch (e) {} } return normal(); }).catch(normal)
-    : normal();
-  return quelle
+  return normal()
     .then(d => {
       if (!d.ok) throw new Error("data");
-      if (!ADMIN) cacheSchreiben(d);
+      cacheSchreiben(d);
       if (schnell && JSON.stringify(d) === alt) return;   /* nichts Neues, nichts neu zeichnen */
       setData(d);
       if (!S.vcat || !VORG[S.vcat]) S.vcat = Object.keys(VORG)[0] || null;
@@ -1284,18 +1241,10 @@ window.addEventListener("resize", kopfHoehe);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(kopfHoehe);
 kopfHoehe();
 
-/* ----- Admin: Anmeldung und Bearbeiten (nur Fundus-Website) ----- */
-var ADMIN = null;
-try { ADMIN = sessionStorage.getItem("fundus-admin"); } catch (e) {}
-const adminBar = html => ADMIN ? `<div class="adminbar">${html}</div>` : "";
+/* ----- Schnittstelle und Fenster ----- */
 async function apiPost(obj) {
   const r = await fetch(CONFIG.API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(obj) });
   return r.json();
-}
-function adminEnde() {
-  ADMIN = null;
-  try { sessionStorage.removeItem("fundus-admin"); } catch (e) {}
-  closeDlg(); render(); laden();
 }
 function openDlg(html) {
   $("#dlgBox").innerHTML = html;
@@ -1304,66 +1253,6 @@ function openDlg(html) {
 function closeDlg() { S.diceOpen = false; $("#dlg").hidden = true; $("#dlgBox").innerHTML = ""; }
 
 const dicePop = () => `<div class="dicepop"><h2 style="margin:0 0 10px;font-size:20px">Szenenwürfel</h2>${genHTML()}</div>`;
-function adminLogin() {
-  openDlg(`<h2>Admin-Anmeldung</h2>
-    <form id="adminForm" class="dlgform">
-      <label>Benutzername<input id="an" autocomplete="username" autocapitalize="none"></label>
-      <label>Passwort<input id="ap" type="password" autocomplete="current-password"></label>
-      <p class="meta" id="am"></p>
-      <div class="row"><button class="btn red" type="submit">Anmelden</button><button class="btn" type="button" data-dlg-close>Abbrechen</button></div>
-    </form>`);
-  $("#an").focus();
-  $("#adminForm").onsubmit = async e => {
-    e.preventDefault();
-    $("#am").textContent = "Einen Moment …";
-    try {
-      const r = await apiPost({ action: "adminAnmelden", name: $("#an").value.trim(), passwort: $("#ap").value });
-      if (!r.ok) { $("#am").textContent = r.msg || "Anmeldung nicht möglich."; return; }
-      ADMIN = r.token;
-      try { sessionStorage.setItem("fundus-admin", ADMIN); } catch (x) {}
-      closeDlg(); render(); laden();
-    } catch (x) { $("#am").textContent = "Keine Verbindung. Bitte später noch einmal versuchen."; }
-  };
-}
-async function admAktion(obj) {
-  const r = await apiPost(Object.assign({ token: ADMIN }, obj));
-  if (!r.ok) throw new Error(r.msg || "Das hat nicht geklappt.");
-  return r;
-}
-async function admListeNeuLaden() {
-  try {
-    const r = await admAktion({ action: "adminListe" });
-    $("#admList").innerHTML = r.admins.map(n => `<div class="row"><span>${esc(n)}</span><button class="linkbtn" type="button" data-adm-del="${esc(n)}">entfernen</button></div>`).join("");
-  } catch (x) { $("#am2").textContent = x.message; }
-}
-async function admEntfernen(name) {
-  if (!confirm(`Admin „${name}“ wirklich entfernen?`)) return;
-  try { await admAktion({ action: "adminEntfernen", name }); await admListeNeuLaden(); }
-  catch (x) { $("#am2").textContent = x.message; }
-}
-function adminVerwalten() {
-  openDlg(`<h2>Admins verwalten</h2>
-    <div id="admList" class="dlgform"></div>
-    <form id="admNeu" class="dlgform">
-      <h3>Neuen Admin anlegen</h3>
-      <label>Benutzername<input id="an2" autocapitalize="none" autocomplete="off"></label>
-      <label>Passwort (mindestens 8 Zeichen)<input id="ap2" type="password" autocomplete="new-password"></label>
-      <p class="meta" id="am2"></p>
-      <div class="row"><button class="btn red" type="submit">Admin speichern</button><button class="btn" type="button" data-dlg-close>Schließen</button></div>
-    </form>`);
-  admListeNeuLaden();
-  $("#admNeu").onsubmit = async e => {
-    e.preventDefault();
-    const n = $("#an2").value.trim(), p = $("#ap2").value;
-    $("#am2").textContent = "Einen Moment …";
-    try {
-      await admAktion({ action: "adminHinzufuegen", name: n, passwort: p });
-      $("#an2").value = ""; $("#ap2").value = "";
-      $("#am2").textContent = `Admin „${n}“ gespeichert.`;
-      await admListeNeuLaden();
-    } catch (x) { $("#am2").textContent = x.message; }
-  };
-}
 function pdfDialog() {
   const grp = (name, cnt, rows) => `<details class="pdfgrp"><summary>${esc(name)} <span class="meta" data-cnt data-max="${cnt}">0 von ${cnt}</span></summary><label class="check pdfall"><input type="checkbox" data-all> <b>Alle auswählen</b></label>${rows}</details>`;
   const ue = CATS.map(c => {
@@ -1464,153 +1353,6 @@ h2{font:700 19pt '${z.kategorie}',cursive;text-decoration:underline;margin:16px 
   w.document.close();
 }
 
-function editor(item, art, kat) {
-  const vorgabe = art === "vorgabe";
-  const katListe = vorgabe ? Object.keys(VORG) : CATS.map(c => c.id);
-  const aktuell = item ? item.kat || item.cat || "" : (kat || "");
-  const eig = item && item.eig ? item.eig.join(", ") : "";
-  const txt = item ? (item.ab || item.h || "") : "";
-  openDlg(`<h2>${item ? "Bearbeiten" : "Neu anlegen"}: ${vorgabe ? "Vorgabe" : "Übung"}</h2>
-    <form id="edForm" class="dlgform">
-      <label>Art
-        <select id="edArt">
-          <option value="uebung" ${!vorgabe ? "selected" : ""}>Übung / Spiel</option>
-          <option value="vorgabe" ${vorgabe ? "selected" : ""}>Vorgabe</option>
-        </select></label>
-      <label>Titel<input id="edTitel" required value="${esc(item ? item.title || item.t : "")}"></label>
-      <label>Kategorie
-        <select id="edKat">${katListe.map(k => `<option value="${esc(k)}" ${k === aktuell ? "selected" : ""}>${esc(k)}</option>`).join("")}</select></label>
-      <label>Oder neue Kategorie (optional)<input id="edNeueKat" placeholder="z. B. Neue Kategorie"></label>
-      <div id="edUebung" ${vorgabe ? "hidden" : ""} class="dlgfields">
-        <label>Personen<input id="edTn" value="${esc(item ? item.tn || "" : "")}" placeholder="z. B. 2 oder 2–4"></label>
-        <label>Dauer<input id="edDauer" value="${esc(item ? item.dauer || "" : "")}" placeholder="z. B. 10 Min."></label>
-        <label>Niveau<select id="edLevel">${["", "Einsteiger", "Fortgeschritten"].map(x => `<option value="${x}" ${x === (item ? item.level || "" : "") ? "selected" : ""}>${x || "–"}</option>`).join("")}</select></label>
-        <label>Eigenschaften (mit Komma getrennt)<input id="edEig" value="${esc(eig)}"></label>
-      </div>
-      <label class="check"><input type="checkbox" id="edEntwurf" ${(item && (item.draft || item.entwurf === "1")) ? "checked" : ""}><span>Entwurf: noch nicht online stellen</span></label>
-      <label><span id="edTxtLbl">${vorgabe ? "Hinweis (optional)" : "Ablauf / Beschreibung"}</span><textarea id="edTxt">${esc(txt)}</textarea></label>
-      <p class="meta" id="edMsg"></p>
-      <div class="row">
-        <button class="btn red" type="submit">Speichern</button>
-        <button class="btn" type="button" data-dlg-close>Abbrechen</button>
-        ${item ? `<button class="btn" type="button" id="edDel" style="margin-left:auto">Löschen</button>` : ""}
-      </div>
-    </form>`);
-  $("#edArt").onchange = () => { const v = $("#edArt").value === "vorgabe"; $("#edUebung").hidden = v; $("#edTxtLbl").textContent = v ? "Hinweis (optional)" : "Ablauf / Beschreibung"; };
-  $("#edForm").onsubmit = async e => {
-    e.preventDefault();
-    const neu = $("#edNeueKat").value.trim();
-    const eintrag = {
-      art: $("#edArt").value,
-      titel: $("#edTitel").value.trim(),
-      kat: neu || $("#edKat").value,
-      tn: $("#edTn") ? $("#edTn").value.trim() : "",
-      dauer: $("#edDauer") ? $("#edDauer").value.trim() : "",
-      level: $("#edLevel") ? $("#edLevel").value : "",
-      eig: $("#edEig") ? $("#edEig").value.split(",").map(x => x.trim()).filter(Boolean).join(",") : "",
-      ablauf: $("#edTxt").value.trim(),
-      entwurf: $("#edEntwurf").checked ? "1" : ""
-    };
-    if (item) eintrag.id = item.id;
-    await adminSende({ action: "adminSpeichern", eintrag });
-  };
-  if (item) $("#edDel").onclick = async () => {
-    if (!window.confirm("Wirklich löschen? Das kann nicht rückgängig gemacht werden.")) return;
-    await adminSende({ action: "adminLoeschen", sid: item.id });
-  };
-}
-async function adminSende(obj) {
-  $("#edMsg").textContent = "Einen Moment …";
-  try {
-    const r = await apiPost(Object.assign({ token: ADMIN }, obj));
-    if (!r.ok) {
-      $("#edMsg").textContent = r.msg || "Das hat nicht geklappt.";
-      if (/erneut/.test(r.msg || "")) adminEnde();
-      return;
-    }
-    closeDlg();
-    if (obj.action === "adminLoeschen" && S.view === "item") { S.view = "kats"; S.id = null; S.cat = null; }
-    await laden();
-  } catch (x) { $("#edMsg").textContent = "Keine Verbindung. Bitte später noch einmal versuchen."; }
-}
-async function zitatSende(obj) {
-  const m = $("#zMsg"); if (m) m.textContent = "Einen Moment …";
-  try {
-    const r = await apiPost(Object.assign({ token: ADMIN }, obj));
-    if (!r.ok) { if (m) m.textContent = r.msg || "Das hat nicht geklappt."; if (/erneut/.test(r.msg || "")) adminEnde(); return; }
-    await laden(); zitateDialog();
-  } catch (x) { if (m) m.textContent = "Keine Verbindung. Bitte später noch einmal versuchen."; }
-}
-function zitateDialog() {
-  openDlg(`<h2>Zitate verwalten</h2>
-    <p class="meta">Jeden Tag wird eines dieser Zitate auf der Startseite gezeigt. Aktuell: ${ZIT.length}.</p>
-    <div class="zlist">${ZIT.map(z => `<div class="zrow"><span>„${esc(z.t)}“${z.a ? " — " + esc(z.a) : ""}</span><span class="admctl"><button type="button" data-zedit="${esc(z.id)}">bearbeiten</button><button type="button" class="del" data-zdel="${esc(z.id)}">löschen</button></span></div>`).join("") || "<p class=\"meta\">Noch keine Zitate.</p>"}</div>
-    <form id="zForm" class="dlgform">
-      <h3>Zitat hinzufügen oder ändern</h3>
-      <input type="hidden" id="zId">
-      <label>Zitat<textarea id="zT" required></textarea></label>
-      <label>Von wem (optional)<input id="zA" placeholder="z. B. Keith Johnstone"></label>
-      <div class="row"><button class="btn red" type="submit">Speichern</button></div>
-    </form>
-    <form id="zMore" class="dlgform">
-      <h3>Mehrere auf einmal</h3>
-      <label>Pro Zeile ein Zitat, Quelle mit | abtrennen<textarea id="zMany" placeholder="Zitat eins | Autorin&#10;Zitat zwei | Autor"></textarea></label>
-      <div class="row"><button class="btn" type="submit">Alle hinzufügen</button></div>
-    </form>
-    <p class="meta" id="zMsg"></p>
-    <div class="row"><button class="btn" type="button" data-dlg-close>Schließen</button></div>`);
-  $("#zForm").onsubmit = e => {
-    e.preventDefault();
-    const id = $("#zId").value;
-    zitatSende({ action: "adminZitat", op: id ? "bearbeiten" : "neu", id, t: $("#zT").value.trim(), a: $("#zA").value.trim() });
-  };
-  $("#zMore").onsubmit = e => {
-    e.preventDefault();
-    if (!$("#zMany").value.trim()) { $("#zMsg").textContent = "Bitte mindestens ein Zitat eintragen."; return; }
-    zitatSende({ action: "adminZitat", op: "mehrere", text: $("#zMany").value });
-  };
-}
-function exportieren() {
-  if (!RAW) return;
-  const out = Object.assign({}, RAW); delete out.ok;
-  const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "impro-fundus-" + new Date().toISOString().slice(0, 10) + ".json";
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-}
-function importDialog() {
-  const nU = ITEMS.length, nV = vCount();
-  openDlg(`<h2>Import / Export</h2>
-    <h3>Export</h3>
-    <p class="meta">Speichert alle Übungen, Vorgaben (auch Entwürfe) und Zitate in einer Datei. So hast du eine Sicherung.</p>
-    <div class="row"><button class="btn red" type="button" data-aexport>Datei herunterladen (${nU} Übungen, ${nV} Vorgaben)</button></div>
-    <h3>Import</h3>
-    <p class="meta">Wähle eine Datei, die du vorher exportiert hast. Gleiche Einträge werden aktualisiert, neue werden ergänzt. Es wird nichts gelöscht.</p>
-    <form id="impForm" class="dlgform">
-      <label>Datei<input id="impFile" type="file" accept=".json,application/json"></label>
-      <p class="meta" id="impMsg"></p>
-      <div class="row"><button class="btn red" type="submit">Importieren</button><button class="btn" type="button" data-dlg-close>Schließen</button></div>
-    </form>`);
-  $("#impForm").onsubmit = async e => {
-    e.preventDefault();
-    const msg = $("#impMsg"), f = $("#impFile").files[0];
-    if (!f) { msg.textContent = "Bitte zuerst eine Datei wählen."; return; }
-    let d;
-    try { d = JSON.parse(await f.text()); } catch (x) { msg.textContent = "Die Datei kann nicht gelesen werden. Ist es eine Export-Datei?"; return; }
-    if (!d || (!Array.isArray(d.uebungen) && !d.vorgaben && !Array.isArray(d.zitate))) { msg.textContent = "In der Datei wurden keine Übungen, Vorgaben oder Zitate gefunden."; return; }
-    const anz = (d.uebungen || []).length + Object.values(d.vorgaben || {}).reduce((a, x) => a + x.length, 0);
-    if (!window.confirm(anz + " Einträge aus der Datei importieren?")) return;
-    msg.textContent = "Einen Moment …";
-    try {
-      const r = await apiPost({ action: "adminImport", token: ADMIN, daten: d });
-      if (!r.ok) { msg.textContent = r.msg || "Das hat nicht geklappt."; if (/erneut/.test(r.msg || "")) adminEnde(); return; }
-      msg.textContent = "Fertig: " + r.neu + " neu, " + r.aktualisiert + " aktualisiert, " + r.zitate + " neue Zitate.";
-      await laden();
-    } catch (x) { msg.textContent = "Keine Verbindung oder die Datei ist zu groß."; }
-  };
-}
 const euro = n => (Math.round(n * 100) / 100).toLocaleString("de-DE") + " €";
 const spLink = () => CONFIG.PAYPAL_URL.replace(/\/+$/, "") + "/" + S.sp.betrag + "EUR";
 function spBetrag(n) {
@@ -1628,20 +1370,6 @@ document.addEventListener("input", e => {
   spBetrag(e.target.value);
   document.querySelectorAll("[data-sp-betrag]").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.spBetrag === S.sp.betrag)));
 });
-const admTile = (tile, art, name) => !ADMIN ? tile : `<div class="admtile">${tile}<div class="admctl"><button data-akat="verschieben" data-art="${art}" data-name="${esc(name)}" data-dir="-1" title="nach vorn">←</button><button data-akat="verschieben" data-art="${art}" data-name="${esc(name)}" data-dir="1" title="nach hinten">→</button><button data-akat="umbenennen" data-art="${art}" data-name="${esc(name)}">umbenennen</button><button class="del" data-akat="loeschen" data-art="${art}" data-name="${esc(name)}">löschen</button></div></div>`;
-const admMove = (html, id) => !ADMIN ? html : `<div>${html}<div class="admrow admctl" style="justify-content:flex-start"><button data-amove="${esc(id)}" data-dir="-1" title="nach oben">↑ nach oben</button><button data-amove="${esc(id)}" data-dir="1" title="nach unten">↓ nach unten</button></div></div>`;
-async function admDirekt(obj) {
-  try {
-    const r = await apiPost(Object.assign({ token: ADMIN }, obj));
-    if (!r.ok) { window.alert(r.msg || "Das hat nicht geklappt."); if (/erneut/.test(r.msg || "")) { adminEnde(); } return; }
-    await laden();
-  } catch (x) { window.alert("Keine Verbindung. Bitte später noch einmal versuchen."); }
-}
-const findeItem = id => ITEMS.find(x => x.id === id);
-const findeVorgabe = id => {
-  for (const [k, a] of Object.entries(VORG)) { const v = a.find(x => x.id === id); if (v) return { v, k }; }
-  return null;
-};
 </script>
 </body>
 </html>

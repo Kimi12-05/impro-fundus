@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Verwaltung – Impro-Fundus</title>
+<link rel="icon" type="image/png" href="../favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--red:#B02E28;--bg:#F5F0E8;--card:#FFFFFF;--field:#FFFFFF;--line:#E6DFD4;--fg:#1F1B17;--muted:#6F665D;--ok:#2E7D4F;--chip:#EFE7DA;--overlay:rgba(0,0,0,.45);color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--red:#D8564F;--bg:#1A1714;--card:#2A2622;--field:#2A2622;--line:#3A342E;--fg:#F3ECE3;--muted:#ABA196;--ok:#59C187;--chip:#38322C;--overlay:rgba(0,0,0,.6);color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:60px}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px}
+.top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.top .wrap{display:flex;align-items:center;gap:12px;padding-top:10px;padding-bottom:10px;flex-wrap:wrap}
+.top img{height:40px;width:auto;display:block}
+.top h1{font:700 26px Caveat,cursive;margin:0;color:var(--red);flex:1;min-width:120px}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:9px 14px;cursor:pointer;font-weight:600;color:var(--fg)}
+.btn.red{background:var(--red);border-color:var(--red);color:#fff}
+.btn.small{padding:5px 10px;font-size:14px;border-radius:9px}
+.btn.del{color:var(--red)}
+.btn:disabled{opacity:.4;cursor:default}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:12px 0 4px}
+.tabs button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;cursor:pointer;white-space:nowrap;font-weight:600}
+.tabs button[aria-pressed=true]{background:var(--red);border-color:var(--red);color:#fff}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px}
+.panel h2{margin:0 0 10px;font-size:19px}
+.panel h3{margin:18px 0 8px;font-size:16px}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.bar input[type=search]{flex:1;min-width:180px}
+input,select,textarea{width:100%;background:var(--field);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+textarea{min-height:130px;resize:vertical}
+label{display:flex;flex-direction:column;gap:5px;font-size:14px;color:var(--muted)}
+label.check{flex-direction:row;align-items:center;gap:10px;color:var(--fg);font-size:15px}
+label.check input{width:18px;height:18px;flex:none}
+.form{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.msg{margin:0;color:var(--muted);font-size:14px;min-height:1.2em}
+.msg.err{color:var(--red)}
+.msg.ok{color:var(--ok)}
+details.grp{border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:var(--bg)}
+details.grp>summary{cursor:pointer;font-weight:700;padding:10px 12px;display:flex;gap:8px;align-items:baseline}
+details.grp>summary .n{color:var(--muted);font-weight:400;font-size:14px}
+.item{display:flex;gap:10px;align-items:center;padding:8px 12px;border-top:1px solid var(--line);background:var(--card)}
+.item .t{flex:1;min-width:0;overflow-wrap:anywhere}
+.item .m{color:var(--muted);font-size:13px}
+.pill{display:inline-block;font-size:12px;border-radius:999px;padding:1px 8px;background:var(--chip);color:var(--muted);margin-left:6px}
+.pill.draft{background:#fff3d6;color:#7a5a00}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chips button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;cursor:pointer}
+.chips button[aria-pressed=true]{background:var(--red);border-color:var(--red);color:#fff}
+.empty{color:var(--muted);padding:10px 2px}
+.login{max-width:420px;margin:12vh auto 0}
+.login .panel{padding:22px}
+.login img{height:72px;width:auto;display:block;margin:0 auto 6px}
+.login h1{font:700 32px Caveat,cursive;text-align:center;margin:0 0 14px;color:var(--red)}
+.dlg{position:fixed;inset:0;background:var(--overlay);display:flex;align-items:flex-start;justify-content:center;padding:4vh 12px;overflow:auto;z-index:50}
+.dlg[hidden]{display:none}
+.dlgbox{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;width:100%;max-width:560px}
+.dlgbox h2{margin:0 0 12px;font-size:20px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:560px){.grid2{grid-template-columns:1fr}.item{flex-wrap:wrap}}
+.hint{color:var(--muted);font-size:14px;margin:0 0 10px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="dlg" id="dlg" hidden><div class="dlgbox" id="dlgBox" role="dialog" aria-modal="true"></div></div>
+<script>
+/* Schnittstelle (Google Apps Script) – dieselbe wie auf der Website */
+const API = "https://script.google.com/macros/s/AKfycbwcGZii-rdT7MHU_vxgWMGMFsZIuwUW96_ECA8vTRAzEk8RbPszsdT2Dh8CPYJSWgqM/exec";
+const KEY = "fundus-verwaltung";
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let TOKEN = null, RAW = null, ITEMS = [], VORG = {}, UKATS = [], ZIT = [];
+let tab = "ueb", vcat = null, suche = "";
+try { TOKEN = sessionStorage.getItem(KEY); } catch (e) {}
+
+async function api(obj) {
+  const r = await fetch(API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(Object.assign({ token: TOKEN }, obj)) });
+  const d = await r.json();
+  if (!d.ok && /erneut/.test(d.msg || "")) { abmelden(true); throw new Error("Bitte melde dich erneut an."); }
+  return d;
+}
+function abmelden(abgelaufen) {
+  TOKEN = null; RAW = null;
+  try { sessionStorage.removeItem(KEY); } catch (e) {}
+  closeDlg(); loginSeite(abgelaufen ? "Die Anmeldung ist abgelaufen. Bitte melde dich erneut an." : "");
+}
+
+/* ---------- Anmeldung ---------- */
+function loginSeite(hinweis) {
+  $("#app").innerHTML = `<div class="login wrap"><div class="panel"><img src="../logo.png" alt="Impro-Fundus"><h1>Verwaltung</h1>
+    <form class="form" id="lf">
+      <label>Benutzername<input id="ln" autocomplete="username" autocapitalize="none" required></label>
+      <label>Passwort<input id="lp" type="password" autocomplete="current-password" required></label>
+      <p class="msg err" id="lm">${esc(hinweis || "")}</p>
+      <button class="btn red" type="submit">Anmelden</button>
+    </form>
+    <p class="hint" style="margin:14px 0 0;text-align:center"><a href="../" style="color:var(--muted)">← Zur Website</a></p></div></div>`;
+  $("#ln").focus();
+  $("#lf").onsubmit = async e => {
+    e.preventDefault();
+    const m = $("#lm"); m.className = "msg"; m.textContent = "Einen Moment …";
+    try {
+      const r = await (await fetch(API, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ action: "adminAnmelden", name: $("#ln").value.trim(), passwort: $("#lp").value }) })).json();
+      if (!r.ok) { m.className = "msg err"; m.textContent = r.msg || "Anmeldung nicht möglich."; return; }
+      TOKEN = r.token; try { sessionStorage.setItem(KEY, TOKEN); } catch (x) {}
+      await start();
+    } catch (x) { m.className = "msg err"; m.textContent = "Keine Verbindung. Bitte später noch einmal versuchen."; }
+  };
+}
+
+/* ---------- Daten ---------- */
+function daten(d) {
+  RAW = d; ZIT = Array.isArray(d.zitate) ? d.zitate : [];
+  UKATS = (d.uebungenReihe || []).slice();
+  ITEMS = (d.uebungen || []).map(u => ({ id: u.id, cat: u.kat, title: u.titel, level: u.level || "", draft: u.entwurf === "1", ab: u.ablauf || "", dauer: u.dauer || "", tn: u.tn || "", eig: u.eig || [] }));
+  ITEMS.forEach(i => { if (!UKATS.includes(i.cat)) UKATS.push(i.cat); });
+  VORG = {};
+  (d.vorgabenReihe || []).forEach(k => { VORG[k] = d.vorgaben[k] || []; });
+  Object.keys(d.vorgaben || {}).forEach(k => { if (!VORG[k]) VORG[k] = d.vorgaben[k]; });
+  if (!vcat || !VORG[vcat]) vcat = Object.keys(VORG)[0] || null;
+}
+async function laden() {
+  const r = await api({ action: "fundusAdmin" });
+  if (!r.ok) throw new Error(r.msg || "Die Daten konnten nicht geladen werden.");
+  daten(r);
+}
+async function start() {
+  $("#app").innerHTML = `<div class="wrap"><p class="hint" style="padding-top:40px">Einen Moment, die Daten werden geladen …</p></div>`;
+  try { await laden(); seite(); }
+  catch (x) { if (TOKEN) $("#app").innerHTML = `<div class="wrap"><div class="panel"><p class="msg err">${esc(x.message)}</p><div class="row"><button class="btn" onclick="start()">Noch einmal versuchen</button><button class="btn" onclick="abmelden()">Abmelden</button></div></div></div>`; }
+}
+async function aktion(obj, nach) {
+  const r = await api(obj);
+  if (!r.ok) throw new Error(r.msg || "Das hat nicht geklappt.");
+  await laden(); if (nach !== false) seite();
+  return r;
+}
+
+/* ---------- Seitengerüst ---------- */
+const TABS = [["ueb", "Übungen"], ["vor", "Vorgaben"], ["zit", "Zitate"], ["imp", "Import / Export"], ["adm", "Admins"]];
+function seite() {
+  const inhalt = { ueb: tabUeb, vor: tabVor, zit: tabZit, imp: tabImp, adm: tabAdm }[tab]();
+  const alt = $("#suche"), hadFocus = alt && document.activeElement === alt, pos = hadFocus ? alt.selectionStart : 0;
+  $("#app").innerHTML = `<div class="top"><div class="wrap"><img src="../logo.png" alt=""><h1>Verwaltung</h1><a class="btn" href="../" style="text-decoration:none">Zur Website</a><button class="btn" id="out">Abmelden</button></div></div>
+    <div class="wrap"><div class="tabs" role="tablist">${TABS.map(([k, t]) => `<button role="tab" data-tab="${k}" aria-pressed="${tab === k}">${t}</button>`).join("")}</div>${inhalt}</div>`;
+  $("#out").onclick = () => abmelden();
+  document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { tab = b.dataset.tab; seite(); window.scrollTo(0, 0); });
+  bindTab();
+  if (hadFocus && $("#suche")) { $("#suche").focus(); $("#suche").setSelectionRange(pos, pos); }
+}
+function fehler(x) { alert(x && x.message ? x.message : "Das hat nicht geklappt."); }
+function katVerwaltung(art, liste) {
+  return `<h3>Kategorien</h3><p class="hint">Mit ← → änderst du die Reihenfolge. Löschen geht nur bei leeren Kategorien.</p>
+  ${liste.map(k => `<div class="item" style="border:1px solid var(--line);border-radius:10px;margin-bottom:6px"><span class="t">${esc(k)}</span>
+    <button class="btn small" data-kat="verschieben" data-art="${art}" data-name="${esc(k)}" data-dir="-1" title="nach vorn">←</button>
+    <button class="btn small" data-kat="verschieben" data-art="${art}" data-name="${esc(k)}" data-dir="1" title="nach hinten">→</button>
+    <button class="btn small" data-kat="umbenennen" data-art="${art}" data-name="${esc(k)}">umbenennen</button>
+    <button class="btn small del" data-kat="loeschen" data-art="${art}" data-name="${esc(k)}">löschen</button></div>`).join("")}
+  <button class="btn" data-kat="neu" data-art="${art}">+ Neue Kategorie</button>`;
+}
+function bindKat() {
+  document.querySelectorAll("[data-kat]").forEach(b => b.onclick = async () => {
+    const op = b.dataset.kat, art = b.dataset.art, name = b.dataset.name || "";
+    try {
+      if (op === "neu") { const n = prompt("Name der neuen Kategorie:"); if (n && n.trim()) await aktion({ action: "adminKat", op: "neu", art, name: n.trim() }); }
+      else if (op === "umbenennen") { const n = prompt("Neuer Name für „" + name + "“:", name); if (n && n.trim() && n.trim() !== name) await aktion({ action: "adminKat", op: "umbenennen", art, name, neu: n.trim() }); }
+      else if (op === "loeschen") { if (confirm("Kategorie „" + name + "“ wirklich löschen? Das geht nur, wenn sie leer ist.")) await aktion({ action: "adminKat", op: "loeschen", art, name }); }
+      else if (op === "verschieben") await aktion({ action: "adminKat", op: "verschieben", art, name, richtung: +b.dataset.dir });
+    } catch (x) { fehler(x); }
+  });
+}
+
+/* ---------- Übungen ---------- */
+function tabUeb() {
+  const q = suche.trim().toLowerCase();
+  const gruppen = UKATS.map(k => {
+    const l = ITEMS.filter(i => i.cat === k && (!q || i.title.toLowerCase().includes(q)));
+    if (q && !l.length) return "";
+    return `<details class="grp" ${q ? "open" : ""}><summary>${esc(k)} <span class="n">${l.length}</span></summary>${l.map(i => `<div class="item"><span class="t">${esc(i.title)}${i.draft ? '<span class="pill draft">Entwurf</span>' : ""}${!i.ab ? '<span class="pill">ohne Beschreibung</span>' : ""}<div class="m">${esc([i.tn ? i.tn + " Pers." : "", i.dauer, i.level].filter(Boolean).join(" · "))}</div></span><button class="btn small" data-edit-u="${esc(i.id)}">Bearbeiten</button></div>`).join("") || '<div class="item"><span class="t m">Noch keine Übungen.</span></div>'}</details>`;
+  }).join("");
+  return `<div class="panel"><div class="bar"><input id="suche" type="search" placeholder="Übung suchen …" value="${esc(suche)}"><button class="btn red" data-new="uebung">+ Neue Übung</button></div>
+    ${gruppen || '<p class="empty">Nichts gefunden.</p>'}${katVerwaltung("uebung", UKATS)}</div>`;
+}
+
+/* ---------- Vorgaben ---------- */
+function tabVor() {
+  const ks = Object.keys(VORG), l = VORG[vcat] || [];
+  return `<div class="panel"><div class="chips">${ks.map(k => `<button data-vc="${esc(k)}" aria-pressed="${k === vcat}">${esc(k)} (${(VORG[k] || []).length})</button>`).join("")}</div>
+    <div class="bar"><button class="btn red" data-new="vorgabe" ${vcat ? "" : "disabled"}>+ Vorgabe in „${esc(vcat || "–")}“</button></div>
+    ${l.map(v => `<div class="item"><span class="t">${esc(v.t)}${v.entwurf === "1" ? '<span class="pill draft">Entwurf</span>' : ""}${v.h ? `<div class="m">${esc(v.h)}</div>` : ""}</span>
+      <button class="btn small" data-vmove="${esc(v.id)}" data-dir="-1" title="nach oben">↑</button><button class="btn small" data-vmove="${esc(v.id)}" data-dir="1" title="nach unten">↓</button>
+      <button class="btn small" data-edit-v="${esc(v.id)}">Bearbeiten</button></div>`).join("") || '<p class="empty">In dieser Kategorie gibt es noch keine Vorgaben.</p>'}
+    ${katVerwaltung("vorgabe", ks)}</div>`;
+}
+
+/* ---------- Zitate ---------- */
+function tabZit() {
+  return `<div class="panel"><h2>Zitate</h2><p class="hint">Jeden Tag wird eines dieser Zitate auf der Startseite gezeigt. Aktuell: ${ZIT.length}.</p>
+    ${ZIT.map(z => `<div class="item" style="border:1px solid var(--line);border-radius:10px;margin-bottom:6px"><span class="t">„${esc(z.t)}“${z.a ? " — " + esc(z.a) : ""}</span><button class="btn small" data-zedit="${esc(z.id)}">bearbeiten</button><button class="btn small del" data-zdel="${esc(z.id)}">löschen</button></div>`).join("") || '<p class="empty">Noch keine Zitate.</p>'}
+    <h3 id="zTitel">Zitat hinzufügen</h3>
+    <form class="form" id="zForm"><input type="hidden" id="zId"><label>Zitat<textarea id="zT" required style="min-height:90px"></textarea></label>
+      <label>Von wem (optional)<input id="zA" placeholder="z. B. Keith Johnstone"></label>
+      <div class="row"><button class="btn red" type="submit">Speichern</button><button class="btn" type="button" id="zNeu" hidden>Abbrechen</button></div></form>
+    <h3>Mehrere auf einmal</h3>
+    <form class="form" id="zMore"><label>Pro Zeile ein Zitat, Quelle mit | abtrennen<textarea id="zMany" placeholder="Zitat eins | Autorin&#10;Zitat zwei | Autor"></textarea></label>
+      <div class="row"><button class="btn" type="submit">Alle hinzufügen</button></div></form>
+    <p class="msg" id="zMsg"></p></div>`;
+}
+
+/* ---------- Import / Export ---------- */
+function tabImp() {
+  const nV = Object.values(VORG).reduce((a, x) => a + x.length, 0);
+  return `<div class="panel"><h2>Export</h2><p class="hint">Speichert alle Übungen, Vorgaben (auch Entwürfe) und Zitate in einer Datei. So hast du eine Sicherung.</p>
+    <button class="btn red" id="exp">Datei herunterladen (${ITEMS.length} Übungen, ${nV} Vorgaben)</button>
+    <h2 style="margin-top:24px">Import</h2><p class="hint">Wähle eine Datei, die du vorher exportiert hast. Gleiche Einträge werden aktualisiert, neue werden ergänzt. Es wird nichts gelöscht.</p>
+    <form class="form" id="impForm"><label>Datei<input id="impFile" type="file" accept=".json,application/json"></label><p class="msg" id="impMsg"></p><div class="row"><button class="btn red" type="submit">Importieren</button></div></form></div>`;
+}
+
+/* ---------- Admins ---------- */
+function tabAdm() {
+  return `<div class="panel"><h2>Admins</h2><p class="hint">Diese Personen können sich hier anmelden.</p><div id="admList"><p class="hint">Wird geladen …</p></div>
+    <h3>Neuen Admin anlegen</h3><form class="form" id="admNeu"><label>Benutzername<input id="an2" autocapitalize="none" autocomplete="off" required></label>
+      <label>Passwort (mindestens 8 Zeichen)<input id="ap2" type="password" autocomplete="new-password" required></label><p class="msg" id="am2"></p>
+      <div class="row"><button class="btn red" type="submit">Admin speichern</button></div></form></div>`;
+}
+async function admListe() {
+  try {
+    const r = await api({ action: "adminListe" });
+    if (!r.ok) throw new Error(r.msg);
+    $("#admList").innerHTML = r.admins.map(n => `<div class="item" style="border:1px solid var(--line);border-radius:10px;margin-bottom:6px"><span class="t">${esc(n)}</span><button class="btn small del" data-adel="${esc(n)}">entfernen</button></div>`).join("");
+    document.querySelectorAll("[data-adel]").forEach(b => b.onclick = async () => {
+      if (!confirm(`Admin „${b.dataset.adel}“ wirklich entfernen?`)) return;
+      try { const r2 = await api({ action: "adminEntfernen", name: b.dataset.adel }); if (!r2.ok) throw new Error(r2.msg || "Das hat nicht geklappt."); admListe(); } catch (x) { $("#am2").className = "msg err"; $("#am2").textContent = x.message; }
+    });
+  } catch (x) { if ($("#admList")) $("#admList").innerHTML = `<p class="msg err">${esc(x.message || "Die Liste konnte nicht geladen werden.")}</p>`; }
+}
+
+/* ---------- Bearbeiten-Fenster ---------- */
+function openDlg(h) { $("#dlgBox").innerHTML = h; $("#dlg").hidden = false; }
+function closeDlg() { $("#dlg").hidden = true; $("#dlgBox").innerHTML = ""; }
+function editor(item, art, kat) {
+  const vorgabe = art === "vorgabe";
+  const katListe = vorgabe ? Object.keys(VORG) : UKATS;
+  const aktuell = item ? item.kat : (kat || "");
+  const eig = item && item.eig ? item.eig.join(", ") : "";
+  openDlg(`<h2>${item ? "Bearbeiten" : "Neu anlegen"}: ${vorgabe ? "Vorgabe" : "Übung"}</h2>
+    <form id="edForm" class="form">
+      <label>Titel<input id="edTitel" required value="${esc(item ? item.title : "")}"></label>
+      <label>Kategorie<select id="edKat">${katListe.map(k => `<option value="${esc(k)}" ${k === aktuell ? "selected" : ""}>${esc(k)}</option>`).join("")}</select></label>
+      <label>Oder neue Kategorie (optional)<input id="edNeueKat" placeholder="z. B. Neue Kategorie"></label>
+      ${vorgabe ? "" : `<div class="grid2"><label>Personen<input id="edTn" value="${esc(item ? item.tn : "")}" placeholder="z. B. 2 oder 2–4"></label>
+        <label>Dauer<input id="edDauer" value="${esc(item ? item.dauer : "")}" placeholder="z. B. 10 Min."></label></div>
+        <label>Niveau<select id="edLevel">${["", "Einsteiger", "Fortgeschritten"].map(x => `<option value="${x}" ${x === (item ? item.level : "") ? "selected" : ""}>${x || "–"}</option>`).join("")}</select></label>`}
+      <label>Eigenschaften (mit Komma getrennt)<input id="edEig" value="${esc(eig)}"></label>
+      <label class="check"><input type="checkbox" id="edEntwurf" ${item && item.entwurf ? "checked" : ""}><span>Entwurf: noch nicht online stellen</span></label>
+      <label>${vorgabe ? "Hinweis (optional)" : "Ablauf / Beschreibung"}<textarea id="edTxt" style="min-height:${vorgabe ? 80 : 200}px">${esc(item ? item.ab : "")}</textarea></label>
+      <p class="msg" id="edMsg"></p>
+      <div class="row"><button class="btn red" type="submit">Speichern</button><button class="btn" type="button" id="edX">Abbrechen</button>${item ? `<button class="btn del" type="button" id="edDel" style="margin-left:auto">Löschen</button>` : ""}</div>
+    </form>`);
+  $("#edX").onclick = closeDlg;
+  const senden = async obj => {
+    $("#edMsg").className = "msg"; $("#edMsg").textContent = "Einen Moment …";
+    try { await aktion(obj, false); closeDlg(); seite(); }
+    catch (x) { if (TOKEN) { $("#edMsg").className = "msg err"; $("#edMsg").textContent = x.message || "Keine Verbindung. Bitte später noch einmal versuchen."; } }
+  };
+  $("#edForm").onsubmit = e => {
+    e.preventDefault();
+    const neu = $("#edNeueKat").value.trim();
+    const eintrag = {
+      art: vorgabe ? "vorgabe" : "uebung",
+      titel: $("#edTitel").value.trim(),
+      kat: neu || $("#edKat").value,
+      tn: $("#edTn") ? $("#edTn").value.trim() : "",
+      dauer: $("#edDauer") ? $("#edDauer").value.trim() : "",
+      level: $("#edLevel") ? $("#edLevel").value : "",
+      eig: $("#edEig").value.split(",").map(x => x.trim()).filter(Boolean).join(","),
+      ablauf: $("#edTxt").value.trim(),
+      entwurf: $("#edEntwurf").checked ? "1" : ""
+    };
+    if (item) eintrag.id = item.id;
+    senden({ action: "adminSpeichern", eintrag });
+  };
+  if (item) $("#edDel").onclick = () => { if (confirm("Wirklich löschen? Das kann nicht rückgängig gemacht werden.")) senden({ action: "adminLoeschen", sid: item.id }); };
+}
+$("#dlg").addEventListener("click", e => { if (e.target.id === "dlg") closeDlg(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#dlg").hidden) closeDlg(); });
+
+/* ---------- Eingaben der aktuellen Seite ---------- */
+function bindTab() {
+  const s = $("#suche"); if (s) s.oninput = () => { suche = s.value; seite(); };
+  document.querySelectorAll("[data-new]").forEach(b => b.onclick = () => editor(null, b.dataset.new, b.dataset.new === "vorgabe" ? vcat : ""));
+  document.querySelectorAll("[data-edit-u]").forEach(b => b.onclick = () => { const i = ITEMS.find(x => x.id === b.dataset.editU); if (i) editor({ id: i.id, title: i.title, kat: i.cat, tn: i.tn, dauer: i.dauer, level: i.level, eig: i.eig, ab: i.ab, entwurf: i.draft ? "1" : "" }, "uebung"); });
+  document.querySelectorAll("[data-edit-v]").forEach(b => b.onclick = () => {
+    const v = (VORG[vcat] || []).find(x => x.id === b.dataset.editV);
+    if (v) editor({ id: v.id, title: v.t, kat: vcat, eig: v.e || [], ab: v.h || "", entwurf: v.entwurf }, "vorgabe");
+  });
+  document.querySelectorAll("[data-vc]").forEach(b => b.onclick = () => { vcat = b.dataset.vc; seite(); });
+  document.querySelectorAll("[data-vmove]").forEach(b => b.onclick = async () => { try { await aktion({ action: "adminVerschieben", sid: b.dataset.vmove, richtung: +b.dataset.dir }); } catch (x) { fehler(x); } });
+  if (tab === "ueb" || tab === "vor") bindKat();
+  if (tab === "zit") bindZit();
+  if (tab === "imp") bindImp();
+  if (tab === "adm") bindAdm();
+}
+function bindZit() {
+  const msg = (t, c) => { const m = $("#zMsg"); if (m) { m.className = "msg " + (c || ""); m.textContent = t; } };
+  const senden = async obj => { msg("Einen Moment …"); try { await aktion(obj); msg(obj.op === "loeschen" ? "Zitat gelöscht." : "Gespeichert.", "ok"); } catch (x) { if (TOKEN) msg(x.message, "err"); } };
+  $("#zForm").onsubmit = e => { e.preventDefault(); const id = $("#zId").value; senden({ action: "adminZitat", op: id ? "bearbeiten" : "neu", id, t: $("#zT").value.trim(), a: $("#zA").value.trim() }); };
+  $("#zMore").onsubmit = e => { e.preventDefault(); if (!$("#zMany").value.trim()) { msg("Bitte mindestens ein Zitat eintragen.", "err"); return; } senden({ action: "adminZitat", op: "mehrere", text: $("#zMany").value }); };
+  document.querySelectorAll("[data-zedit]").forEach(b => b.onclick = () => {
+    const z = ZIT.find(x => x.id === b.dataset.zedit); if (!z) return;
+    $("#zId").value = z.id; $("#zT").value = z.t; $("#zA").value = z.a || ""; $("#zTitel").textContent = "Zitat ändern"; $("#zNeu").hidden = false; $("#zT").focus(); $("#zT").scrollIntoView({ block: "center" });
+  });
+  $("#zNeu").onclick = () => { $("#zId").value = ""; $("#zT").value = ""; $("#zA").value = ""; $("#zTitel").textContent = "Zitat hinzufügen"; $("#zNeu").hidden = true; };
+  document.querySelectorAll("[data-zdel]").forEach(b => b.onclick = () => { if (confirm("Dieses Zitat wirklich löschen?")) senden({ action: "adminZitat", op: "loeschen", id: b.dataset.zdel }); });
+}
+function bindImp() {
+  $("#exp").onclick = () => {
+    if (!RAW) return;
+    const out = Object.assign({}, RAW); delete out.ok;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(out, null, 2)], { type: "application/json" }));
+    a.download = "impro-fundus-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  };
+  $("#impForm").onsubmit = async e => {
+    e.preventDefault();
+    const msg = (t, c) => { const m = $("#impMsg"); m.className = "msg " + (c || ""); m.textContent = t; };
+    const f = $("#impFile").files[0];
+    if (!f) { msg("Bitte zuerst eine Datei wählen.", "err"); return; }
+    let d; try { d = JSON.parse(await f.text()); } catch (x) { msg("Die Datei kann nicht gelesen werden. Ist es eine Export-Datei?", "err"); return; }
+    if (!d || (!Array.isArray(d.uebungen) && !d.vorgaben && !Array.isArray(d.zitate))) { msg("In der Datei wurden keine Übungen, Vorgaben oder Zitate gefunden.", "err"); return; }
+    const anz = (d.uebungen || []).length + Object.values(d.vorgaben || {}).reduce((a, x) => a + x.length, 0);
+    if (!confirm(anz + " Einträge aus der Datei importieren?")) return;
+    msg("Einen Moment …");
+    try { const r = await api({ action: "adminImport", daten: d }); if (!r.ok) { msg(r.msg || "Das hat nicht geklappt.", "err"); return; } await laden(); seite(); const m = $("#impMsg"); if (m) { m.className = "msg ok"; m.textContent = "Fertig: " + r.neu + " neu, " + r.aktualisiert + " aktualisiert, " + r.zitate + " neue Zitate."; } }
+    catch (x) { if (TOKEN) msg("Keine Verbindung oder die Datei ist zu groß.", "err"); }
+  };
+}
+function bindAdm() {
+  admListe();
+  $("#admNeu").onsubmit = async e => {
+    e.preventDefault();
+    const m = $("#am2"), n = $("#an2").value.trim(), p = $("#ap2").value;
+    m.className = "msg"; m.textContent = "Einen Moment …";
+    try { const r = await api({ action: "adminHinzufuegen", name: n, passwort: p }); if (!r.ok) throw new Error(r.msg || "Das hat nicht geklappt."); $("#an2").value = ""; $("#ap2").value = ""; m.className = "msg ok"; m.textContent = `Admin „${n}“ gespeichert.`; admListe(); }
+    catch (x) { m.className = "msg err"; m.textContent = x.message; }
+  };
+}
+
+if (TOKEN) start(); else loginSeite();
+</script>
+</body>
+</html>
