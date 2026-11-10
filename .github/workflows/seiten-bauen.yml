@@ -1,0 +1,47 @@
+# Baut jede Seite des Impro-Fundus als fertige HTML-Datei (für Google) und aktualisiert die sitemap.xml.
+# Läuft jede Nacht automatisch, nach Änderungen am Seitencode und per Knopfdruck
+# (GitHub -> Reiter "Actions" -> "Seiten neu bauen" -> "Run workflow").
+name: Seiten neu bauen
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["site.js", "site.css", "tools/**"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: seiten-bauen
+  cancel-in-progress: false
+
+jobs:
+  bauen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Browser installieren
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
+      - name: Seiten bauen
+        run: python3 tools/seiten_bauen.py
+      - name: Änderungen speichern
+        run: |
+          git config user.name "Impro-Fundus Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Keine Änderungen."
+          else
+            git commit -m "Seiten neu gebaut (automatisch)"
+            git pull --rebase origin main
+            git push
+          fi
