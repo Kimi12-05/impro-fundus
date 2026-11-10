@@ -456,12 +456,19 @@ html body .navbtn:not(.small),html body .ddmenu button{font-size:20px!important}
 /* Übungsseite: Name mittig, Kategorie-Feld mit weißer Schrift */
 html body .detail .pagehead h1{text-align:center!important;padding-left:0!important}
 html body .detail .pill.red{color:#fff!important}
-/* Startseite Computer: Truhen heben sich beim Darüberfahren an und wackeln kurz */
+/* Startseite: Truhen. Geschlossen sichtbar, beim Darüberfahren geht der Deckel auf */
+html body .chest .cbox{--ch:130px;position:relative;display:block;height:var(--ch)!important;width:calc(var(--ch)*1.803)!important;overflow:visible}
+html body .home .chests .chest .cbox{--ch:clamp(84px,12vh,130px)}
+html body .chest .cbox img{position:absolute;left:0;bottom:0;width:100%!important;height:auto!important;max-width:none;transition:opacity .22s ease;transform:none!important}
+html body .chest .cbox img.auf{opacity:0;pointer-events:none}
 @media (hover:hover){
-  .chest img{transition:transform .2s ease,filter .2s ease;transform-origin:50% 100%}
-  .chest:hover img,.chest:focus-visible img{transform:translateY(-6px) scale(1.04);filter:drop-shadow(0 8px 8px rgba(60,30,20,.35));animation:truheWackel .5s ease .05s}
+  .chest:hover .cbox img.zu,.chest:focus-visible .cbox img.zu{opacity:0}
+  .chest:hover .cbox img.auf,.chest:focus-visible .cbox img.auf{opacity:1}
 }
-@keyframes truheWackel{0%,100%{rotate:0deg}25%{rotate:-2deg}50%{rotate:2deg}75%{rotate:-1deg}}
+@media (max-height:800px){html body .home .chest .cbox{--ch:clamp(84px,12vh,100px)}}
+/* Übungskacheln: Name größer und unterstrichen, Niveau rechtsbündig */
+html body .card h3{font-size:24px!important;text-decoration:underline!important;line-height:1.2}
+html body .card .meta{display:flex;justify-content:flex-end;text-align:right}
 /* Kleine Titel auf der Startseite unterstrichen */
 html body .home h3{text-decoration:underline!important}
 /* Nur Handy: hier kommen später die Anpassungen für die Handyversion hin */
@@ -704,9 +711,9 @@ const V = {
     <div class="quote"><span class="tape l"></span><span class="tape r"></span><p>„${esc(z.t)}“</p><div class="qfoot"><span class="meta">— ${esc(z.a)}</span><button class="copybtn" data-quote="1" data-txt="${esc("„" + z.t + "“ – " + z.a)}" aria-label="Zitat kopieren" title="Zitat kopieren"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg></button></div></div>
     <hr class="sep">
     <div class="chests">
-      <button class="chest" data-go="kats" aria-label="Übungen"><span class="cbox"><img src="kiste-uebungen.png" alt="Übungen"></span></button>
-      <button class="chest" data-cat="Kennenlernspiele" aria-label="Kennenlernspiele"><span class="cbox"><img src="kiste-kennenlernen.png" alt="Kennenlernspiele"></span></button>
-      <button class="chest" data-go="vorgaben" aria-label="Vorgaben"><span class="cbox"><img src="kiste-vorgaben.png" alt="Vorgaben"></span></button>
+      <button class="chest" data-go="kats" aria-label="Übungen"><span class="cbox"><img class="zu" src="kiste-uebungen.png" alt="Übungen"><img class="auf" src="kiste-uebungen-offen.png" alt="" aria-hidden="true"></span></button>
+      <button class="chest" data-cat="Kennenlernspiele" aria-label="Kennenlernspiele"><span class="cbox"><img class="zu" src="kiste-kennenlernen.png" alt="Kennenlernspiele"><img class="auf" src="kiste-kennenlernen-offen.png" alt="" aria-hidden="true"></span></button>
+      <button class="chest" data-go="vorgaben" aria-label="Vorgaben"><span class="cbox"><img class="zu" src="kiste-vorgaben.png" alt="Vorgaben"><img class="auf" src="kiste-vorgaben-offen.png" alt="" aria-hidden="true"></span></button>
     </div>
     <div class="mtiles">
       <button class="tile" data-go="kats"><h3>Übungen</h3><p>Warm-ups, Szenen und Spiele</p></button>
