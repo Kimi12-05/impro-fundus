@@ -379,6 +379,22 @@ button,input,select,textarea{font-size:inherit}
   .drawer{padding-top:max(16px,env(safe-area-inset-top,0px))}
 }
 .mtiles{display:none}
+.spsteps{list-style:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0 0 18px;padding:0;counter-reset:none}
+.spsteps li{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;font-size:13px;color:var(--muted);position:relative}
+.spsteps li span{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:14px;background:var(--card);z-index:1}
+.spsteps li:not(:last-child)::after{content:"";position:absolute;top:15px;left:calc(50% + 18px);right:calc(-50% + 18px);height:2px;background:var(--line)}
+.spsteps li.on{color:var(--red);font-weight:700}.spsteps li.on span{border-color:var(--red);color:var(--red)}
+.spsteps li.done span{background:var(--red);border-color:var(--red);color:#fff}.spsteps li.done::after{background:var(--red)}
+.spbox{display:flex;flex-direction:column;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
+.spbox h2{margin:0;font-size:22px}
+.sprange{display:flex;align-items:center;gap:10px}
+.sprange input{flex:1;accent-color:var(--red)}
+.spround{width:44px;height:44px;border-radius:50%;border:2px solid var(--red);background:var(--card);color:var(--red);font-size:24px;line-height:1;flex:none;cursor:pointer}
+.spbetrag{max-width:220px}
+.spform{display:flex;flex-direction:column;gap:12px;max-width:560px}
+.spsum{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0}
+.spsum dt{color:var(--muted)}.spsum dd{margin:0;font-weight:700}
+.spinfo{margin-top:16px}.spinfo summary{cursor:pointer;font-weight:700}
 .dsearch{margin:0 0 8px;background:none!important;border:0!important;padding:0!important;box-shadow:none!important}
 .dsearch input{width:100%;height:44px;border-radius:16px;border:1px solid var(--line);background:var(--field);padding:0 14px;font-size:16px;color:var(--fg)}
 .navbtn.small{font-size:14px;color:var(--muted)}
@@ -467,7 +483,8 @@ function setData(d) {
   LOADED = true;
 }
 
-const S = { view: "start", cat: null, id: null, vcat: null, vprop: "alle", q: "", sent: false, level: "alle", p: "alle", draw: null };
+const S = {
+  sp: { step: 1, betrag: 10, zweck: "fundus", name: "", mail: "", text: "", danke: false }, view: "start", cat: null, id: null, vcat: null, vprop: "alle", q: "", sent: false, level: "alle", p: "alle", draw: null };
 
 const VERLAUF = [];
 let PUSH_OK = true;
@@ -481,6 +498,7 @@ function go(view, o = {}) {
     try { history.pushState({ fundus: VERLAUF.length }, ""); } catch (e) { PUSH_OK = false; }
   }
   if (view !== "einreichen") S.sent = false;
+  if (view === "spenden" && S.sp.danke) S.sp = { step: 1, betrag: 10, zweck: "fundus", name: "", mail: "", text: "", danke: false };
   if (S.diceOpen) closeDlg();
   closeDrawer(); render(); window.scrollTo(0, 0);
 }
@@ -762,7 +780,46 @@ const V = {
     </form>`;
   },
 
-  spenden() { return "<div class=\"pagehead\"><h1>Den Fundus unterstützen</h1><p>Der Impro-Fundus ist kostenlos und werbefrei. Wenn du ihn unterstützen möchtest, kannst du mit einer Spende helfen. Wofür die Spende gedacht ist:</p></div><div class=\"prose\"><ul><li>Domain und Hosting von impro-fundus.de</li><li>Den Fundus werbefrei halten</li><li>Kosten für neue Funktionen, zum Beispiel die Verwaltung der Admins</li><li>Fotos und Grafiken für die Seite</li><li>Materialien für Anfänger-Workshops</li><li>Einen Puffer für die jährliche Verlängerung der Domain</li><li>Ein neues Projekt, das gerade in Planung ist</li><li>Eine freie Spende ohne Zweck: Danke für die Arbeit</li></ul><p><strong>Spenden für die Improvisationstheatergruppe:</strong> Wenn du bei der Spende ausdrücklich dafür bist, kommt sie der Improvisationstheatergruppe des Theater Brand in Aachen-Brand zugute.</p></div><div class=\"notice\" id=\"spendeBox\"><strong>Spenden per PayPal</strong><span>Mit einem Klick auf den Knopf öffnet sich PayPal in einem neuen Fenster. Du entscheidest dort selbst, wie viel du gibst.</span><a class=\"btn red\" href=\"" + CONFIG.PAYPAL_URL + "\" target=\"_blank\" rel=\"noopener\">Per PayPal spenden</a></div>"; }
+  spenden() {
+    const sp = S.sp;
+    const schritte = ["Deine Spende", "Deine Angaben", "Zahlungsart", "Prüfen und spenden"];
+    const kopf = `<ol class="spsteps">${schritte.map((t, i) => `<li class="${i + 1 < sp.step ? "done" : i + 1 === sp.step ? "on" : ""}"><span>${i + 1 < sp.step ? "✓" : i + 1}</span>${t}</li>`).join("")}</ol>`;
+    const zweckName = sp.zweck === "gruppe" ? "Impro-Gruppe des Theater Brand" : "Impro-Fundus";
+    let body = "";
+    if (sp.danke) {
+      body = `<div class="notice"><strong>Danke für deine Unterstützung!</strong><span>PayPal hat sich in einem neuen Fenster geöffnet. Dort ist ${euro(sp.betrag)} schon eingetragen. Schließe die Zahlung dort ab.</span>${sp.zweck === "gruppe" ? '<span>Schreib bei PayPal als Mitteilung bitte „Theatergruppe“, damit die Spende richtig ankommt.</span>' : ""}<div class="row"><a class="btn red" href="${spLink()}" target="_blank" rel="noopener">PayPal erneut öffnen</a><button class="btn" data-sp-neu>Neue Spende</button></div></div>`;
+    } else if (sp.step === 1) {
+      body = `<h2>Wofür möchtest du spenden?</h2>
+        <div class="chips" role="group" aria-label="Zweck"><button class="chip" data-sp-zweck="fundus" aria-pressed="${sp.zweck === "fundus"}">Impro-Fundus</button><button class="chip" data-sp-zweck="gruppe" aria-pressed="${sp.zweck === "gruppe"}">Impro-Gruppe des Theater Brand</button></div>
+        <h2>Wie viel möchtest du geben?</h2>
+        <div class="chips" role="group" aria-label="Betrag">${[5, 10, 20, 50].map(b => `<button class="chip" data-sp-betrag="${b}" aria-pressed="${sp.betrag === b}">${b} €</button>`).join("")}</div>
+        <div class="sprange"><button class="spround" data-sp-plus="-1" aria-label="Weniger">−</button><input type="range" id="spR" min="1" max="100" step="1" value="${Math.min(sp.betrag, 100)}" aria-label="Betrag"><button class="spround" data-sp-plus="1" aria-label="Mehr">+</button></div>
+        <div class="field spbetrag"><label for="spN">Betrag in Euro</label><input id="spN" type="number" inputmode="decimal" min="1" max="10000" step="1" value="${sp.betrag}"></div>
+        <p class="meta">Einmalige Spende über PayPal. Der Fundus ist kein eingetragener Verein, deshalb gibt es keine Spendenquittung.</p>
+        <div class="row"><button class="btn red" data-sp-step="2">Weiter →</button></div>`;
+    } else if (sp.step === 2) {
+      body = `<p>Alle Angaben sind freiwillig. Lass die Felder leer, wenn du anonym spenden möchtest. Wenn du Namen und E-Mail angibst, kann ich mich bei dir bedanken.</p>
+        <div class="spform"><div class="field"><label for="spName">Name <small>(freiwillig)</small></label><input id="spName" autocomplete="name" value="${esc(sp.name)}"></div>
+        <div class="field"><label for="spMail">E-Mail <small>(freiwillig)</small></label><input id="spMail" type="email" autocomplete="email" value="${esc(sp.mail)}"></div>
+        <div class="field"><label for="spText">Nachricht <small>(freiwillig)</small></label><textarea id="spText">${esc(sp.text)}</textarea></div></div>
+        <p class="err" id="spErr" hidden></p>
+        <div class="row"><button class="btn" data-sp-step="1">← Zurück</button><button class="btn red" data-sp-step="3">Weiter →</button></div>`;
+    } else if (sp.step === 3) {
+      body = `<h2>Zahlungsart</h2>
+        <div class="chips" role="group" aria-label="Zahlungsart"><button class="chip" aria-pressed="true">PayPal</button></div>
+        <p class="meta">Die Zahlung läuft sicher über PayPal. Auf dieser Website werden keine Konto- oder Kartendaten eingegeben oder gespeichert.</p>
+        <div class="row"><button class="btn" data-sp-step="2">← Zurück</button><button class="btn red" data-sp-step="4">Weiter zur Prüfung →</button></div>`;
+    } else {
+      body = `<h2>Bitte prüfe deine Angaben</h2>
+        <dl class="spsum"><dt>Betrag</dt><dd>${euro(sp.betrag)} (einmalig)</dd><dt>Für</dt><dd>${zweckName}</dd><dt>Name</dt><dd>${sp.name ? esc(sp.name) : "anonym"}</dd>${sp.mail ? `<dt>E-Mail</dt><dd>${esc(sp.mail)}</dd>` : ""}<dt>Zahlungsart</dt><dd>PayPal</dd></dl>
+        ${sp.zweck === "gruppe" ? '<p class="meta">Schreib bei PayPal als Mitteilung bitte „Theatergruppe“.</p>' : ""}
+        <div class="row"><button class="btn" data-sp-step="3">← Zurück</button><button class="btn red" data-sp-go>Jetzt mit PayPal spenden</button></div>`;
+    }
+    return `<div class="pagehead"><h1>Den Fundus unterstützen</h1><p>Der Impro-Fundus ist kostenlos und werbefrei. Mit einer Spende hilfst du, dass das so bleibt.</p></div>
+      ${kopf}<section class="spbox">${body}</section>
+      <details class="spinfo"><summary>Wofür wird die Spende verwendet?</summary><div class="prose"><ul><li>Domain und Hosting von impro-fundus.de</li><li>Den Fundus werbefrei halten</li><li>Kosten für neue Funktionen, zum Beispiel die Verwaltung der Admins</li><li>Fotos und Grafiken für die Seite</li><li>Materialien für Anfänger-Workshops</li><li>Einen Puffer für die jährliche Verlängerung der Domain</li><li>Ein neues Projekt, das gerade in Planung ist</li><li>Eine freie Spende ohne Zweck: Danke für die Arbeit</li></ul></div></details>
+      <div class="prose"><p><strong>Spenden für die Improvisationstheatergruppe:</strong> Wenn du oben „Impro-Gruppe des Theater Brand“ wählst, kommt sie der Improvisationstheatergruppe des Theater Brand in Aachen-Brand zugute.</p></div>`;
+  }
 };
 
 function sideHTML() {
@@ -918,6 +975,24 @@ document.addEventListener("click", e => {
   if (d.zdel !== undefined) { if (window.confirm("Dieses Zitat wirklich löschen?")) zitatSende({ action: "adminZitat", op: "loeschen", id: d.zdel }); return; }
   if (d.aimp !== undefined) { importDialog(); return; }
   if (d.aexport !== undefined) { exportieren(); return; }
+  if (d.spZweck !== undefined) { S.sp.zweck = d.spZweck; render(); return; }
+  if (d.spBetrag !== undefined) { spBetrag(d.spBetrag); render(); return; }
+  if (d.spPlus !== undefined) { spBetrag(S.sp.betrag + Number(d.spPlus)); render(); return; }
+  if (d.spStep !== undefined) {
+    spAngabenMerken();
+    const z = Number(d.spStep);
+    if (z === 3 && S.sp.mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(S.sp.mail)) { const er = $("#spErr"); er.textContent = "Bitte prüfe deine E-Mail-Adresse oder lass das Feld leer."; er.hidden = false; return; }
+    S.sp.step = z; render(); window.scrollTo(0, 0); return;
+  }
+  if (d.spNeu !== undefined) { S.sp = { step: 1, betrag: 10, zweck: S.sp.zweck, name: "", mail: "", text: "", danke: false }; render(); return; }
+  if (d.spGo !== undefined) {
+    window.open(spLink(), "_blank", "noopener");
+    if (S.sp.name && S.sp.mail) {
+      apiPost({ action: "kontakt", vorname: S.sp.name, nachname: "", mail: S.sp.mail, telefon: "", betreff: "Spende über PayPal: " + euro(S.sp.betrag),
+        text: "Es wurde eine Spende über PayPal gestartet.\nBetrag: " + euro(S.sp.betrag) + "\nFür: " + (S.sp.zweck === "gruppe" ? "Impro-Gruppe des Theater Brand" : "Impro-Fundus") + (S.sp.text ? "\n\nNachricht:\n" + S.sp.text : "") }).catch(() => {});
+    }
+    S.sp.danke = true; render(); window.scrollTo(0, 0); return;
+  }
   if (d.adminNew !== undefined) { editor(null, d.adminNew, d.kat || ""); return; }
   if (d.adminEdit !== undefined) { const i = findeItem(d.adminEdit); if (i) editor(i, "uebung"); return; }
   if (d.adminVedit !== undefined) { const f = findeVorgabe(d.adminVedit); if (f) editor({ ...f.v, kat: f.k, title: f.v.t, ab: f.v.h, entwurf: f.v.entwurf }, "vorgabe"); return; }
@@ -1272,6 +1347,24 @@ function importDialog() {
     } catch (x) { msg.textContent = "Keine Verbindung oder die Datei ist zu groß."; }
   };
 }
+const euro = n => (Math.round(n * 100) / 100).toLocaleString("de-DE") + " €";
+const spLink = () => CONFIG.PAYPAL_URL.replace(/\/+$/, "") + "/" + S.sp.betrag + "EUR";
+function spBetrag(n) {
+  n = Math.round(Number(n));
+  if (!isFinite(n) || n < 1) n = 1;
+  if (n > 10000) n = 10000;
+  S.sp.betrag = n;
+}
+function spAngabenMerken() {
+  if ($("#spName")) { S.sp.name = $("#spName").value.trim(); S.sp.mail = $("#spMail").value.trim(); S.sp.text = $("#spText").value.trim(); }
+}
+document.addEventListener("input", e => {
+  if (e.target.id !== "spR" && e.target.id !== "spN") return;
+  if (e.target.value === "") return;
+  spBetrag(e.target.value);
+  if (e.target.id === "spR") $("#spN").value = S.sp.betrag; else $("#spR").value = Math.min(S.sp.betrag, 100);
+  document.querySelectorAll("[data-sp-betrag]").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.spBetrag === S.sp.betrag)));
+});
 const admTile = (tile, art, name) => !ADMIN ? tile : `<div class="admtile">${tile}<div class="admctl"><button data-akat="verschieben" data-art="${art}" data-name="${esc(name)}" data-dir="-1" title="nach vorn">←</button><button data-akat="verschieben" data-art="${art}" data-name="${esc(name)}" data-dir="1" title="nach hinten">→</button><button data-akat="umbenennen" data-art="${art}" data-name="${esc(name)}">umbenennen</button><button class="del" data-akat="loeschen" data-art="${art}" data-name="${esc(name)}">löschen</button></div></div>`;
 const admMove = (html, id) => !ADMIN ? html : `<div>${html}<div class="admrow admctl" style="justify-content:flex-start"><button data-amove="${esc(id)}" data-dir="-1" title="nach oben">↑ nach oben</button><button data-amove="${esc(id)}" data-dir="1" title="nach unten">↓ nach unten</button></div></div>`;
 async function admDirekt(obj) {
