@@ -13,7 +13,7 @@
 <meta name="description" content="Impro-Fundus: Warm-ups, Übungen, Szenenspiele und Vorgaben für Improtheater.">
 <title>Impro-Fundus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;700&family=Indie+Flower&family=Architects+Daughter&family=Coming+Soon&display=swap" rel="stylesheet">
 <style>
 :root{--red:#B02E28;--maroon:#8E2220;--bg:#F5F0E8;--card:#FFFFFF;--field:#FFFFFF;--line:#E6DFD4;--fg:#1F1B17;--muted:#6F665D;--ok:#2e9e5b;--no:#8E2220;--hintbg:#fff7e0;--overlay:rgba(0,0,0,.45);color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1A1714;--card:#2A2622;--field:#2A2622;--line:#3A342E;--fg:#F3ECE3;--muted:#ABA196;--red:#D8564F;--maroon:#D8564F;--ok:#2e9e5b;--no:#a8324a;--hintbg:#3a3320;--overlay:rgba(0,0,0,.6);color-scheme:dark}}
@@ -398,6 +398,47 @@ button,input,select,textarea{font-size:inherit}
 .dsearch{margin:0 0 8px;background:none!important;border:0!important;padding:0!important;box-shadow:none!important}
 .dsearch input{width:100%;height:44px;border-radius:16px;border:1px solid var(--line);background:var(--field);padding:0 14px;font-size:16px;color:var(--fg)}
 .navbtn.small{font-size:14px;color:var(--muted)}
+
+/* ===== Schriften (aus dem Schrift-Spielplatz), Typ 1 bis 12 =====
+   Gilt für Computer und Handy. Handy-Anpassungen stehen ganz unten im Block "Nur Handy". */
+/* Typ 1 Seitentitel */
+html body h1:not(.ttl){font-family:"Caveat",cursive!important;text-decoration:underline!important;padding-left:20px!important}
+/* Typ 2 Zwischentitel */
+html body h2{font-family:"Indie Flower",cursive!important;text-decoration:underline!important}
+/* Typ 3 Kleine Titel (ohne die Notizzettel, die gehören zu Typ 12) */
+html body h3:not(.vgtile h3){font-family:"Architects Daughter",cursive!important;font-weight:400!important;text-align:center!important}
+/* Typ 4 Textschrift (ohne Zitat) */
+html body p:not(.quote p),html body li,html body .note,html body .tip{font-family:"Architects Daughter",cursive!important;font-size:18px!important;text-align:justify!important}
+html body .tile p:not(.quote p),html body .card p:not(.quote p){font-size:15.8px!important}
+/* Typ 5 Reiter und Menü */
+html body .topnav button,html body .dd button,html body .navbtn,html body .bottom button{font-family:"Coming Soon",cursive!important;font-weight:400!important;transition:transform .15s ease}
+html body .bottom button{font-size:11.3px!important}
+@media (hover:hover){
+  html body .topnav button:hover,html body .dd button:hover,html body .navbtn:hover{transform:scale(1.08)}
+}
+/* Typ 6 Knöpfe */
+html body .btn{font-family:"Coming Soon",cursive!important;font-weight:400!important}
+/* Typ 7 Kleine Hinweise (ohne Großbuchstaben) */
+html body .eyebrow,html body .meta:not(.quote .meta):not(.vgtile .meta):not(.vitem .meta){font-family:"Coming Soon",cursive!important;font-size:16px!important}
+html body .pill,html body .slot-top span,html body .lbl{font-family:"Coming Soon",cursive!important;font-size:14.7px!important}
+html body .crumb,html body .crumb button,html body .foot button,html body .foot a,html body .chip{font-family:"Coming Soon",cursive!important;font-size:17.3px!important}
+html body .eyebrow,html body .slot-top span,html body .lbl{text-transform:none!important}
+/* Typ 8 Startseiten-Titel */
+html body .ttl text{font-family:"Indie Flower",cursive!important;font-size:65px!important}
+/* Typ 9 Zitat des Tages */
+html body .quote p{font-family:"Indie Flower",cursive!important;text-align:center!important}
+/* Typ 10 Autor des Zitats */
+html body .quote .meta{font-family:"Indie Flower",cursive!important;font-size:19px!important}
+/* Typ 11 Würfelergebnisse */
+html body .slot strong{font-family:"Indie Flower",cursive!important}
+/* Typ 12 Notizzettel */
+html body .vgtile h3{font-family:"Indie Flower",cursive!important;font-size:33px!important}
+html body .vitem{font-family:"Indie Flower",cursive!important;font-size:17.5px!important}
+html body .vgtile .meta,html body .vitem .meta{font-family:"Indie Flower",cursive!important;font-size:20.8px!important}
+html body .vitem .linkbtn{font-family:"Indie Flower",cursive!important;font-size:19.8px!important}
+/* Nur Handy: hier kommen später die Anpassungen für die Handyversion hin */
+@media (max-width:899px){
+}
 </style>
 </head>
 <body>
