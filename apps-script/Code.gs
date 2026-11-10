@@ -11,7 +11,8 @@ const TABELLEN = {
   Vorschlaege: ['id','typ','kategorie','titel','beschr','von','datum'],
   Einstellungen: ['key','wert'],
   Zitate:      ['id','text','autor'],
-  Ideen:       ['id','art','titel','kat','tn','level','text','nameNennen','name','mail','datum']
+  Ideen:       ['id','art','titel','kat','tn','level','text','nameNennen','name','mail','datum'],
+  Zugriffe:    ['tag','pfad','art']
 };
 const LEITER_MAIL = 'eckervogt@outlook.de';
 // ADMIN-ZUGANG FÜR DIE FUNDUS-SEITE: hier dein Passwort eintragen, dann Funktion adminEinrichten ausführen
@@ -186,7 +187,10 @@ function wikiEinspielen(props){
 function blatt(name){
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let s = ss.getSheetByName(name);
-  if(!s) s = ss.insertSheet(name);
+  if(!s){
+    s = ss.insertSheet(name);
+    if(name === 'Zugriffe') s.getRange('A:A').setNumberFormat('@');   // Datum als Text speichern
+  }
   const cols = TABELLEN[name];
   if(s.getLastRow() === 0) s.getRange(1,1,1,cols.length).setValues([cols]);
   else if(s.getLastColumn() < cols.length) s.getRange(1,1,1,cols.length).setValues([cols]);
@@ -316,12 +320,17 @@ function fundusCacheLeeren(){
   try { CacheService.getScriptCache().remove(FD_KEY + 'n'); } catch(err){}
 }
 function doGet(e){
+  if(e && e.parameter && e.parameter.action === 'statistikKurz'){
+    const k = PropertiesService.getScriptProperties().getProperty('WIDGET_KEY') || '';
+    if(!k || String(e.parameter.schluessel || '') !== k) return ContentService.createTextOutput(JSON.stringify({ok:false, msg:'Falscher Schlüssel.'})).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify(statistikKurz())).setMimeType(ContentService.MimeType.JSON);
+  }
   if(e && e.parameter && e.parameter.action === 'fundus'){
     let t = fundusCacheLesen();
     if(!t){ t = JSON.stringify(fundusDaten()); fundusCacheSchreiben(t); }
     return ContentService.createTextOutput(t).setMimeType(ContentService.MimeType.JSON);
   }
-  return ContentService.createTextOutput('Impro-Gruppe läuft – Version 16').setMimeType(ContentService.MimeType.TEXT);
+  return ContentService.createTextOutput('Impro-Gruppe läuft – Version 17').setMimeType(ContentService.MimeType.TEXT);
 }
 
 // Öffentlich lesbar (ohne PIN): nur Übungen und Vorgaben, keine Mitgliederdaten.
@@ -341,6 +350,14 @@ function fundusDaten(auchEntwuerfe){
   return {ok: true, zitate: alle('Zitate').map(z => ({id: z.id, t: z.text, a: z.autor})), uebungen: uebungen, vorgaben: vorgaben, uebungenReihe: reiheLesen('uebung'), vorgabenReihe: reiheLesen('vorgabe')};
 }
 function doPost(e){
+  // Besucherzähler: schnell und ohne Sperre, damit nichts ausgebremst und der Zwischenspeicher der Website nicht geleert wird
+  try {
+    const z = JSON.parse(e.postData.contents);
+    if(z && z.action === 'zaehle'){
+      try { zaehle(z); } catch(err){}
+      return ContentService.createTextOutput('{"ok":true}').setMimeType(ContentService.MimeType.JSON);
+    }
+  } catch(err){}
   let out;
   const t0 = Date.now();
   try {
@@ -374,7 +391,9 @@ function handle(req){
       case 'adminZitat':
       case 'adminIdeeLoeschen':
       case 'adminImport':
-      case 'adminVerschieben': return adminAktion(req);
+      case 'adminVerschieben':
+      case 'adminStatistik':
+      case 'adminWidgetSchluessel': return adminAktion(req);
       case 'adminListe':
       case 'adminHinzufuegen':
       case 'adminEntfernen': return adminVerwaltung(req);
@@ -496,6 +515,8 @@ function adminAktion(req){
   if(req.action === 'adminZitat') return adminZitat(req);
   if(req.action === 'adminIdeeLoeschen'){ schreibe('Ideen', alle('Ideen').filter(x => x.id !== req.id)); return {ok:true}; }
   if(req.action === 'adminImport') return adminImport(req);
+  if(req.action === 'adminStatistik') return statistikLesen(true);
+  if(req.action === 'adminWidgetSchluessel') return widgetSchluessel(req);
   if(req.action === 'adminVerschieben') return adminVerschieben(req);
   const f = req.eintrag || {};
   if(!String(f.titel || '').trim()) return {ok:false, msg:'Bitte einen Titel eingeben.'};
@@ -1036,4 +1057,58 @@ function persoenlichkeitenNeu(){
   });
   schreibe('Spiele', sp);
   Logger.log('Aktualisiert: ' + neu + ' | nicht gefunden: ' + nichtGefunden.join(', '));
+}
+
+/* ---------- Besucherzähler (ohne Cookies, ohne IP-Adressen, ohne Kennung) ---------- */
+// Jeder Aufruf einer Seite wird als eine Zeile gespeichert: Tag, Adresse der Seite, Art ('besuch' = Website geöffnet, 'aufruf' = weitere Seite angesehen)
+function zaehle(req){
+  const pfad = String(req.pfad || '').split('?')[0].split('#')[0];
+  if(!/^\/[a-z0-9\-\/]{0,118}$/.test(pfad)) return;
+  const art = req.art === 'besuch' ? 'besuch' : 'aufruf';
+  blatt('Zugriffe').appendRow([Utilities.formatDate(new Date(), 'Europe/Berlin', 'yyyy-MM-dd'), pfad, art]);
+}
+function tagMinus(heute, n){
+  const m = String(heute).split('-').map(Number);
+  return Utilities.formatDate(new Date(Date.UTC(m[0], m[1] - 1, m[2] - n, 12)), 'UTC', 'yyyy-MM-dd');
+}
+// Zählt alles zusammen. Besuch = Website geöffnet (zählt auch als Seitenaufruf), Aufruf = jede angesehene Seite.
+function statistikLesen(frisch){
+  const cache = CacheService.getScriptCache();
+  if(!frisch){ const c = cache.get('stat_v1'); if(c) return JSON.parse(c); }
+  const heute = Utilities.formatDate(new Date(), 'Europe/Berlin', 'yyyy-MM-dd');
+  const grenze = tagMinus(heute, 29);
+  const s = blatt('Zugriffe'), n = s.getLastRow() - 1;
+  const tage = {}, top = {};
+  let gb = 0, ga = 0, seit = '';
+  if(n > 0){
+    s.getRange(2, 1, n, 3).getValues().forEach(r => {
+      const tag = zelle(r[0]), pf = String(r[1]), art = String(r[2]);
+      if(!tag) return;
+      if(!seit || tag < seit) seit = tag;
+      const t = tage[tag] || (tage[tag] = {b:0, a:0});
+      t.a++; ga++;
+      if(art === 'besuch'){ t.b++; gb++; }
+      if(tag >= grenze) top[pf] = (top[pf] || 0) + 1;
+    });
+  }
+  const topListe = Object.keys(top).map(k => ({pfad:k, a:top[k]})).sort((x, y) => y.a - x.a).slice(0, 15);
+  const res = {ok:true, heute:heute, seit:seit, tage:tage, gesamt:{b:gb, a:ga}, top:topListe};
+  try { const t = JSON.stringify(res); if(t.length < 90000) cache.put('stat_v1', t, 300); } catch(err){}
+  return res;
+}
+function statistikKurz(){
+  const st = statistikLesen(false);
+  const summe = (von, bis) => {
+    let b = 0, a = 0;
+    for(let i = von; i <= bis; i++){ const t = st.tage[tagMinus(st.heute, i)]; if(t){ b += t.b; a += t.a; } }
+    return {besuche:b, aufrufe:a};
+  };
+  return {ok:true, stand:Utilities.formatDate(new Date(), 'Europe/Berlin', 'dd.MM.yyyy HH:mm'), seit:st.seit,
+    heute:summe(0, 0), gestern:summe(1, 1), woche:summe(0, 6), monat:summe(0, 29), gesamt:{besuche:st.gesamt.b, aufrufe:st.gesamt.a}};
+}
+// Geheimer Schlüssel für das iPhone-Widget (nur über die Verwaltungsseite erzeugbar)
+function widgetSchluessel(req){
+  const p = PropertiesService.getScriptProperties();
+  if(req.op === 'neu') p.setProperty('WIDGET_KEY', Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '').slice(0, 8));
+  return {ok:true, schluessel:p.getProperty('WIDGET_KEY') || ''};
 }
