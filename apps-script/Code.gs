@@ -10,7 +10,8 @@ const TABELLEN = {
   Wuensche:    ['probeId','mitgliedId','spielId','wunsch'],
   Vorschlaege: ['id','typ','kategorie','titel','beschr','von','datum'],
   Einstellungen: ['key','wert'],
-  Zitate:      ['id','text','autor']
+  Zitate:      ['id','text','autor'],
+  Ideen:       ['id','art','titel','kat','tn','level','text','nameNennen','name','mail','datum']
 };
 const LEITER_MAIL = 'eckervogt@outlook.de';
 // ADMIN-ZUGANG FÜR DIE FUNDUS-SEITE: hier dein Passwort eintragen, dann Funktion adminEinrichten ausführen
@@ -320,7 +321,7 @@ function doGet(e){
     if(!t){ t = JSON.stringify(fundusDaten()); fundusCacheSchreiben(t); }
     return ContentService.createTextOutput(t).setMimeType(ContentService.MimeType.JSON);
   }
-  return ContentService.createTextOutput('Impro-Gruppe läuft – Version 15').setMimeType(ContentService.MimeType.TEXT);
+  return ContentService.createTextOutput('Impro-Gruppe läuft – Version 16').setMimeType(ContentService.MimeType.TEXT);
 }
 
 // Öffentlich lesbar (ohne PIN): nur Übungen und Vorgaben, keine Mitgliederdaten.
@@ -365,12 +366,13 @@ function handle(req){
       case 'idee':       return ideeNachricht(req);
       case 'fundusAdmin':
         if(CacheService.getScriptCache().get('adm_' + String(req.token || '')) !== '1') return {ok:false, msg:'Bitte melde dich erneut als Admin an.'};
-        return fundusDaten(true);
+        { const d = fundusDaten(true); d.ideen = alle('Ideen').reverse(); return d; }
       case 'adminAnmelden': return adminAnmelden(req);
       case 'adminSpeichern':
       case 'adminLoeschen':
       case 'adminKat':
       case 'adminZitat':
+      case 'adminIdeeLoeschen':
       case 'adminImport':
       case 'adminVerschieben': return adminAktion(req);
       case 'adminListe':
@@ -492,6 +494,7 @@ function adminAktion(req){
   if(req.action === 'adminLoeschen') return spielLoeschen(req);
   if(req.action === 'adminKat') return adminKat(req);
   if(req.action === 'adminZitat') return adminZitat(req);
+  if(req.action === 'adminIdeeLoeschen'){ schreibe('Ideen', alle('Ideen').filter(x => x.id !== req.id)); return {ok:true}; }
   if(req.action === 'adminImport') return adminImport(req);
   if(req.action === 'adminVerschieben') return adminVerschieben(req);
   const f = req.eintrag || {};
@@ -636,29 +639,53 @@ function adminImport(req){
 /* ---------- Vorschlag einreichen (direkt aus der Maske) ---------- */
 function ideeNachricht(req){
   if(String(req.web || '') !== '') return {ok:true};
-  const art = req.art === 'Vorgabe' ? 'Vorgabe' : 'Übung';
+  const art = req.art === 'Vorgabe' ? 'Vorgabe' : req.art === 'Zitat' ? 'Zitat' : 'Übung';
+  const istZitat = art === 'Zitat';
   const titel = String(req.titel || '').trim().slice(0,120);
-  const text = String(req.text || '').trim().slice(0,5000);
-  if(!titel || !text) return {ok:false, msg:'Bitte Name und Beschreibung ausfüllen.'};
+  const text = String(req.text || '').trim().slice(0, istZitat ? 600 : 5000);
+  if(istZitat ? !text : (!titel || !text)) return {ok:false, msg: istZitat ? 'Bitte das Zitat eintragen.' : 'Bitte Name und Beschreibung ausfüllen.'};
   const mail = String(req.mail || '').trim().slice(0,120);
-  const zeilen = [
-    'Art: ' + art,
-    'Name: ' + titel,
-    (art === 'Vorgabe' ? 'Vorgaben-Art: ' : 'Bereich: ') + String(req.kat || '').slice(0,80),
-    'Personen: ' + String(req.tn || '').slice(0,40),
-    'Niveau: ' + String(req.level || '').slice(0,40),
+  const name = String(req.name || '').trim().slice(0,80);
+  const kat = String(req.kat || '').slice(0,80), tn = String(req.tn || '').slice(0,40), level = String(req.level || '').slice(0,40);
+  // 1. In der Verwaltung speichern (Tabelle "Ideen")
+  let gespeichert = false;
+  try {
+    const liste = alle('Ideen');
+    liste.push({id:'i' + Date.now() + '_' + Math.floor(Math.random() * 1000), art:art, titel:titel, kat:kat, tn:tn, level:level, text:text, nameNennen: req.nameNennen ? 'ja' : 'nein', name:name, mail:mail, datum:heuteIso()});
+    schreibe('Ideen', liste.slice(-300));
+    gespeichert = true;
+  } catch(err){}
+  // 2. Zusätzlich per E-Mail
+  const zeilen = istZitat ? [
+    'Art: Zitat',
+    'Von wem: ' + (titel || 'unbekannt'),
     'Name nennen: ' + (req.nameNennen ? 'ja' : 'nein'),
     '',
     text,
     '',
-    'Von: ' + (String(req.name || '').trim().slice(0,80) || 'Anonym') + (mail ? ' <' + mail + '>' : '')
+    'Eingereicht von: ' + (name || 'Anonym') + (mail ? ' <' + mail + '>' : '')
+  ] : [
+    'Art: ' + art,
+    'Name: ' + titel,
+    (art === 'Vorgabe' ? 'Vorgaben-Art: ' : 'Bereich: ') + kat,
+    'Personen: ' + tn,
+    'Niveau: ' + level,
+    'Name nennen: ' + (req.nameNennen ? 'ja' : 'nein'),
+    '',
+    text,
+    '',
+    'Von: ' + (name || 'Anonym') + (mail ? ' <' + mail + '>' : '')
   ];
-  MailApp.sendEmail({
-    to: KONTAKT_EMPFAENGER,
-    subject: 'Impro-Fundus Vorschlag: ' + titel,
-    body: zeilen.join('\n'),
-    replyTo: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail) ? mail : KONTAKT_EMPFAENGER
-  });
+  try {
+    MailApp.sendEmail({
+      to: KONTAKT_EMPFAENGER,
+      subject: 'Impro-Fundus ' + (istZitat ? 'Zitat-Vorschlag' : 'Vorschlag') + ': ' + (istZitat ? text.slice(0,60) : titel),
+      body: zeilen.join('\n'),
+      replyTo: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail) ? mail : KONTAKT_EMPFAENGER
+    });
+  } catch(err){
+    if(!gespeichert) throw err;
+  }
   return {ok:true};
 }
 
