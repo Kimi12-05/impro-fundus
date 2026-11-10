@@ -78,8 +78,8 @@ const API = "https://script.google.com/macros/s/AKfycbwcGZii-rdT7MHU_vxgWMGMFsZI
 const KEY = "fundus-verwaltung";
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-let TOKEN = null, RAW = null, ITEMS = [], VORG = {}, UKATS = [], ZIT = [];
-let tab = "ueb", vcat = null, suche = "";
+let TOKEN = null, RAW = null, ITEMS = [], VORG = {}, UKATS = [], ZIT = [], IDEEN = [];
+let tab = "ueb", vcat = null, suche = "", gestartet = false;
 try { TOKEN = sessionStorage.getItem(KEY); } catch (e) {}
 
 async function api(obj) {
@@ -120,6 +120,7 @@ function loginSeite(hinweis) {
 /* ---------- Daten ---------- */
 function daten(d) {
   RAW = d; ZIT = Array.isArray(d.zitate) ? d.zitate : [];
+  IDEEN = Array.isArray(d.ideen) ? d.ideen : [];
   UKATS = (d.uebungenReihe || []).slice();
   ITEMS = (d.uebungen || []).map(u => ({ id: u.id, cat: u.kat, title: u.titel, level: u.level || "", draft: u.entwurf === "1", ab: u.ablauf || "", dauer: u.dauer || "", tn: u.tn || "", eig: u.eig || [] }));
   ITEMS.forEach(i => { if (!UKATS.includes(i.cat)) UKATS.push(i.cat); });
@@ -135,7 +136,7 @@ async function laden() {
 }
 async function start() {
   $("#app").innerHTML = `<div class="wrap"><p class="hint" style="padding-top:40px">Einen Moment, die Daten werden geladen …</p></div>`;
-  try { await laden(); seite(); }
+  try { await laden(); if (!gestartet) { gestartet = true; if (IDEEN.length) tab = "ide"; } seite(); }
   catch (x) { if (TOKEN) $("#app").innerHTML = `<div class="wrap"><div class="panel"><p class="msg err">${esc(x.message)}</p><div class="row"><button class="btn" onclick="start()">Noch einmal versuchen</button><button class="btn" onclick="abmelden()">Abmelden</button></div></div></div>`; }
 }
 async function aktion(obj, nach) {
@@ -146,12 +147,12 @@ async function aktion(obj, nach) {
 }
 
 /* ---------- Seitengerüst ---------- */
-const TABS = [["ueb", "Übungen"], ["vor", "Vorgaben"], ["zit", "Zitate"], ["imp", "Import / Export"], ["adm", "Admins"]];
+const TABS = [["ide", "Vorschläge"], ["ueb", "Übungen"], ["vor", "Vorgaben"], ["zit", "Zitate"], ["imp", "Import / Export"], ["adm", "Admins"]];
 function seite() {
-  const inhalt = { ueb: tabUeb, vor: tabVor, zit: tabZit, imp: tabImp, adm: tabAdm }[tab]();
+  const inhalt = { ide: tabIde, ueb: tabUeb, vor: tabVor, zit: tabZit, imp: tabImp, adm: tabAdm }[tab]();
   const alt = $("#suche"), hadFocus = alt && document.activeElement === alt, pos = hadFocus ? alt.selectionStart : 0;
   $("#app").innerHTML = `<div class="top"><div class="wrap"><img src="../logo.png" alt=""><h1>Verwaltung</h1><a class="btn" href="../" style="text-decoration:none">Zur Website</a><button class="btn" id="out">Abmelden</button></div></div>
-    <div class="wrap"><div class="tabs" role="tablist">${TABS.map(([k, t]) => `<button role="tab" data-tab="${k}" aria-pressed="${tab === k}">${t}</button>`).join("")}</div>${inhalt}</div>`;
+    <div class="wrap"><div class="tabs" role="tablist">${TABS.map(([k, t]) => `<button role="tab" data-tab="${k}" aria-pressed="${tab === k}">${t}${k === "ide" && IDEEN.length ? ` <span class="pill" style="background:var(--red);color:#fff">${IDEEN.length}</span>` : ""}</button>`).join("")}</div>${inhalt}</div>`;
   $("#out").onclick = () => abmelden();
   document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { tab = b.dataset.tab; seite(); window.scrollTo(0, 0); });
   bindTab();
@@ -177,6 +178,36 @@ function bindKat() {
       else if (op === "verschieben") await aktion({ action: "adminKat", op: "verschieben", art, name, richtung: +b.dataset.dir });
     } catch (x) { fehler(x); }
   });
+}
+
+/* ---------- Vorschläge von Besuchern ---------- */
+const datumDe = iso => { const m = String(iso || "").match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? `${m[3]}.${m[2]}.${m[1]}` : ""; };
+function tabIde() {
+  return `<div class="panel"><h2>Vorschläge von Besuchern</h2><p class="hint">Diese Vorschläge kamen über das Formular auf der Website (du hast sie zusätzlich per E-Mail bekommen). Mit „Übernehmen“ kannst du sie ansehen, ändern und hinzufügen. Danach verschwindet der Vorschlag aus dieser Liste.</p>
+  ${IDEEN.map(i => {
+    const z = i.art === "Zitat";
+    const info = [i.art === "Vorgabe" ? "Vorgaben-Art: " + i.kat : i.art === "Übung" ? "Bereich: " + i.kat : "", i.tn ? i.tn + " Personen" : "", i.level, i.name ? "von " + i.name : "von anonym", i.nameNennen === "ja" ? "(Name darf genannt werden)" : "", datumDe(i.datum)].filter(Boolean).join(" · ");
+    return `<div class="item" style="flex-direction:column;align-items:stretch;border:1px solid var(--line);border-radius:12px;margin-bottom:10px">
+      <div><span class="pill" style="margin:0 8px 0 0">${esc(i.art)}</span><b>${esc(z ? "„" + i.text + "“" : i.titel)}</b>${z && i.titel ? ` — ${esc(i.titel)}` : ""}</div>
+      <div class="m">${esc(info)}${i.mail ? ` · <a href="mailto:${esc(i.mail)}" style="color:inherit">${esc(i.mail)}</a>` : ""}</div>
+      ${z ? "" : `<div style="white-space:pre-wrap;overflow-wrap:anywhere;background:var(--bg);border-radius:10px;padding:10px;max-height:220px;overflow:auto">${esc(i.text)}</div>`}
+      <div class="row"><button class="btn red small" data-ide-ok="${esc(i.id)}">Übernehmen</button><button class="btn small del" data-ide-weg="${esc(i.id)}">Verwerfen</button></div></div>`;
+  }).join("") || '<p class="empty">Keine neuen Vorschläge.</p>'}</div>`;
+}
+function zitatUebernehmen(idee) {
+  openDlg(`<h2>Zitat übernehmen</h2><form class="form" id="zuForm"><label>Zitat<textarea id="zuT" required style="min-height:100px">${esc(idee.text)}</textarea></label>
+    <label>Von wem (optional)<input id="zuA" value="${esc(idee.titel)}"></label>
+    <p class="hint" style="margin:0">Eingereicht von: ${esc(idee.name || "anonym")}${idee.mail ? " (" + esc(idee.mail) + ")" : ""}</p><p class="msg" id="zuM"></p>
+    <div class="row"><button class="btn red" type="submit">Als Zitat speichern</button><button class="btn" type="button" id="zuX">Abbrechen</button></div></form>`);
+  $("#zuX").onclick = closeDlg;
+  $("#zuForm").onsubmit = async e => {
+    e.preventDefault(); const m = $("#zuM"); m.className = "msg"; m.textContent = "Einen Moment …";
+    try {
+      await aktion({ action: "adminZitat", op: "neu", t: $("#zuT").value.trim(), a: $("#zuA").value.trim() }, false);
+      await aktion({ action: "adminIdeeLoeschen", id: idee.id }, false);
+      closeDlg(); seite();
+    } catch (x) { if (TOKEN) { m.className = "msg err"; m.textContent = x.message; } }
+  };
 }
 
 /* ---------- Übungen ---------- */
@@ -247,29 +278,33 @@ async function admListe() {
 /* ---------- Bearbeiten-Fenster ---------- */
 function openDlg(h) { $("#dlgBox").innerHTML = h; $("#dlg").hidden = false; }
 function closeDlg() { $("#dlg").hidden = true; $("#dlgBox").innerHTML = ""; }
-function editor(item, art, kat) {
+function editor(item, art, kat, idee) {
   const vorgabe = art === "vorgabe";
   const katListe = vorgabe ? Object.keys(VORG) : UKATS;
-  const aktuell = item ? item.kat : (kat || "");
-  const eig = item && item.eig ? item.eig.join(", ") : "";
-  openDlg(`<h2>${item ? "Bearbeiten" : "Neu anlegen"}: ${vorgabe ? "Vorgabe" : "Übung"}</h2>
+  const alias = { "2er-Übungen": "Zweierübungen", "3er-Übungen": "Dreierübungen" };
+  const aktuell = item ? item.kat : idee ? (alias[idee.kat] || idee.kat) : (kat || "");
+  if (aktuell && !katListe.includes(aktuell)) katListe.push(aktuell);
+  const pre = item || (idee ? { title: idee.titel, tn: idee.tn, level: idee.level, ab: idee.text, dauer: "", eig: [] } : null);
+  const eig = pre && pre.eig ? pre.eig.join(", ") : "";
+  openDlg(`<h2>${item ? "Bearbeiten" : idee ? "Vorschlag übernehmen" : "Neu anlegen"}: ${vorgabe ? "Vorgabe" : "Übung"}</h2>
+    ${idee ? `<p class="hint">Eingereicht von: ${esc(idee.name || "anonym")}${idee.mail ? " (" + esc(idee.mail) + ")" : ""}${idee.nameNennen === "ja" ? " · Name darf genannt werden" : ""}</p>` : ""}
     <form id="edForm" class="form">
-      <label>Titel<input id="edTitel" required value="${esc(item ? item.title : "")}"></label>
+      <label>Titel<input id="edTitel" required value="${esc(pre ? pre.title : "")}"></label>
       <label>Kategorie<select id="edKat">${katListe.map(k => `<option value="${esc(k)}" ${k === aktuell ? "selected" : ""}>${esc(k)}</option>`).join("")}</select></label>
       <label>Oder neue Kategorie (optional)<input id="edNeueKat" placeholder="z. B. Neue Kategorie"></label>
-      ${vorgabe ? "" : `<div class="grid2"><label>Personen<input id="edTn" value="${esc(item ? item.tn : "")}" placeholder="z. B. 2 oder 2–4"></label>
-        <label>Dauer<input id="edDauer" value="${esc(item ? item.dauer : "")}" placeholder="z. B. 10 Min."></label></div>
-        <label>Niveau<select id="edLevel">${["", "Einsteiger", "Fortgeschritten"].map(x => `<option value="${x}" ${x === (item ? item.level : "") ? "selected" : ""}>${x || "–"}</option>`).join("")}</select></label>`}
+      ${vorgabe ? "" : `<div class="grid2"><label>Personen<input id="edTn" value="${esc(pre ? pre.tn : "")}" placeholder="z. B. 2 oder 2–4"></label>
+        <label>Dauer<input id="edDauer" value="${esc(pre ? pre.dauer : "")}" placeholder="z. B. 10 Min."></label></div>
+        <label>Niveau<select id="edLevel">${["", "Einsteiger", "Fortgeschritten"].map(x => `<option value="${x}" ${x === (pre ? pre.level : "") ? "selected" : ""}>${x || "–"}</option>`).join("")}</select></label>`}
       <label>Eigenschaften (mit Komma getrennt)<input id="edEig" value="${esc(eig)}"></label>
       <label class="check"><input type="checkbox" id="edEntwurf" ${item && item.entwurf ? "checked" : ""}><span>Entwurf: noch nicht online stellen</span></label>
-      <label>${vorgabe ? "Hinweis (optional)" : "Ablauf / Beschreibung"}<textarea id="edTxt" style="min-height:${vorgabe ? 80 : 200}px">${esc(item ? item.ab : "")}</textarea></label>
+      <label>${vorgabe ? "Hinweis (optional)" : "Ablauf / Beschreibung"}<textarea id="edTxt" style="min-height:${vorgabe ? 80 : 200}px">${esc(pre ? pre.ab : "")}</textarea></label>
       <p class="msg" id="edMsg"></p>
       <div class="row"><button class="btn red" type="submit">Speichern</button><button class="btn" type="button" id="edX">Abbrechen</button>${item ? `<button class="btn del" type="button" id="edDel" style="margin-left:auto">Löschen</button>` : ""}</div>
     </form>`);
   $("#edX").onclick = closeDlg;
   const senden = async obj => {
     $("#edMsg").className = "msg"; $("#edMsg").textContent = "Einen Moment …";
-    try { await aktion(obj, false); closeDlg(); seite(); }
+    try { await aktion(obj, false); if (idee && obj.action === "adminSpeichern") await aktion({ action: "adminIdeeLoeschen", id: idee.id }, false); closeDlg(); seite(); }
     catch (x) { if (TOKEN) { $("#edMsg").className = "msg err"; $("#edMsg").textContent = x.message || "Keine Verbindung. Bitte später noch einmal versuchen."; } }
   };
   $("#edForm").onsubmit = e => {
@@ -302,6 +337,14 @@ function bindTab() {
   document.querySelectorAll("[data-edit-v]").forEach(b => b.onclick = () => {
     const v = (VORG[vcat] || []).find(x => x.id === b.dataset.editV);
     if (v) editor({ id: v.id, title: v.t, kat: vcat, eig: v.e || [], ab: v.h || "", entwurf: v.entwurf }, "vorgabe");
+  });
+  document.querySelectorAll("[data-ide-ok]").forEach(b => b.onclick = () => {
+    const i = IDEEN.find(x => x.id === b.dataset.ideOk); if (!i) return;
+    if (i.art === "Zitat") zitatUebernehmen(i); else editor(null, i.art === "Vorgabe" ? "vorgabe" : "uebung", i.kat, i);
+  });
+  document.querySelectorAll("[data-ide-weg]").forEach(b => b.onclick = async () => {
+    if (!confirm("Diesen Vorschlag wirklich verwerfen? Das kann nicht rückgängig gemacht werden.")) return;
+    try { await aktion({ action: "adminIdeeLoeschen", id: b.dataset.ideWeg }); } catch (x) { fehler(x); }
   });
   document.querySelectorAll("[data-vc]").forEach(b => b.onclick = () => { vcat = b.dataset.vc; seite(); });
   document.querySelectorAll("[data-vmove]").forEach(b => b.onclick = async () => { try { await aktion({ action: "adminVerschieben", sid: b.dataset.vmove, richtung: +b.dataset.dir }); } catch (x) { fehler(x); } });

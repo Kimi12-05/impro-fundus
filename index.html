@@ -854,11 +854,11 @@ const V = {
     return `<div class="pagehead"><h1>Vorschlag einreichen</h1></div>
     ${offen ? '<div class="note">Das Einreichen ist gerade noch nicht eingerichtet.</div>' : ""}
     <form id="f" novalidate>
-     <div class="field"><label for="f-kind">Was möchtest du einreichen?</label><select id="f-kind"><option>Übung</option><option>Vorgabe</option></select></div>
-     <div class="field"><label for="f-title">Name</label><input id="f-title" placeholder="z. B. Gefühls-Staffel"></div>
+     <div class="field"><label for="f-kind">Was möchtest du einreichen?</label><select id="f-kind"><option>Übung</option><option>Vorgabe</option><option>Zitat</option></select></div>
+     <div class="field"><label for="f-title" id="l-title">Name</label><input id="f-title" placeholder="z. B. Gefühls-Staffel"></div>
      <div class="field" id="wrap-cat"><label for="f-cat">Bereich</label><select id="f-cat">${opts}</select></div>
      <div class="field" id="wrap-vcat" hidden><label for="f-vcat">Art der Vorgabe</label><select id="f-vcat">${vopts}</select></div>
-     <div class="field"><label for="f-text">Beschreibung und Ablauf</label><textarea id="f-text" placeholder="Wie läuft es ab? Was ist die Regel?"></textarea></div>
+     <div class="field"><label for="f-text" id="l-text">Beschreibung und Ablauf</label><textarea id="f-text" placeholder="Wie läuft es ab? Was ist die Regel?"></textarea></div>
      <div class="two" id="wrap-meta"><div class="field"><label for="f-players">Anzahl Personen</label><input id="f-players" placeholder="z. B. 2–4"></div><div class="field"><label for="f-level">Niveau</label><select id="f-level"><option>Einsteiger</option><option>Fortgeschritten</option></select></div></div>
      <div class="two"><div class="field"><label for="f-name">Dein Name <small>(freiwillig)</small></label><input id="f-name"></div><div class="field"><label for="f-mail">E-Mail für Rückfragen <small>(freiwillig)</small></label><input id="f-mail" type="email"></div></div>
      <label class="check"><input type="checkbox" id="f-namepub"><span>Mein Name darf bei der Veröffentlichung genannt werden.</span></label>
@@ -1008,7 +1008,14 @@ function render() {
 function bindForm() {
   const k = $("#f-kind");
   if (S.kind) { k.value = S.kind; S.kind = null; }
-  const sync = () => { const v = k.value === "Vorgabe"; $("#wrap-cat").hidden = v; $("#wrap-meta").hidden = v; $("#wrap-vcat").hidden = !v; };
+  const sync = () => {
+    const v = k.value === "Vorgabe", z = k.value === "Zitat";
+    $("#wrap-cat").hidden = v || z; $("#wrap-meta").hidden = v || z; $("#wrap-vcat").hidden = !v;
+    $("#l-title").innerHTML = z ? "Von wem stammt das Zitat? <small>(freiwillig)</small>" : "Name";
+    $("#f-title").placeholder = z ? "z. B. Keith Johnstone" : "z. B. Gefühls-Staffel";
+    $("#l-text").textContent = z ? "Das Zitat" : "Beschreibung und Ablauf";
+    $("#f-text").placeholder = z ? "Das Zitat, möglichst wortgetreu" : "Wie läuft es ab? Was ist die Regel?";
+  };
   k.onchange = sync; sync();
   const f = $("#f");
   if (!f) return;
@@ -1016,14 +1023,15 @@ function bindForm() {
     e.preventDefault();
     const t = $("#f-title").value.trim(), x = $("#f-text").value.trim(), err = $("#f-err");
     const show = m => { err.textContent = m; err.hidden = false; };
-    if (!t || !x) return show("Bitte gib einen Namen und eine Beschreibung ein.");
+    const istZitat = k.value === "Zitat";
+    if (istZitat ? !x : (!t || !x)) return show(istZitat ? "Bitte gib das Zitat ein." : "Bitte gib einen Namen und eine Beschreibung ein.");
     if (!$("#f-ok").checked) return show("Bitte bestätige, dass der Vorschlag veröffentlicht werden darf.");
     const btn = f.querySelector('button[type=submit]');
     btn.disabled = true; err.hidden = true;
     try {
       const r = await apiPost({
         action: "idee", art: k.value, titel: t, text: x,
-        kat: k.value === "Vorgabe" ? $("#f-vcat").value : catOf($("#f-cat").value).name,
+        kat: istZitat ? "" : k.value === "Vorgabe" ? $("#f-vcat").value : $("#f-cat").value,
         tn: $("#f-players").value.trim(), level: $("#f-level").value,
         nameNennen: !!($("#f-namepub") && $("#f-namepub").checked),
         name: $("#f-name").value.trim(), mail: $("#f-mail").value.trim(), web: $("#f-web").value
