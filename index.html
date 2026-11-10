@@ -13,6 +13,9 @@
 <meta name="description" content="Impro-Fundus: Warm-ups, Übungen, Szenenspiele und Vorgaben für Improtheater.">
 <title>Impro-Fundus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;700&family=Indie+Flower&family=Architects+Daughter&family=Coming+Soon&display=swap" rel="stylesheet">
 <style>
 :root{--red:#B02E28;--maroon:#8E2220;--bg:#F5F0E8;--card:#FFFFFF;--field:#FFFFFF;--line:#E6DFD4;--fg:#1F1B17;--muted:#6F665D;--ok:#2e9e5b;--no:#8E2220;--hintbg:#fff7e0;--overlay:rgba(0,0,0,.45);color-scheme:light}
@@ -1221,14 +1224,32 @@ document.addEventListener("click", e => {
 window.addEventListener("resize", suggHide);
 
 render();
+const CACHE_KEY = "fundus-daten-v1";
+function cacheLesen() { try { const c = JSON.parse(localStorage.getItem(CACHE_KEY) || "null"); return c && c.d && c.d.ok ? c.d : null; } catch (e) { return null; } }
+function cacheSchreiben(d) { try { localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), d })); } catch (e) {} }
 function laden() {
   const normal = () => fetch(CONFIG.API + "?action=fundus").then(r => { if (!r.ok) throw new Error("http"); return r.json(); });
+  /* Schnellstart: zuletzt gemerkte Daten sofort anzeigen, frische Daten im Hintergrund holen */
+  let schnell = false, alt = "";
+  if (!ADMIN && !LOADED) {
+    const c = cacheLesen();
+    if (c) {
+      try {
+        setData(c); alt = JSON.stringify(c); schnell = true;
+        if (!S.vcat || !VORG[S.vcat]) S.vcat = Object.keys(VORG)[0] || null;
+        if (!S.draw) S.draw = draw();
+        FEHLER = ""; render();
+      } catch (e) { schnell = false; }
+    }
+  }
   const quelle = ADMIN
     ? apiPost({ action: "fundusAdmin", token: ADMIN }).then(d => { if (d && d.ok) return d; if (d && /erneut/.test(d.msg || "")) { ADMIN = null; try { sessionStorage.removeItem("fundus-admin"); } catch (e) {} } return normal(); }).catch(normal)
     : normal();
   return quelle
     .then(d => {
       if (!d.ok) throw new Error("data");
+      if (!ADMIN) cacheSchreiben(d);
+      if (schnell && JSON.stringify(d) === alt) return;   /* nichts Neues, nichts neu zeichnen */
       setData(d);
       if (!S.vcat || !VORG[S.vcat]) S.vcat = Object.keys(VORG)[0] || null;
       if (!S.draw) S.draw = draw();
@@ -1236,6 +1257,7 @@ function laden() {
       render();
     })
     .catch(() => {
+      if (schnell) return;   /* gemerkte Daten bleiben sichtbar */
       FEHLER = FEHLER || "Die Liste kann gerade nicht geladen werden. Bitte später noch einmal versuchen.";
       render();
     });
