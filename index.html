@@ -434,7 +434,7 @@ html body .vitem{font-family:"Indie Flower",cursive!important;font-size:17.5px!i
 html body .vgtile .meta,html body .vitem .meta{font-family:"Indie Flower",cursive!important;font-size:20.8px!important}
 html body .vitem .linkbtn{font-family:"Indie Flower",cursive!important;font-size:19.8px!important}
 /* Reiter (obere Leiste) 25 px, Menüpunkte (Seitenmenü und Aufklappmenüs) 20 px */
-html body .topnav>button,html body .dd>button{font-size:25px!important;height:auto!important;min-height:36px}
+html body .topnav>button,html body .dd>button{font-size:23px!important;height:auto!important;min-height:36px}
 html body .navbtn:not(.small),html body .ddmenu button{font-size:20px!important}
 /* Computer: Suche immer oben rechts. Auf schmaleren Fenstern (unter 1500 px) steht die Reiter-Leiste in einer eigenen Zeile, damit nichts gequetscht wird */
 @media (min-width:900px){
@@ -469,6 +469,12 @@ html body .chest .cbox img.auf{opacity:0;pointer-events:none}
 /* Übungskacheln: Name größer und unterstrichen, Niveau rechtsbündig */
 html body .card h3{font-size:24px!important;text-decoration:underline!important;line-height:1.2}
 html body .card .meta{display:flex;justify-content:flex-end;text-align:right}
+/* Startseite Computer: Zitat etwas kleiner, mehr Abstand zu den Truhen */
+@media (min-width:900px){
+  html body .home .quote p{zoom:.9}
+  html body .home .chests{margin-top:20px}
+  html body .home .chests .chest .cbox{--ch:clamp(76px,10.5vh,116px)}
+}
 /* Kleine Titel auf der Startseite unterstrichen */
 html body .home h3{text-decoration:underline!important}
 /* Nur Handy: hier kommen später die Anpassungen für die Handyversion hin */
