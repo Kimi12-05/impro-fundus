@@ -446,6 +446,22 @@ html body .navbtn:not(.small),html body .ddmenu button{font-size:20px!important}
   .top .rightbox{grid-area:right}
   .top .topnav,.topwrap .topnav{grid-area:nav;justify-content:center;flex-wrap:wrap}
 }
+/* Übungen-Seite: Notizzettel groß und gleichmäßig verteilt (3 oben, 2 darunter mittig) */
+@media (min-width:900px){
+  .inner:has(.kgrid){max-width:1120px}
+  .grid.kgrid{display:flex;flex-wrap:wrap;justify-content:center;gap:24px 28px}
+  .kgrid>*{flex:0 1 340px;min-width:0}
+  .kgrid .vgtile{width:100%;min-height:180px;padding:44px 22px 40px}
+}
+/* Übungsseite: Name mittig, Kategorie-Feld mit weißer Schrift */
+html body .detail .pagehead h1{text-align:center!important;padding-left:0!important}
+html body .detail .pill.red{color:#fff!important}
+/* Startseite Computer: Truhen heben sich beim Darüberfahren an und wackeln kurz */
+@media (hover:hover){
+  .chest img{transition:transform .2s ease,filter .2s ease;transform-origin:50% 100%}
+  .chest:hover img,.chest:focus-visible img{transform:translateY(-6px) scale(1.04);filter:drop-shadow(0 8px 8px rgba(60,30,20,.35));animation:truheWackel .5s ease .05s}
+}
+@keyframes truheWackel{0%,100%{rotate:0deg}25%{rotate:-2deg}50%{rotate:2deg}75%{rotate:-1deg}}
 /* Kleine Titel auf der Startseite unterstrichen */
 html body .home h3{text-decoration:underline!important}
 /* Nur Handy: hier kommen später die Anpassungen für die Handyversion hin */
@@ -493,6 +509,7 @@ const CONFIG = {
   // Spendenkonto. Solange leer, steht dort ein Hinweis.
   SPENDE: { inhaber: "", iban: "", bic: "", zweck: "Spende Impro-Fundus" }
 };
+const katLabel = n => ({ "Zweierübungen": "2er-Übungen", "Dreierübungen": "3er-Übungen" })[n] || n;
 const UE_INFO = {
   "Zweierübungen": "Übungen für genau zwei Personen.",
   "Dreierübungen": "Übungen für genau drei Personen.",
@@ -526,7 +543,7 @@ const vCount = () => Object.values(VORG).reduce((a, x) => a + x.length, 0);
 var RAW = null, ZIT = [];
 function setData(d) {
   RAW = d; ZIT = Array.isArray(d.zitate) ? d.zitate : [];
-  CATS = d.uebungenReihe.map(k => ({ id: k, name: k, desc: UE_INFO[k] || "" }));
+  CATS = d.uebungenReihe.map(k => ({ id: k, name: katLabel(k), desc: UE_INFO[k] || "" }));
   const KAT_ALT = { "2er": "Zweierübungen", "3er": "Dreierübungen", "Gruppe": "Gruppenübungen", "Warm-Up": "Warm-Up-Spiele" };
   ITEMS = d.uebungen.map(u => ({ id: u.id, cat: KAT_ALT[u.kat] || u.kat, title: u.titel, level: u.level || "", draft: u.entwurf === "1", ab: u.ablauf || "", dauer: u.dauer || "", tn: u.tn || "", eig: u.eig || [] }));
   VORG = {};
@@ -622,7 +639,7 @@ function navHTML() {
   h += b(S.view === "kontakt", 'data-go="kontakt"', "Kontakt");
   h += `<div class="lbl">Mehr</div>`;
   h += b(S.view === "impro", 'data-go="impro"', "Was ist Impro?");
-  h += b(false, 'data-pdf="1"', "PDF speichern");
+  h += b(false, 'data-pdf="1"', "Eigene Spielliste erstellen");
   h += `<div class="lbl">Über den Fundus</div>`;
   h += b(S.view === "ueber", 'data-go="ueber"', "Alles über den Fundus");
   h += b(S.view === "spenden", 'data-go="spenden"', "Spenden");
@@ -644,7 +661,7 @@ function bottomHTML() {
     + `<button data-dicedlg class="${S.diceOpen ? "on" : ""}" aria-label="Szenenwürfel" aria-expanded="${!!S.diceOpen}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg>Würfel</button>`;
 }
 
-const card = i => `<button class="card" data-item="${esc(i.id)}"><span class="eyebrow">${esc(i.cat)}${i.dauer ? " · " + esc(i.dauer) : ""}</span><h3>${esc(i.title)}${i.draft ? '<span class="pill todo">Entwurf</span>' : ""}${!i.ab ? '<span class="pill todo">folgt</span>' : ""}</h3><p>${esc(shortOf(i))}</p><span class="meta">${i.level ? `<span>${esc(i.level)}</span>` : ""}</span></button>`;
+const card = (i, ohneKat) => `<button class="card" data-item="${esc(i.id)}">${(ohneKat && !i.dauer) ? "" : `<span class="eyebrow">${ohneKat ? esc(i.dauer) : esc(katLabel(i.cat)) + (i.dauer ? " · " + esc(i.dauer) : "")}</span>`}<h3>${esc(i.title)}${i.draft ? '<span class="pill todo">Entwurf</span>' : ""}${!i.ab ? '<span class="pill todo">folgt</span>' : ""}</h3><p>${esc(shortOf(i))}</p><span class="meta">${i.level ? `<span>${esc(i.level)}</span>` : ""}</span></button>`;
 const genHTML = () => {
   const ks = diceKeys();
   const res = S.draw || [];
@@ -699,23 +716,23 @@ const V = {
     ${genHTML()}
     <div class="startbtns">
       <button class="tile" data-go="impro"><h3>Was ist Impro?</h3><p>Eine kurze Einführung.</p></button>
-      <button class="tile" data-go="einreichen"><h3>Idee einreichen</h3><p>Ein Spiel fehlt? Schick es uns.</p></button>
-      <button class="tile" data-pdf="1"><h3>PDF speichern</h3><p>Übungen als PDF auswählen.</p></button>
+      <button class="tile" data-go="einreichen"><h3>Idee einreichen</h3><p>Es gibt eine Übung oder eine Vorgabe, die noch nicht hier auf der Website steht, dann schick sie uns gerne.</p></button>
+      <button class="tile" data-pdf="1"><h3>Eigene Spielliste erstellen</h3><p>Stell die Übungen und Vorgaben individuell zusammen und speichere sie als PDF, für deine nächste Probe.</p></button>
     </div>`;
   },
 
   kats() {
-    return `<div class="pagehead"><h1>Übungen</h1><p>Wähle einen Bereich.</p></div>${adminBar(`<button class="btn red" data-admin-new="uebung">+ Neue Übung</button><button class="btn" data-akat="neu" data-art="uebung">+ Neue Kategorie</button>`)}<div class="grid tgrid">${CATS.map(c => admTile(`<button class="vgtile" data-cat="${esc(c.id)}"><h3>${esc(c.name)}</h3></button>`, "uebung", c.id)).join("")}</div>`;
+    return `<div class="pagehead"><h1>Übungen</h1></div>${adminBar(`<button class="btn red" data-admin-new="uebung">+ Neue Übung</button><button class="btn" data-akat="neu" data-art="uebung">+ Neue Kategorie</button>`)}<div class="grid tgrid kgrid">${CATS.map(c => admTile(`<button class="vgtile" data-cat="${esc(c.id)}"><h3>${esc(c.name)}</h3></button>`, "uebung", c.id)).join("")}</div>`;
   },
 
   kat() {
     const c = catOf(S.cat);
     const l = ITEMS.filter(i => i.cat === c.id && (S.level === "alle" || i.level === S.level));
     return `<div class="crumb"><button data-go="kats">Übungen</button><span>›</span><span>${esc(c.name)}</span></div>
-    <div class="pagehead"><h1>${esc(c.name)}</h1><p>${esc(c.desc)}</p></div>
+    <div class="pagehead"><h1>${esc(c.name)}</h1></div>
     ${adminBar(`<button class="btn red" data-admin-new="uebung" data-kat="${esc(c.id)}">+ Übung in „${esc(c.name)}“</button>`)}
     ${levelChips()}
-    <div class="list">${l.length ? l.map(i => admMove(card(i), i.id)).join("") : '<div class="empty">Für diese Auswahl gibt es noch nichts.</div>'}</div>`;
+    <div class="list">${l.length ? l.map(i => admMove(card(i, true), i.id)).join("") : '<div class="empty">Für diese Auswahl gibt es noch nichts.</div>'}</div>`;
   },
 
   item() {
@@ -737,7 +754,7 @@ const V = {
     }
     const list = VORG[S.vcat] || [];
     return `<div class="crumb"><button data-go="vorgaben">Vorgaben</button><span>›</span><span>${esc(S.vcat)}</span></div>
-    <div class="pagehead"><h1>${esc(S.vcat)}</h1><p>${list.length} Vorgaben</p></div>
+    <div class="pagehead"><h1>${esc(S.vcat)}</h1></div>
     <div class="chips mob" role="group" aria-label="Vorgaben-Bereich">${Object.keys(VORG).map(k => `<button class="chip" aria-pressed="${S.vcat === k}" data-v="${esc(k)}">${esc(k)}</button>`).join("")}</div>
     ${adminBar(`<button class="btn red" data-admin-new="vorgabe" data-kat="${esc(S.vcat)}">+ Vorgabe in „${esc(S.vcat)}“</button>`)}
     <div class="vcols">${list.map(v => `<div class="vitem">${esc(v.t)}${v.entwurf === "1" ? '<br><span class="meta">(Entwurf, nur für dich sichtbar)</span>' : ""}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}${ADMIN && v.id ? `<div class="admctl"><button data-amove="${esc(v.id)}" data-dir="-1" title="nach oben">↑</button><button data-amove="${esc(v.id)}" data-dir="1" title="nach unten">↓</button><button data-admin-vedit="${esc(v.id)}">bearbeiten</button><button class="del" data-adel="${esc(v.id)}">löschen</button></div>` : ""}</div>`).join("")}</div>`;
@@ -1227,7 +1244,7 @@ function adminVerwalten() {
 function pdfDialog() {
   const ue = CATS.map(c => `<label class="check"><input type="checkbox" name="pu" value="${esc(c.id)}"> ${esc(c.name)} (${ITEMS.filter(i => i.cat === c.id).length})</label>`).join("");
   const vo = Object.keys(VORG).map(k => `<label class="check"><input type="checkbox" name="pv" value="${esc(k)}"> ${esc(k)} (${VORG[k].length})</label>`).join("");
-  openDlg(`<h2>Als PDF speichern</h2>
+  openDlg(`<h2>Eigene Spielliste erstellen</h2>
     <form id="pdfForm" class="dlgform">
       <h3>Übungen</h3>${ue}
       <h3>Vorgaben</h3>${vo}
