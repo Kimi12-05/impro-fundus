@@ -555,3 +555,18 @@ html body .gwrow .linkbtn{font-size:18px!important}
 .anwrow{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 10px}
 .anwrow .btn{flex:1 1 140px}
 .anwlist{margin:0 0 16px;line-height:1.6}
+.vgtile .vnr{position:absolute;left:16px;bottom:8px;font-size:13px;font-weight:700;color:var(--muted)}
+.pgrid .vgtile{position:relative}
+.gwrow .gnr{flex:none;width:28px;font-weight:700;color:var(--muted)}
+.gwrow .gtit{flex:1;min-width:0;font-size:17px}
+.gordbtn,.anwbtns,.gwact{display:flex;gap:6px;flex:none}
+.gwact{flex-direction:column}
+.anwbtns{flex-wrap:wrap;justify-content:flex-end}
+.anwbtns .btn{padding:6px 10px;font-size:14px}
+.gordbtn .btn{padding:8px 14px;font-size:18px}
+.anwfuer{margin:0 0 16px}
+.anwfuer summary{cursor:pointer;font-weight:700;margin-bottom:10px}
+.anwfuer .gwrow{flex-wrap:wrap}
+select{font:inherit;font-size:16px;color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
+html body .gwrow b{color:var(--fg)!important;text-decoration:none!important}
+@media (max-width:899px){html body.probemodus.gordnung .dbubble{display:none!important}}
