@@ -67,7 +67,7 @@ const SEITEN = {
   start: "/", kats: "/uebungen/", alle: "/alle-uebungen/", vorgaben: "/vorgaben/", impro: "/was-ist-impro/",
   ueber: "/ueber-den-fundus/", kontakt: "/kontakt/", spenden: "/spenden/", einreichen: "/vorschlag-einreichen/",
   impressum: "/impressum/", datenschutz: "/datenschutz/", nutzung: "/nutzungsbedingungen/", suche: "/suche/",
-  proben: "/proben/", probeNeu: "/proben/neu/"
+  proben: "/proben/", probeNeu: "/proben/neu/", gruppen: "/proben/gruppe/", gruppeNeu: "/proben/gruppe/neu/"
 };
 let ITEM_SLUG = {};
 function slugsBauen() {
@@ -86,6 +86,9 @@ function pfadFuer(s = S) {
     case "vorgaben": return s.vcat ? "/vorgaben/" + slug(s.vcat) + "/" : "/vorgaben/";
     case "suche": return "/suche/" + (s.q ? "?q=" + encodeURIComponent(s.q) : "");
     case "probe": return s.pid ? "/proben/" + encodeURIComponent(s.pid) + "/" : "/proben/";
+    case "gruppe": return s.gid ? "/proben/gruppe/" + encodeURIComponent(s.gid) + "/" : "/proben/gruppe/";
+    case "gprobe": return s.gid && s.pid ? "/proben/gruppe/" + encodeURIComponent(s.gid) + "/" + encodeURIComponent(s.pid) + "/" : "/proben/gruppe/";
+    case "probeNeu": return s.pb && s.pb.gruppe ? "/proben/gruppe/" + encodeURIComponent(s.pb.gruppe) + "/neu/" : "/proben/neu/";
     default: return SEITEN[s.view] || "/";
   }
 }
@@ -94,11 +97,18 @@ let WARTET = null;
 function pfadAnwenden(pfad, query) {
   const t = String(pfad || "/").split("/").filter(x => x && x !== "index.html");
   const pn = "/" + t.join("/") + (t.length ? "/" : "");
-  const neu = { view: "start", cat: null, id: null, vcat: null, q: "", pid: null, von: null };
+  const neu = { view: "start", cat: null, id: null, vcat: null, q: "", pid: null, von: null, gid: null };
   const fest = Object.keys(SEITEN).find(k => SEITEN[k] === pn);
   if (fest) {
     neu.view = fest;
+    if (fest === "probeNeu" && S.pb && S.pb.gruppe) S.pb = null;
     if (fest === "suche") neu.q = (new URLSearchParams(query || "").get("q") || "").trim();
+  } else if (t[0] === "proben" && t[1] === "gruppe" && t.length >= 3 && t.length <= 4) {
+    const gid = decodeURIComponent(t[2]);
+    neu.gid = gid;
+    if (t.length === 3) neu.view = "gruppe";
+    else if (t[3] === "neu") { neu.view = "probeNeu"; if (!S.pb || S.pb.gruppe !== gid) S.pb = { step: 1, sel: [], name: "", edit: null, q: "", gruppe: gid }; }
+    else { neu.view = "gprobe"; neu.pid = decodeURIComponent(t[3]); }
   } else if (t[0] === "proben" && t.length === 2) {
     neu.view = "probe"; neu.pid = decodeURIComponent(t[1]);
   } else if (t.length === 2 && ["uebungen", "uebung", "vorgaben"].includes(t[0])) {
@@ -123,7 +133,7 @@ function nachDatenAnwenden() {
 }
 function go(view, o = {}, ersetzen = false) {
   const vorher = pfadFuer(), vonVorher = S.von;
-  Object.assign(S, { view, cat: null, id: null, pid: null, von: null, vcat: view === "vorgaben" ? null : S.vcat }, o);
+  Object.assign(S, { view, cat: null, id: null, pid: null, von: null, gid: null, vcat: view === "vorgaben" ? null : S.vcat }, o);
   const neu = pfadFuer();
   if (neu !== vorher) {
     try {
@@ -228,7 +238,7 @@ function bottomHTML() {
 
 // Sind wir gerade in einer eigenen Probe? (Probenseite oder eine Übung, die von dort geöffnet wurde)
 function inProbe() {
-  return S.view === "probe" || (S.view === "item" && !!S.von);
+  return S.view === "probe" || S.view === "gprobe" || (S.view === "item" && !!S.von);
 }
 
 const card = (i, ohneKat) => `<button class="card" data-item="${esc(i.id)}">${(ohneKat && !i.dauer) ? "" : `<span class="eyebrow">${ohneKat ? esc(i.dauer) : esc(katLabel(i.cat)) + (i.dauer ? " · " + esc(i.dauer) : "")}</span>`}<h3>${esc(i.title)}${i.draft ? '<span class="pill todo">Entwurf</span>' : ""}${!i.ab ? '<span class="pill todo">folgt</span>' : ""}</h3><p>${esc(shortOf(i))}</p><span class="meta">${i.level ? `<span>${esc(i.level)}</span>` : ""}</span></button>`;
@@ -307,15 +317,15 @@ const V = {
 
   item() {
     const i = ITEMS.find(x => x.id === S.id), c = catOf(i.cat);
-    const pr = S.von ? probenLesen().find(x => x.id === S.von) : null;
-    return `${pr ? `<div class="crumb"><button data-go="proben">Meine Proben</button><span>›</span><button data-probe="${esc(pr.id)}">${esc(pr.name)}</button></div>` : `<div class="crumb"><button data-go="kats">Übungen</button><span>›</span><button data-cat="${esc(c.id)}">${esc(c.name)}</button></div>`}
+    const pr = vonInfo();
+    return `${pr ? `<div class="crumb">${pr.krume}</div>` : `<div class="crumb"><button data-go="kats">Übungen</button><span>›</span><button data-cat="${esc(c.id)}">${esc(c.name)}</button></div>`}
     <article class="detail"><div class="pagehead"><span><span class="pill red">${esc(c.name)}</span></span><h1>${esc(i.title)}</h1></div>
     <div class="facts"><div class="fact"><span>Dauer</span><strong>${esc(i.dauer || "–")}</strong></div><div class="fact"><span>Niveau</span><strong>${esc(i.level || "–")}</strong></div></div>
     ${i.eig.length ? `<div class="taglist">${i.eig.map(e => `<span>${esc(e)}</span>`).join("")}</div>` : ""}
     <div class="row sharerow"><button class="btn" data-share="${esc(i.id)}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg> Teilen</button></div>
     ${i.ab ? `<section class="prose"><h2>So geht's</h2>${prose(i.ab)}</section>` : `<div class="tip"><strong>Hier fehlt noch eine Beschreibung.</strong> Du kennst das Spiel? <button class="linkbtn" data-go="einreichen">Beschreibung einreichen</button></div>`}
     </article>
-    <div class="row">${pr ? `<button class="btn" data-probe-back="${esc(pr.id)}">← Zurück zur Probe</button>` : `<button class="btn" data-cat="${esc(c.id)}">← Zurück zur Liste</button>`}</div>`;
+    <div class="row">${pr ? `<button class="btn" data-probe-back="${esc(S.von)}">← Zurück zur Probe</button>` : `<button class="btn" data-cat="${esc(c.id)}">← Zurück zur Liste</button>`}</div>`;
   },
 
   vorgaben() {
@@ -333,6 +343,8 @@ const V = {
     const l = probenLesen().slice().sort((a, b) => String(b.datum).localeCompare(String(a.datum)));
     return `<div class="pagehead"><h1>Meine Proben</h1><p>Stell für deine nächste Probe Übungen zusammen und speichere sie. Die Vorgaben sind immer alle mit dabei.</p></div>
     <button class="tile pbneu" data-go="probeNeu"><h3>Neue Probe zusammenstellen</h3><p>Übungen auswählen und speichern</p></button>
+    <button class="tile pbneu" data-go="gruppen"><h3>Zugangscode für die Impro-Gruppe</h3><p>Proben deiner Gruppe ansehen und Übungen wünschen</p></button>
+    ${gruppenLesen().length ? `<h2 class="pbh">Meine Gruppen</h2><div class="pblist">${gruppenLesen().map(g => `<button class="tile" data-gruppe="${esc(g.id)}"><h3>${esc(g.name)}</h3><p>${g.rolle === "leiter" ? "Du leitest diese Gruppe" : "Du bist Mitglied"}</p></button>`).join("")}</div>` : ""}
     <h2 class="pbh">Gespeicherte Proben</h2>
     ${l.length ? `<div class="pblist">${l.map(p => `<button class="tile" data-probe="${esc(p.id)}"><h3>${esc(p.name)}</h3><p>${esc(datumDe(p.datum))} · ${p.ids.filter(id => ITEMS.some(i => i.id === id)).length} Übungen</p></button>`).join("")}</div>` : `<div class="empty">Noch keine Probe gespeichert.</div>`}
     <p class="note">Deine Proben werden nur auf diesem Gerät gespeichert.</p>`;
@@ -347,6 +359,7 @@ const V = {
       <div class="field"><label for="pbname">Name der Probe</label><input id="pbname" value="${esc(b.name || ("Probe am " + datumDe(heuteIso())))}" maxlength="60" autocomplete="off"></div>
       <h2 class="pbh">${l.length} ${l.length === 1 ? "Übung" : "Übungen"}</h2>
       <ul class="pbsum">${l.map(i => `<li>${esc(i.title)}</li>`).join("")}</ul>
+      ${b.gruppe ? `<p class="note">Diese Probe sehen alle in deiner Gruppe.</p>` : ""}<p class="err" id="pbErr" hidden></p>
       <div class="row pbrow2"><button class="btn" data-pb-zurueck="1">← Übungen ändern</button><button class="btn red" data-pb-speichern="1">Speichern</button></div>`;
     }
     const q = (b.q || "").toLowerCase();
@@ -363,6 +376,66 @@ const V = {
     <div class="field"><input id="pbq" type="search" placeholder="Übung suchen …" value="${esc(b.q || "")}" autocomplete="off"></div>
     <div id="pbliste">${gr}</div>
     <div class="pbbar"><span id="pbN">${sel.size} ausgewählt</span><button class="btn red" id="pbWeiter" data-pb-weiter="1"${sel.size ? "" : " disabled"}>Weiter</button></div>`;
+  },
+
+  gruppen() {
+    const l = gruppenLesen();
+    return `<div class="pagehead"><h1>Impro-Gruppe</h1><p>Gib den Zugangscode deiner Gruppe ein. Du siehst dann alle Proben der Gruppe und kannst dir Übungen wünschen.</p></div>
+    ${l.length ? `<h2 class="pbh">Meine Gruppen</h2><div class="pblist">${l.map(g => `<button class="tile" data-gruppe="${esc(g.id)}"><h3>${esc(g.name)}</h3><p>${g.rolle === "leiter" ? "Du leitest diese Gruppe" : "Du bist Mitglied"}</p></button>`).join("")}</div>` : ""}
+    <h2 class="pbh">Zugangscode eingeben</h2>
+    ${gCodeFormHTML(null)}
+    <h2 class="pbh">Neue Gruppe</h2>
+    <button class="tile pbneu" data-go="gruppeNeu"><h3>Eigene Gruppe anlegen</h3><p>Du bekommst zwei Zugangscodes: einen für dich als Leitung und einen für deine Gruppe</p></button>`;
+  },
+
+  gruppeNeu() {
+    return `<div class="crumb"><button data-go="gruppen">Impro-Gruppe</button><span>›</span><span>Neue Gruppe</span></div>
+    <div class="pagehead"><h1>Neue Gruppe anlegen</h1><p>Wähle zwei Zugangscodes. Mit dem <b>Leiter-Code</b> legst du Proben an und änderst sie. Mit dem <b>Gruppen-Code</b> sehen deine Leute die Proben und wünschen sich Übungen.</p></div>
+    <form id="gnform" novalidate autocomplete="off">
+      <div class="field"><label for="gn-name">Name der Gruppe</label><input id="gn-name" maxlength="40" placeholder="z. B. Impro Aachen"></div>
+      <div class="field"><label for="gn-lc">Leiter-Code (nur für dich, 4 bis 20 Zeichen)</label><input id="gn-lc" maxlength="20" autocapitalize="off" autocorrect="off"></div>
+      <div class="field"><label for="gn-gc">Gruppen-Code (für deine Leute, 4 bis 20 Zeichen)</label><input id="gn-gc" maxlength="20" autocapitalize="off" autocorrect="off"></div>
+      <p class="note">Wähle keinen Code wie 1234, den andere leicht erraten. Die Codes werden nur verschlüsselt gespeichert und lassen sich später nicht mehr anzeigen. Merke sie dir gut.</p>
+      <p class="err" id="gn-err" hidden></p>
+      <button class="btn red block" type="submit">Gruppe anlegen</button>
+    </form>`;
+  },
+
+  gruppe() {
+    const gid = S.gid, e = gruppenLesen().find(x => x.id === gid);
+    if (!e) return `<div class="pagehead"><h1>Impro-Gruppe</h1><p>Gib den Zugangscode ein, um die Proben dieser Gruppe zu sehen.</p></div>${gCodeFormHTML(gid)}`;
+    gLaden(gid);
+    const d = gd()[gid];
+    if (!d) return gWartenHTML(gid, e);
+    const leiter = d.gruppe.rolle === "leiter", l = d.proben.slice().sort((a, b) => String(b.datum).localeCompare(String(a.datum)) || String(b.id).localeCompare(String(a.id)));
+    return `<div class="crumb"><button data-go="gruppen">Impro-Gruppe</button><span>›</span><span>${esc(d.gruppe.name)}</span></div>
+    <div class="pagehead"><h1>${esc(d.gruppe.name)}</h1><p>${leiter ? "Du leitest diese Gruppe." : "Du bist Mitglied dieser Gruppe."}</p></div>
+    ${leiter ? `<button class="tile pbneu" data-g-neu="${esc(gid)}"><h3>Neue Probe zusammenstellen</h3><p>Alle in der Gruppe sehen sie</p></button>` : ""}
+    <h2 class="pbh">Proben</h2>
+    ${l.length ? `<div class="pblist">${l.map(p => { const w = Object.keys(p.w).filter(id => !p.ids.includes(id) && ITEMS.some(i => i.id === id)).length; return `<button class="tile" data-gprobe="${esc(gid + "|" + p.id)}"><h3>${esc(p.name)}</h3><p>${esc(datumDe(p.datum))} · ${p.ids.filter(id => ITEMS.some(i => i.id === id)).length} Übungen${w ? " · " + w + (w === 1 ? " Wunsch" : " Wünsche") : ""}</p></button>`; }).join("")}</div>` : `<div class="empty">${leiter ? "Noch keine Probe angelegt." : "Die Leitung hat noch keine Probe angelegt."}</div>`}
+    ${leiter && e.gruppenCode ? `<p class="note">Gruppen-Code für deine Leute: <b>${esc(e.gruppenCode)}</b></p>` : ""}
+    <div class="row"><button class="btn" data-g-aktual="${esc(gid)}">Aktualisieren</button><button class="btn del" data-g-vergessen="${esc(gid)}">Gruppe auf diesem Gerät entfernen</button></div>`;
+  },
+
+  gprobe() {
+    const gid = S.gid, e = gruppenLesen().find(x => x.id === gid);
+    if (!e) return `<div class="pagehead"><h1>Impro-Gruppe</h1><p>Gib den Zugangscode ein, um diese Probe zu sehen.</p></div>${gCodeFormHTML(gid)}`;
+    gLaden(gid);
+    const d = gd()[gid];
+    if (!d) return gWartenHTML(gid, e);
+    const p = d.proben.find(x => x.id === S.pid), leiter = d.gruppe.rolle === "leiter";
+    if (!p) return `<div class="pagehead"><h1>Diese Probe gibt es nicht mehr</h1></div><div class="row"><button class="btn red" data-gruppe="${esc(gid)}">Zur Gruppe</button></div>`;
+    const von = "g|" + gid + "|" + p.id, l = p.ids.map(id => ITEMS.find(i => i.id === id)).filter(Boolean);
+    const wl = Object.keys(p.w).filter(id => !p.ids.includes(id) && ITEMS.some(i => i.id === id)).sort((a, b) => p.w[b] - p.w[a]);
+    return `<div class="crumb"><button data-go="gruppen">Impro-Gruppe</button><span>›</span><button data-gruppe="${esc(gid)}">${esc(d.gruppe.name)}</button><span>›</span><span>${esc(p.name)}</span></div>
+    <div class="pagehead"><h1>${esc(p.name)}</h1><p>${esc(datumDe(p.datum))} · ${l.length} ${l.length === 1 ? "Übung" : "Übungen"}</p></div>
+    <div class="grid tgrid pgrid">${l.map(i => { const c = catOf(i.cat), n = p.w[i.id]; return `<button class="vgtile" data-item="${esc(i.id)}" data-von="${esc(von)}"><h3>${esc(i.title)}</h3>${c ? `<span class="meta">${esc(c.name)}</span>` : ""}</button>`; }).join("")}</div>
+    <button class="tile pbvorg" data-go="vorgaben"><h3>Vorgaben</h3><p>Orte, Gefühle, Berufe und mehr. Alle sind immer dabei.</p></button>
+    <h2 class="pbh">Wünsche für diese Probe</h2>
+    ${wl.length ? `<div class="gwliste">${wl.map(id => { const i = ITEMS.find(x => x.id === id), n = p.w[id], meine = p.meine.includes(id); return `<div class="gwrow"><div><button class="linkbtn" data-item="${esc(id)}" data-von="${esc(von)}">${esc(i.title)}</button><span class="meta">${n} ${n === 1 ? "Wunsch" : "Wünsche"}${meine ? " · auch von dir" : ""}</span></div>${leiter ? `<button class="btn" data-g-uebernehmen="${esc(id)}">In die Probe</button>` : ""}</div>`; }).join("")}</div>` : `<div class="empty">Noch keine Wünsche.</div>`}
+    <div class="row"><button class="btn red" data-g-wunsch="${esc(p.id)}">Übungen wünschen</button></div>
+    ${leiter ? `<div class="row"><button class="btn" data-g-edit="${esc(gid + "|" + p.id)}">Übungen ändern</button><button class="btn del" data-g-del="${esc(gid + "|" + p.id)}">Probe löschen</button></div>` : ""}
+    <div class="row"><button class="btn" data-g-aktual="${esc(gid)}">Aktualisieren</button></div>`;
   },
 
   probe() {
@@ -688,7 +761,7 @@ document.addEventListener("click", e => {
   if (d.shDo !== undefined) { teilenTun(d.shDo); return; }
   if (d.pdf !== undefined) { pdfDialog(); return; }
   if (d.probe !== undefined) { go("probe", { pid: d.probe }); return; }
-  if (d.probeBack !== undefined) { if (history.state && history.state.n > 0) history.back(); else go("probe", { pid: d.probeBack }); return; }
+  if (d.probeBack !== undefined) { if (history.state && history.state.n > 0) history.back(); else { const g = String(d.probeBack).split("|"); if (g[0] === "g") go("gprobe", { gid: g[1], pid: g[2] }); else go("probe", { pid: d.probeBack }); } return; }
   if (d.probeEdit !== undefined) {
     const p = probenLesen().find(x => x.id === d.probeEdit); if (!p) return;
     S.pb = { step: 1, sel: p.ids.filter(id => ITEMS.some(i => i.id === id)), name: p.name, edit: p.id, q: "" };
@@ -834,7 +907,7 @@ window.addEventListener("resize", suggHide);
 let ZULETZT_GEZAEHLT = null;
 function zaehlen() {
   if (S.view === "nichtda") return;
-  const pfad = pfadFuer().split("?")[0].replace(/^\/proben\/(?!neu\/)[^/]+\/$/, "/proben/probe/");
+  const pfad = pfadFuer().split("?")[0].replace(/^\/proben\/gruppe\/(?!neu\/)[^/]+\/(?:[^/]+\/)?$/, "/proben/gruppe/x/").replace(/^\/proben\/(?!neu\/|gruppe\/)[^/]+\/$/, "/proben/probe/");
   if (pfad === ZULETZT_GEZAEHLT) return;
   const art = ZULETZT_GEZAEHLT === null ? "besuch" : "aufruf";
   ZULETZT_GEZAEHLT = pfad;
@@ -904,6 +977,7 @@ function seiteInfo(s = S) {
     case "nutzung": titel = "Nutzungsbedingungen – " + N; beschr = "Nutzungsbedingungen für die Website impro-fundus.de."; break;
     case "proben": titel = "Meine Proben – " + N; beschr = "Stelle Übungen für deine nächste Impro-Probe zusammen und speichere sie."; robots = "noindex,follow"; break;
     case "probeNeu": titel = "Neue Probe zusammenstellen – " + N; beschr = "Wähle die Übungen für deine nächste Impro-Probe aus."; robots = "noindex,follow"; break;
+    case "gruppen": case "gruppeNeu": case "gruppe": case "gprobe": titel = "Impro-Gruppe – " + N; beschr = "Proben deiner Impro-Gruppe und Übungswünsche."; robots = "noindex,follow"; break;
     case "probe": titel = "Probe – " + N; beschr = "Die Übungen deiner Probe."; robots = "noindex,follow"; break;
     case "suche": titel = (s.q ? `Suche: ${s.q} – ` : "Suche – ") + N; beschr = "Suche im Impro-Fundus nach Improtheater-Übungen und Vorgaben."; robots = "noindex,follow"; break;
     default: titel = "Seite nicht gefunden – " + N; beschr = "Diese Seite gibt es nicht."; robots = "noindex,follow";
@@ -1058,10 +1132,21 @@ document.addEventListener("input", e => {
   if (e.target.id === "pbq") { S.pb.q = e.target.value; pbFiltern(); }
   else if (e.target.id === "pbname") S.pb.name = e.target.value;
 });
-function probeSpeichern() {
+async function probeSpeichern() {
   const b = S.pb, name = (($("#pbname") || {}).value || "").trim() || ("Probe am " + datumDe(heuteIso()));
   const l = probenLesen();
   const reihe = ITEMS.filter(i => b.sel.includes(i.id)).map(i => i.id);
+  if (b.gruppe) {
+    const e = gruppenLesen().find(x => x.id === b.gruppe), knopf = document.querySelector("[data-pb-speichern]"), fehler = $("#pbErr");
+    if (!e) { fehler.textContent = "Die Gruppe ist auf diesem Gerät nicht mehr gespeichert."; fehler.hidden = false; return; }
+    if (knopf) { knopf.disabled = true; knopf.textContent = "Speichere …"; }
+    fehler.hidden = true;
+    const r = await gApi("gruppeProbe", { code: e.code, gruppe: b.gruppe, id: b.edit || "", name, ids: reihe });
+    if (!r.ok) { fehler.textContent = r.msg || "Das hat nicht geklappt."; fehler.hidden = false; if (knopf) { knopf.disabled = false; knopf.textContent = "Speichern"; } return; }
+    gd()[b.gruppe] = r; S.pb = null;
+    go("gprobe", { gid: b.gruppe, pid: r.probeId }, true);
+    return;
+  }
   let id = b.edit;
   if (id && l.some(p => p.id === id)) l.forEach(p => { if (p.id === id) { p.name = name; p.ids = reihe; } });
   else { id = "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); l.push({ id, name, datum: heuteIso(), ids: reihe }); }
@@ -1069,6 +1154,163 @@ function probeSpeichern() {
   S.pb = null;
   go("probe", { pid: id }, true);
 }
+
+/* ===== Gruppen-Proben (auf dem Server gespeichert, Zugang über Codes) ===== */
+/* Zustand bewusst in Funktionen/window, damit schon der erste Aufruf funktioniert */
+function gd() { return (window.GD_ = window.GD_ || {}); }
+function gladen() { return (window.GL_ = window.GL_ || {}); }
+function gruppenLesen() {
+  try { const l = JSON.parse(localStorage.getItem("fundus-gruppen-v1") || "[]"); return Array.isArray(l) ? l.filter(g => g && g.id && g.code) : []; } catch (e) { return []; }
+}
+function gruppenSchreiben(l) { try { localStorage.setItem("fundus-gruppen-v1", JSON.stringify(l)); } catch (e) {} }
+function gruppeMerken(gr, code, extra) {
+  const l = gruppenLesen().filter(x => x.id !== gr.id), alt = gruppenLesen().find(x => x.id === gr.id) || {};
+  l.push(Object.assign({}, alt, { id: gr.id, name: gr.name, rolle: gr.rolle, code }, extra || {}));
+  gruppenSchreiben(l);
+}
+function geraetId() {
+  try {
+    let g = localStorage.getItem("fundus-geraet-v1");
+    if (!g) { g = Math.random().toString(36).slice(2, 12) + Date.now().toString(36); localStorage.setItem("fundus-geraet-v1", g); }
+    return g;
+  } catch (e) { return "ohnespeicher" + Math.random().toString(36).slice(2, 10); }
+}
+async function gApi(aktion, extra) {
+  try { return await apiPost(Object.assign({ action: aktion, geraet: geraetId() }, extra)); }
+  catch (e) { return { ok: false, msg: "Keine Verbindung zum Server. Bitte versuche es gleich noch einmal." }; }
+}
+function gLaden(gid, erzwingen) {
+  const e = gruppenLesen().find(x => x.id === gid), st = gladen();
+  if (!e || st[gid] === "laedt" || (!erzwingen && gd()[gid])) return;
+  st[gid] = "laedt";
+  gApi("gruppeLesen", { code: e.code, gruppe: gid }).then(r => {
+    if (r.ok) { gd()[gid] = r; delete st[gid]; gruppeMerken(r.gruppe, e.code); } else st[gid] = r.msg || "Das hat nicht geklappt.";
+    if ((S.view === "gruppe" || S.view === "gprobe") && S.gid === gid) { const y = window.scrollY; render(); window.scrollTo(0, y); }
+  });
+}
+function gWartenHTML(gid, e) {
+  const f = gladen()[gid];
+  if (f && f !== "laedt") return `<div class="pagehead"><h1>${esc(e.name)}</h1><p>${esc(f)}</p></div><div class="row"><button class="btn red" data-g-aktual="${esc(gid)}">Noch einmal versuchen</button><button class="btn del" data-g-vergessen="${esc(gid)}">Gruppe auf diesem Gerät entfernen</button></div>`;
+  return `<div class="pagehead"><h1>${esc(e.name)}</h1><p>Lade die Proben …</p></div>`;
+}
+function gCodeFormHTML(gid) {
+  return `<form id="gform" data-gid="${esc(gid || "")}" novalidate autocomplete="off">
+    <div class="field"><label for="gcode">Zugangscode</label><input id="gcode" maxlength="20" autocapitalize="off" autocorrect="off" autocomplete="off" inputmode="text"></div>
+    <p class="err" id="gerr" hidden></p>
+    <button class="btn red block" type="submit">Öffnen</button>
+  </form>`;
+}
+/* Wenn eine Übung aus einer Probe geöffnet wurde: Krümelpfad für oben */
+function vonInfo() {
+  if (!S.von) return null;
+  const g = String(S.von).split("|");
+  if (g[0] === "g") {
+    const d = gd()[g[1]], p = d && d.proben.find(x => x.id === g[2]);
+    return { krume: `<button data-go="gruppen">Impro-Gruppe</button><span>›</span><button data-gruppe="${esc(g[1])}">${esc(d ? d.gruppe.name : "Gruppe")}</button><span>›</span><button data-gprobe="${esc(g[1] + "|" + g[2])}">${esc(p ? p.name : "Probe")}</button>` };
+  }
+  const pr = probenLesen().find(x => x.id === S.von);
+  return pr ? { krume: `<button data-go="proben">Meine Proben</button><span>›</span><button data-probe="${esc(pr.id)}">${esc(pr.name)}</button>` } : null;
+}
+function gwHTML() {
+  const w = window.GW_, d = gd()[w.gid], p = d && d.proben.find(x => x.id === w.pid);
+  if (!p) return `<h2>Übungen wünschen</h2><p>Diese Probe gibt es nicht mehr.</p><div class="row"><button class="btn" data-dlg-close>Schließen</button></div>`;
+  const inP = new Set(p.ids), sel = new Set(w.sel);
+  const gr = CATS.map(c => {
+    const l = ITEMS.filter(i => i.cat === c.id && !i.draft && !inP.has(i.id));
+    if (!l.length) return "";
+    const n = l.filter(i => sel.has(i.id)).length;
+    return `<details class="pbgrp"${n ? " open" : ""}><summary>${esc(c.name)}</summary>${l.map(i => `<label class="pbrow"><input type="checkbox" data-gw="${esc(i.id)}"${sel.has(i.id) ? " checked" : ""}> <span>${esc(i.title)}</span></label>`).join("")}</details>`;
+  }).join("");
+  return `<h2>Übungen wünschen</h2><p class="meta">Was möchtest du in der Probe „${esc(p.name)}“ spielen? Du kannst bis zu 15 Übungen wünschen.</p>
+    <div class="gwlist">${gr}</div><p class="err" id="gwErr" hidden></p>
+    <div class="row"><button class="btn red" data-g-wsenden="1">Wünsche speichern</button><button class="btn" data-dlg-close>Abbrechen</button></div>`;
+}
+async function gCodeSenden(gid, code, fehlerEl, knopf) {
+  code = String(code || "").trim();
+  if (code.length < 4) { fehlerEl.textContent = "Bitte gib deinen Zugangscode ein."; fehlerEl.hidden = false; return; }
+  fehlerEl.hidden = true; if (knopf) knopf.disabled = true;
+  const r = await gApi("gruppeLesen", { code, gruppe: gid || "" });
+  if (knopf) knopf.disabled = false;
+  if (!r.ok) { fehlerEl.textContent = r.msg || "Das hat nicht geklappt."; fehlerEl.hidden = false; return; }
+  gruppeMerken(r.gruppe, code); gd()[r.gruppe.id] = r; delete gladen()[r.gruppe.id];
+  if (gid && S.view === "gprobe") { render(); return; }
+  go("gruppe", { gid: r.gruppe.id });
+}
+document.addEventListener("submit", async e => {
+  const f = e.target;
+  if (f.id === "gform") { e.preventDefault(); await gCodeSenden(f.dataset.gid, $("#gcode").value, $("#gerr"), f.querySelector("button")); }
+  else if (f.id === "gnform") {
+    e.preventDefault();
+    const err = $("#gn-err"), knopf = f.querySelector("button"), name = $("#gn-name").value.trim(), lc = $("#gn-lc").value.trim(), gc = $("#gn-gc").value.trim();
+    const zeig = t => { err.textContent = t; err.hidden = false; };
+    if (name.length < 2) return zeig("Bitte gib der Gruppe einen Namen.");
+    if (lc.length < 4 || gc.length < 4) return zeig("Beide Codes brauchen mindestens 4 Zeichen.");
+    if (lc.toLowerCase() === gc.toLowerCase()) return zeig("Leiter-Code und Gruppen-Code müssen verschieden sein.");
+    err.hidden = true; knopf.disabled = true; knopf.textContent = "Lege an …";
+    const r = await gApi("gruppeNeu", { name, leiterCode: lc, gruppenCode: gc });
+    if (!r.ok) { knopf.disabled = false; knopf.textContent = "Gruppe anlegen"; return zeig(r.msg || "Das hat nicht geklappt."); }
+    gruppeMerken(r.gruppe, lc, { gruppenCode: gc }); gd()[r.gruppe.id] = r;
+    go("gruppe", { gid: r.gruppe.id });
+  }
+});
+document.addEventListener("change", e => {
+  const el = e.target;
+  if (!el.dataset || el.dataset.gw === undefined || !window.GW_) return;
+  const s = new Set(window.GW_.sel);
+  if (el.checked) { if (s.size >= 15) { el.checked = false; const f = $("#gwErr"); if (f) { f.textContent = "Du kannst bis zu 15 Übungen wünschen."; f.hidden = false; } return; } s.add(el.dataset.gw); } else s.delete(el.dataset.gw);
+  window.GW_.sel = [...s];
+  const f = $("#gwErr"); if (f) f.hidden = true;
+});
+async function gKlick(d, knopf) {
+  const gp = v => String(v).split("|");
+  if (d.gGruppe !== undefined) return false;
+  if (d.gNeu !== undefined) { S.pb = { step: 1, sel: [], name: "", edit: null, q: "", gruppe: d.gNeu }; go("probeNeu"); return true; }
+  if (d.gEdit !== undefined) {
+    const [gid, pid] = gp(d.gEdit), p = (gd()[gid] || { proben: [] }).proben.find(x => x.id === pid); if (!p) return true;
+    S.pb = { step: 1, sel: p.ids.filter(id => ITEMS.some(i => i.id === id)), name: p.name, edit: p.id, q: "", gruppe: gid }; go("probeNeu"); return true;
+  }
+  if (d.gDel !== undefined) {
+    const [gid, pid] = gp(d.gDel), e = gruppenLesen().find(x => x.id === gid), p = (gd()[gid] || { proben: [] }).proben.find(x => x.id === pid); if (!e || !p) return true;
+    if (!confirm("Die Probe „" + p.name + "“ für die ganze Gruppe löschen?")) return true;
+    knopf.disabled = true;
+    const r = await gApi("gruppeProbeLoeschen", { code: e.code, gruppe: gid, id: pid });
+    if (!r.ok) { knopf.disabled = false; alert(r.msg || "Das hat nicht geklappt."); return true; }
+    gd()[gid] = r; go("gruppe", { gid }, true); return true;
+  }
+  if (d.gAktual !== undefined) { delete gd()[d.gAktual]; delete gladen()[d.gAktual]; render(); gLaden(d.gAktual, true); return true; }
+  if (d.gVergessen !== undefined) {
+    const e = gruppenLesen().find(x => x.id === d.gVergessen); if (!e) return true;
+    if (!confirm("Die Gruppe „" + e.name + "“ von diesem Gerät entfernen? Mit dem Zugangscode kannst du sie später wieder öffnen.")) return true;
+    gruppenSchreiben(gruppenLesen().filter(x => x.id !== e.id)); delete gd()[e.id]; go("gruppen", {}, true); return true;
+  }
+  if (d.gWunsch !== undefined) {
+    const dd = gd()[S.gid], p = dd && dd.proben.find(x => x.id === d.gWunsch); if (!p) return true;
+    window.GW_ = { gid: S.gid, pid: p.id, sel: p.meine.filter(id => !p.ids.includes(id)) };
+    openDlg(gwHTML()); return true;
+  }
+  if (d.gWsenden !== undefined) {
+    const w = window.GW_, e = w && gruppenLesen().find(x => x.id === w.gid); if (!e) return true;
+    knopf.disabled = true; knopf.textContent = "Speichere …";
+    const r = await gApi("gruppeWuensche", { code: e.code, gruppe: w.gid, probe: w.pid, uebungen: w.sel });
+    if (!r.ok) { knopf.disabled = false; knopf.textContent = "Wünsche speichern"; const f = $("#gwErr"); if (f) { f.textContent = r.msg || "Das hat nicht geklappt."; f.hidden = false; } return true; }
+    gd()[w.gid] = r; window.GW_ = null; closeDlg(); render(); return true;
+  }
+  if (d.gUebernehmen !== undefined) {
+    const e = gruppenLesen().find(x => x.id === S.gid), dd = gd()[S.gid], p = dd && dd.proben.find(x => x.id === S.pid); if (!e || !p) return true;
+    knopf.disabled = true;
+    const r = await gApi("gruppeProbe", { code: e.code, gruppe: S.gid, id: p.id, name: p.name, ids: p.ids.concat([d.gUebernehmen]) });
+    if (!r.ok) { knopf.disabled = false; alert(r.msg || "Das hat nicht geklappt."); return true; }
+    gd()[S.gid] = r; render(); return true;
+  }
+  return false;
+}
+document.addEventListener("click", e => {
+  const k = e.target.closest("button"); if (!k || !k.dataset) return;
+  const d = k.dataset;
+  if (d.gruppe !== undefined) { e.preventDefault(); go("gruppe", { gid: d.gruppe }); return; }
+  if (d.gprobe !== undefined) { e.preventDefault(); const g = String(d.gprobe).split("|"); go("gprobe", { gid: g[0], pid: g[1] }); return; }
+  if (["gNeu", "gEdit", "gDel", "gAktual", "gVergessen", "gWunsch", "gWsenden", "gUebernehmen"].some(x => d[x] !== undefined)) { e.preventDefault(); gKlick(d, k); }
+});
 
 /* ===== Eine Übung teilen: als Link oder als ganzer Text (wie in der Spielliste) ===== */
 const TEILEN = { id: null, art: "link" };

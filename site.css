@@ -544,3 +544,12 @@ html body .pbsum li{color:var(--fg)!important;text-decoration:none!important;fon
   html body.probemodus.diceopen .dbubble{z-index:61}
   html body.probemodus main{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
 }
+
+/* Gruppen-Proben */
+.gwliste{display:flex;flex-direction:column;gap:8px;margin:0 0 16px}
+.gwrow{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.gwrow>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.gwrow .linkbtn{text-align:left;font-weight:700}
+.gwrow .btn{flex:none;padding:8px 12px;font-size:15px}
+.gwlist{margin:0 0 14px}
+html body .gwrow .linkbtn{font-size:18px!important}
