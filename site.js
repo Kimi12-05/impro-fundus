@@ -330,6 +330,7 @@ const V = {
     <article class="detail"><div class="pagehead"><span><span class="pill red">${esc(c.name)}</span></span><h1>${esc(i.title)}</h1></div>
     <div class="facts"><div class="fact"><span>Dauer</span><strong>${esc(i.dauer || "–")}</strong></div><div class="fact"><span>Niveau</span><strong>${esc(i.level || "–")}</strong></div></div>
     ${i.eig.length ? `<div class="taglist">${i.eig.map(e => `<span>${esc(e)}</span>`).join("")}</div>` : ""}
+    ${timerOK(i) ? timerHTML() : ""}
     <div class="row sharerow"><button class="btn" data-share="${esc(i.id)}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg> Teilen</button></div>
     ${i.ab ? `<section class="prose"><h2>So geht's</h2>${prose(i.ab)}</section>` : `<div class="tip"><strong>Hier fehlt noch eine Beschreibung.</strong> Du kennst das Spiel? <button class="linkbtn" data-go="einreichen">Beschreibung einreichen</button></div>`}
     </article>
@@ -1429,6 +1430,50 @@ document.addEventListener("click", e => {
   if (d.gruppe !== undefined) { e.preventDefault(); go("gruppe", { gid: d.gruppe }); return; }
   if (d.gprobe !== undefined) { e.preventDefault(); const g = String(d.gprobe).split("|"); go("gprobe", { gid: g[0], pid: g[1] }); return; }
   if (["gNeu", "gEdit", "gDel", "gAktual", "gVergessen", "gWunsch", "gWsenden", "gUebernehmen", "gAnw", "gName", "gAnwFuer", "gAblehnen", "gTdel", "gOrd", "gUp", "gDown", "gOrdabbr", "gOrdfertig"].some(x => d[x] !== undefined)) { e.preventDefault(); gKlick(d, k); }
+});
+
+/* ===== Timer für „Tod in einer Minute“ ===== */
+function timerOK(i) { return /^Tod in einer Minute/i.test(i.title || ""); }
+function timerHTML() {
+  return `<section class="timer" aria-label="Timer"><div class="tmzeit" id="tmzeit" role="timer" aria-live="off">Bereit</div>
+    <div class="tmbtns">${[60, 30, 15, 10, 5, 1].map(n => `<button class="btn" data-timer="${n}">${n} s</button>`).join("")}</div>
+    <button class="btn del tmstop" data-timer-stop="1" hidden>Stopp</button></section>`;
+}
+function timerPiep() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    const c = window.TM_.ac = window.TM_.ac || new AC(), t = c.currentTime;
+    [0, 0.35, 0.7].forEach((d, k) => { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = k === 2 ? 880 : 660; g.gain.setValueAtTime(0.25, t + d); g.gain.exponentialRampToValueAtTime(0.001, t + d + 0.25); o.connect(g); g.connect(c.destination); o.start(t + d); o.stop(t + d + 0.28); });
+  } catch (e) {}
+  try { if (navigator.vibrate) navigator.vibrate([300, 100, 300, 100, 600]); } catch (e) {}
+}
+function timerStopp(text) {
+  const t = window.TM_ || {}; if (t.iv) clearInterval(t.iv); t.iv = null; t.ende = 0;
+  const z = $("#tmzeit"), b = document.querySelector(".tmstop");
+  if (z) { z.textContent = text || "Bereit"; z.classList.remove("laeuft", "aus"); if (text === "Zeit ist um!") z.classList.add("aus"); }
+  if (b) b.hidden = true;
+}
+function timerTick() {
+  const t = window.TM_, z = $("#tmzeit");
+  if (!t || !z) { if (t && t.iv) clearInterval(t.iv); return; }
+  const rest = Math.ceil((t.ende - Date.now()) / 1000);
+  if (rest <= 0) { timerStopp("Zeit ist um!"); timerPiep(); return; }
+  z.textContent = rest + " s";
+}
+function timerStart(n) {
+  window.TM_ = window.TM_ || {}; const t = window.TM_;
+  try { const AC = window.AudioContext || window.webkitAudioContext; if (AC && !t.ac) t.ac = new AC(); if (t.ac && t.ac.state === "suspended") t.ac.resume(); } catch (e) {}
+  if (t.iv) clearInterval(t.iv);
+  t.ende = Date.now() + n * 1000; t.iv = setInterval(timerTick, 200);
+  const z = $("#tmzeit"), b = document.querySelector(".tmstop");
+  if (z) { z.classList.remove("aus"); z.classList.add("laeuft"); }
+  if (b) b.hidden = false;
+  timerTick();
+}
+document.addEventListener("click", e => {
+  const k = e.target.closest("button"); if (!k || !k.dataset) return;
+  if (k.dataset.timer) { e.preventDefault(); timerStart(+k.dataset.timer); }
+  else if (k.dataset.timerStop) { e.preventDefault(); timerStopp("Bereit"); }
 });
 
 /* ===== Eine Übung teilen: als Link oder als ganzer Text (wie in der Spielliste) ===== */

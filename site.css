@@ -570,3 +570,14 @@ html body .gwrow .linkbtn{font-size:18px!important}
 select{font:inherit;font-size:16px;color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
 html body .gwrow b{color:var(--fg)!important;text-decoration:none!important}
 @media (max-width:899px){html body.probemodus.gordnung .dbubble{display:none!important}}
+
+/* Timer */
+.timer{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:0 0 18px;text-align:center}
+.tmzeit{font-size:64px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--fg);margin:0 0 12px}
+.tmzeit.laeuft{color:var(--red,#B02E28)}
+.tmzeit.aus{color:var(--red,#B02E28);animation:tmblink .6s steps(2) 6}
+@keyframes tmblink{50%{opacity:.25}}
+.tmbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tmbtns .btn{padding:12px 8px;font-size:18px}
+.tmstop{margin-top:10px;width:100%}
+@media (prefers-reduced-motion:reduce){.tmzeit.aus{animation:none}}
