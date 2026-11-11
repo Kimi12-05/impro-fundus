@@ -605,13 +605,14 @@ function sideHTML() {
 
 function topnavHTML() {
   const act = v => (S.view === v ? "on" : "");
-  const ueAct = ["kats", "kat", "item"].includes(S.view) ? "on" : "";
+  const ueAct = ["kats", "kat", "item"].includes(S.view) && !S.von ? "on" : "";
+  const probenAkt = ["proben", "probeNeu", "probe", "gruppen", "gruppeNeu", "gruppe", "gprobe"].includes(S.view) || (S.view === "item" && !!S.von);
   const ue = CATS.map(c => `<button data-cat="${esc(c.id)}">${esc(c.name)}</button>`).join("");
   const vo = Object.keys(VORG).map(k => `<button data-v="${esc(k)}">${esc(k)}</button>`).join("");
   return `<button class="${act("start")}" data-go="start">Start</button><div class="dd"><button class="${ueAct}" data-go="kats">Übungen ▾</button><div class="ddmenu">${ue}</div></div>`
     + `<div class="dd"><button class="${act("vorgaben")}" data-go="vorgaben">Vorgaben ▾</button><div class="ddmenu">${vo}</div></div>`
     + `<button class="${act("kontakt")}" data-go="kontakt">Kontakt</button>`
-    + `<button class="${act("einreichen")}" data-go="einreichen">Eigene Idee einreichen</button>`;
+    + `<button class="${probenAkt ? "on" : ""}" data-go="proben">Eigene Probe zusammenstellen</button>`;
 }
 
 const ZITATE = [
