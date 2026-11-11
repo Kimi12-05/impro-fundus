@@ -530,7 +530,6 @@ a.card,a.tile,a.vgtile{display:block;box-sizing:border-box}
 .pbrow2{margin-top:8px}
 .pgrid .vgtile{display:flex;flex-direction:column;gap:4px;justify-content:center;align-items:center;text-align:center}
 .pgrid .vgtile h3{font-size:20px}
-.pbvorg{margin:16px 0}
 .tgrid.pgrid .vgtile{min-height:92px;padding:12px 10px}
 .tgrid.pgrid .vgtile h3{font-size:19px;line-height:1.15;hyphens:auto;overflow-wrap:anywhere}
 html body .pgrid .vgtile h3{font-size:19px!important;line-height:1.15!important;hyphens:auto;overflow-wrap:anywhere}

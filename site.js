@@ -236,6 +236,14 @@ function bottomHTML() {
     + (inProbe() ? "" : `<button data-dicedlg class="${S.diceOpen ? "on" : ""}" aria-label="Szenenwürfel" aria-expanded="${!!S.diceOpen}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg>Würfel</button>`);
 }
 
+// Alles unter /proben/ lässt sich als eigene App auf den Homescreen legen (eigenes Symbol, startet direkt bei den Proben)
+function appKopf() {
+  const probe = location.pathname.startsWith("/proben/");
+  const m = document.querySelector('link[rel="manifest"]'), a = document.querySelector('link[rel="apple-touch-icon"]'), t = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+  if (m) m.setAttribute("href", probe ? "/proben.webmanifest" : "/fundus.webmanifest");
+  if (a) a.setAttribute("href", probe ? "/proben-icon-180.png" : "/apple-touch-icon.png");
+  if (t) t.setAttribute("content", probe ? "Proben" : "Impro-Fundus");
+}
 // Sind wir gerade in einer eigenen Probe? (Probenseite oder eine Übung, die von dort geöffnet wurde)
 function inProbe() {
   return S.view === "probe" || S.view === "gprobe" || (S.view === "item" && !!S.von);
@@ -430,7 +438,6 @@ const V = {
     return `<div class="crumb"><button data-go="gruppen">Impro-Gruppe</button><span>›</span><button data-gruppe="${esc(gid)}">${esc(d.gruppe.name)}</button><span>›</span><span>${esc(p.name)}</span></div>
     <div class="pagehead"><h1>${esc(p.name)}</h1><p>${esc(datumDe(p.datum))} · ${l.length} ${l.length === 1 ? "Übung" : "Übungen"}</p></div>
     <div class="grid tgrid pgrid">${l.map(i => { const c = catOf(i.cat), n = p.w[i.id]; return `<button class="vgtile" data-item="${esc(i.id)}" data-von="${esc(von)}"><h3>${esc(i.title)}</h3>${c ? `<span class="meta">${esc(c.name)}</span>` : ""}</button>`; }).join("")}</div>
-    <button class="tile pbvorg" data-go="vorgaben"><h3>Vorgaben</h3><p>Orte, Gefühle, Berufe und mehr. Alle sind immer dabei.</p></button>
     <h2 class="pbh">Wünsche für diese Probe</h2>
     ${wl.length ? `<div class="gwliste">${wl.map(id => { const i = ITEMS.find(x => x.id === id), n = p.w[id], meine = p.meine.includes(id); return `<div class="gwrow"><div><button class="linkbtn" data-item="${esc(id)}" data-von="${esc(von)}">${esc(i.title)}</button><span class="meta">${n} ${n === 1 ? "Wunsch" : "Wünsche"}${meine ? " · auch von dir" : ""}</span></div>${leiter ? `<button class="btn" data-g-uebernehmen="${esc(id)}">In die Probe</button>` : ""}</div>`; }).join("")}</div>` : `<div class="empty">Noch keine Wünsche.</div>`}
     <div class="row"><button class="btn red" data-g-wunsch="${esc(p.id)}">Übungen wünschen</button></div>
@@ -445,7 +452,6 @@ const V = {
     return `<div class="crumb"><button data-go="proben">Meine Proben</button><span>›</span><span>${esc(p.name)}</span></div>
     <div class="pagehead"><h1>${esc(p.name)}</h1><p>${esc(datumDe(p.datum))} · ${l.length} ${l.length === 1 ? "Übung" : "Übungen"}</p></div>
     <div class="grid tgrid pgrid">${l.map(i => { const c = catOf(i.cat); return `<button class="vgtile" data-item="${esc(i.id)}" data-von="${esc(p.id)}"><h3>${esc(i.title)}</h3>${c ? `<span class="meta">${esc(c.name)}</span>` : ""}</button>`; }).join("")}</div>
-    <button class="tile pbvorg" data-go="vorgaben"><h3>Vorgaben</h3><p>Orte, Gefühle, Berufe und mehr. Alle sind immer dabei.</p></button>
     <div class="row"><button class="btn" data-probe-edit="${esc(p.id)}">Übungen ändern</button><button class="btn del" data-probe-del="${esc(p.id)}">Probe löschen</button></div>`;
   },
 
@@ -678,6 +684,7 @@ function render() {
   if (S.diceOpen && !$("#dlg").hidden) $("#dlgBox").innerHTML = dicePop();
   document.body.classList.toggle("diceopen", !!S.diceOpen);
   document.body.classList.toggle("probemodus", inProbe());
+  appKopf();
   kopfHoehe();
   if (S.view === "einreichen" && !S.sent) bindForm();
   seiteAktualisieren();
