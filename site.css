@@ -536,3 +536,11 @@ a.card,a.tile,a.vgtile{display:block;box-sizing:border-box}
 html body .pgrid .vgtile h3{font-size:19px!important;line-height:1.15!important;hyphens:auto;overflow-wrap:anywhere}
 html body .pgrid .vgtile .meta{font-size:14px!important}
 html body .pbsum li{color:var(--fg)!important;text-decoration:none!important;font-weight:400!important;font-family:inherit!important}
+
+/* Eigene Probe (Handy): unten rechts steht „Vorgaben“, der Szenenwürfel schwebt als kleine Bubble darüber */
+@media (max-width:899px){
+  html body.probemodus .dbubble{display:grid!important;width:48px;height:48px;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(var(--barb) + 12px + env(safe-area-inset-bottom,0px));z-index:24}
+  html body.probemodus .dbubble svg{width:24px;height:24px}
+  html body.probemodus.diceopen .dbubble{z-index:61}
+  html body.probemodus main{padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+}

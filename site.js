@@ -115,20 +115,21 @@ function nachDatenAnwenden() {
   if (!WARTET) return;
   const w = WARTET; WARTET = null;
   pfadAnwenden(w.p, w.q);
+  if (S.view === "item" && w.v) S.von = w.v;
   try {
     const kanon = pfadFuer();
     if (S.view !== "nichtda" && location.pathname + (S.view === "suche" ? location.search : "") !== kanon) history.replaceState(history.state, "", kanon);
   } catch (e) {}
 }
 function go(view, o = {}, ersetzen = false) {
-  const vorher = pfadFuer();
+  const vorher = pfadFuer(), vonVorher = S.von;
   Object.assign(S, { view, cat: null, id: null, pid: null, von: null, vcat: view === "vorgaben" ? null : S.vcat }, o);
   const neu = pfadFuer();
   if (neu !== vorher) {
     try {
       const n = (history.state && history.state.n) || 0;
-      if (ersetzen || (vorher.startsWith("/suche/") && neu.startsWith("/suche/"))) history.replaceState({ n }, "", neu);
-      else { history.replaceState({ n, y: window.scrollY }, ""); history.pushState({ n: n + 1 }, "", neu); }
+      if (ersetzen || (vorher.startsWith("/suche/") && neu.startsWith("/suche/"))) history.replaceState({ n, v: S.von }, "", neu);
+      else { history.replaceState({ n, y: window.scrollY, v: vonVorher }, ""); history.pushState({ n: n + 1, v: S.von }, "", neu); }
     } catch (e) {}
   }
   if (view !== "einreichen") S.sent = false;
@@ -145,11 +146,15 @@ window.addEventListener("popstate", e => {
   S.sent = false;
   if (S.diceOpen || !$("#dlg").hidden) closeDlg();
   closeDrawer();
-  if (!pfadAnwenden(location.pathname, location.search)) WARTET = { p: location.pathname, q: location.search };
+  const vv = (e.state && e.state.v) || null;
+  if (!pfadAnwenden(location.pathname, location.search)) WARTET = { p: location.pathname, q: location.search, v: vv };
+  else if (S.view === "item" && vv) S.von = vv;
   render(); window.scrollTo(0, (e.state && e.state.y) || 0);
 });
-try { history.scrollRestoration = "manual"; history.replaceState({ n: (history.state && history.state.n) || 0 }, ""); } catch (e) {}
-if (!pfadAnwenden(location.pathname, location.search)) WARTET = { p: location.pathname, q: location.search };
+const startVon = (history.state && history.state.v) || null;
+try { history.scrollRestoration = "manual"; history.replaceState({ n: (history.state && history.state.n) || 0, v: startVon }, ""); } catch (e) {}
+if (!pfadAnwenden(location.pathname, location.search)) WARTET = { p: location.pathname, q: location.search, v: startVon };
+else if (S.view === "item" && startVon) S.von = startVon;
 function kopfHoehe() {
   const k = $(".topwrap");
   if (k) document.documentElement.style.setProperty("--hm", k.offsetHeight + "px");
@@ -217,7 +222,13 @@ function bottomHTML() {
   const ic = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
   return `<button data-back aria-label="Zurück">${ic('<path d="M15 5l-7 7 7 7"/>')}Zurück</button>`
     + `<button data-go="start" class="${S.view === "start" ? "on" : ""}" aria-label="Startseite">${ic(ICONS.start)}Start</button>`
-    + `<button data-dicedlg class="${S.diceOpen ? "on" : ""}" aria-label="Szenenwürfel" aria-expanded="${!!S.diceOpen}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg>Würfel</button>`;
+    + (inProbe() ? `<button data-go="vorgaben" aria-label="Vorgaben">${ic('<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.2" fill="currentColor" stroke="none"/>')}Vorgaben</button>` : "")
+    + (inProbe() ? "" : `<button data-dicedlg class="${S.diceOpen ? "on" : ""}" aria-label="Szenenwürfel" aria-expanded="${!!S.diceOpen}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg>Würfel</button>`);
+}
+
+// Sind wir gerade in einer eigenen Probe? (Probenseite oder eine Übung, die von dort geöffnet wurde)
+function inProbe() {
+  return S.view === "probe" || (S.view === "item" && !!S.von);
 }
 
 const card = (i, ohneKat) => `<button class="card" data-item="${esc(i.id)}">${(ohneKat && !i.dauer) ? "" : `<span class="eyebrow">${ohneKat ? esc(i.dauer) : esc(katLabel(i.cat)) + (i.dauer ? " · " + esc(i.dauer) : "")}</span>`}<h3>${esc(i.title)}${i.draft ? '<span class="pill todo">Entwurf</span>' : ""}${!i.ab ? '<span class="pill todo">folgt</span>' : ""}</h3><p>${esc(shortOf(i))}</p><span class="meta">${i.level ? `<span>${esc(i.level)}</span>` : ""}</span></button>`;
@@ -593,6 +604,7 @@ function render() {
   if (S.view !== "start") document.body.insertAdjacentHTML("beforeend", `<button class="dbubble${S.diceOpen ? " on" : ""}" data-dicedlg aria-label="${S.diceOpen ? "Szenenwürfel schließen" : "Szenenwürfel öffnen"}" aria-expanded="${!!S.diceOpen}" title="Szenenwürfel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.5" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.5" fill="currentColor" stroke="none"/></svg></button>`);
   if (S.diceOpen && !$("#dlg").hidden) $("#dlgBox").innerHTML = dicePop();
   document.body.classList.toggle("diceopen", !!S.diceOpen);
+  document.body.classList.toggle("probemodus", inProbe());
   kopfHoehe();
   if (S.view === "einreichen" && !S.sent) bindForm();
   seiteAktualisieren();
