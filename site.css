@@ -552,3 +552,6 @@ html body .pbsum li{color:var(--fg)!important;text-decoration:none!important;fon
 .gwrow .btn{flex:none;padding:8px 12px;font-size:15px}
 .gwlist{margin:0 0 14px}
 html body .gwrow .linkbtn{font-size:18px!important}
+.anwrow{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 10px}
+.anwrow .btn{flex:1 1 140px}
+.anwlist{margin:0 0 16px;line-height:1.6}

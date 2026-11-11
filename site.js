@@ -401,6 +401,7 @@ const V = {
     <div class="pagehead"><h1>Neue Gruppe anlegen</h1><p>Wähle zwei Zugangscodes. Mit dem <b>Leiter-Code</b> legst du Proben an und änderst sie. Mit dem <b>Gruppen-Code</b> sehen deine Leute die Proben und wünschen sich Übungen.</p></div>
     <form id="gnform" novalidate autocomplete="off">
       <div class="field"><label for="gn-name">Name der Gruppe</label><input id="gn-name" maxlength="40" placeholder="z. B. Impro Aachen"></div>
+      <div class="field"><label for="gn-vn">Dein Vorname</label><input id="gn-vn" maxlength="30" autocomplete="given-name" value="${esc(vornameLesen())}"></div>
       <div class="field"><label for="gn-lc">Leiter-Code (nur für dich, 4 bis 20 Zeichen)</label><input id="gn-lc" maxlength="20" autocapitalize="off" autocorrect="off"></div>
       <div class="field"><label for="gn-gc">Gruppen-Code (für deine Leute, 4 bis 20 Zeichen)</label><input id="gn-gc" maxlength="20" autocapitalize="off" autocorrect="off"></div>
       <p class="note">Wähle keinen Code wie 1234, den andere leicht erraten. Die Codes werden nur verschlüsselt gespeichert und lassen sich später nicht mehr anzeigen. Merke sie dir gut.</p>
@@ -412,6 +413,7 @@ const V = {
   gruppe() {
     const gid = S.gid, e = gruppenLesen().find(x => x.id === gid);
     if (!e) return `<div class="pagehead"><h1>Impro-Gruppe</h1><p>Gib den Zugangscode ein, um die Proben dieser Gruppe zu sehen.</p></div>${gCodeFormHTML(gid)}`;
+    if (!e.vorname) return gNameFormHTML(gid, e);
     gLaden(gid);
     const d = gd()[gid];
     if (!d) return gWartenHTML(gid, e);
@@ -420,26 +422,31 @@ const V = {
     <div class="pagehead"><h1>${esc(d.gruppe.name)}</h1><p>${leiter ? "Du leitest diese Gruppe." : "Du bist Mitglied dieser Gruppe."}</p></div>
     ${leiter ? `<button class="tile pbneu" data-g-neu="${esc(gid)}"><h3>Neue Probe zusammenstellen</h3><p>Alle in der Gruppe sehen sie</p></button>` : ""}
     <h2 class="pbh">Proben</h2>
-    ${l.length ? `<div class="pblist">${l.map(p => { const w = Object.keys(p.w).filter(id => !p.ids.includes(id) && ITEMS.some(i => i.id === id)).length; return `<button class="tile" data-gprobe="${esc(gid + "|" + p.id)}"><h3>${esc(p.name)}</h3><p>${esc(datumDe(p.datum))} · ${p.ids.filter(id => ITEMS.some(i => i.id === id)).length} Übungen${w ? " · " + w + (w === 1 ? " Wunsch" : " Wünsche") : ""}</p></button>`; }).join("")}</div>` : `<div class="empty">${leiter ? "Noch keine Probe angelegt." : "Die Leitung hat noch keine Probe angelegt."}</div>`}
+    ${l.length ? `<div class="pblist">${l.map(p => { const w = Object.keys(p.wn).filter(id => !p.ids.includes(id) && ITEMS.some(i => i.id === id)).length; return `<button class="tile" data-gprobe="${esc(gid + "|" + p.id)}"><h3>${esc(p.name)}</h3><p>${esc(datumDe(p.datum))} · ${p.ids.filter(id => ITEMS.some(i => i.id === id)).length} Übungen${w ? " · " + w + (w === 1 ? " Wunsch" : " Wünsche") : ""}${p.anw.ja.length ? " · " + p.anw.ja.length + " dabei" : ""}</p></button>`; }).join("")}</div>` : `<div class="empty">${leiter ? "Noch keine Probe angelegt." : "Die Leitung hat noch keine Probe angelegt."}</div>`}
     ${leiter && e.gruppenCode ? `<p class="note">Gruppen-Code für deine Leute: <b>${esc(e.gruppenCode)}</b></p>` : ""}
-    <div class="row"><button class="btn" data-g-aktual="${esc(gid)}">Aktualisieren</button><button class="btn del" data-g-vergessen="${esc(gid)}">Gruppe auf diesem Gerät entfernen</button></div>`;
+    <div class="row"><button class="btn" data-g-aktual="${esc(gid)}">Aktualisieren</button><button class="btn" data-g-name="${esc(gid)}">Name ändern (${esc(e.vorname)})</button><button class="btn del" data-g-vergessen="${esc(gid)}">Gruppe auf diesem Gerät entfernen</button></div>`;
   },
 
   gprobe() {
     const gid = S.gid, e = gruppenLesen().find(x => x.id === gid);
     if (!e) return `<div class="pagehead"><h1>Impro-Gruppe</h1><p>Gib den Zugangscode ein, um diese Probe zu sehen.</p></div>${gCodeFormHTML(gid)}`;
+    if (!e.vorname) return gNameFormHTML(gid, e);
     gLaden(gid);
     const d = gd()[gid];
     if (!d) return gWartenHTML(gid, e);
     const p = d.proben.find(x => x.id === S.pid), leiter = d.gruppe.rolle === "leiter";
     if (!p) return `<div class="pagehead"><h1>Diese Probe gibt es nicht mehr</h1></div><div class="row"><button class="btn red" data-gruppe="${esc(gid)}">Zur Gruppe</button></div>`;
     const von = "g|" + gid + "|" + p.id, l = p.ids.map(id => ITEMS.find(i => i.id === id)).filter(Boolean);
-    const wl = Object.keys(p.w).filter(id => !p.ids.includes(id) && ITEMS.some(i => i.id === id)).sort((a, b) => p.w[b] - p.w[a]);
+    const wl = Object.keys(p.wn).filter(id => !p.ids.includes(id) && ITEMS.some(i => i.id === id)).sort((a, b) => p.wn[b].length - p.wn[a].length);
+    const namen = l => l.length ? l.map(esc).join(", ") : "–";
     return `<div class="crumb"><button data-go="gruppen">Impro-Gruppe</button><span>›</span><button data-gruppe="${esc(gid)}">${esc(d.gruppe.name)}</button><span>›</span><span>${esc(p.name)}</span></div>
     <div class="pagehead"><h1>${esc(p.name)}</h1><p>${esc(datumDe(p.datum))} · ${l.length} ${l.length === 1 ? "Übung" : "Übungen"}</p></div>
-    <div class="grid tgrid pgrid">${l.map(i => { const c = catOf(i.cat), n = p.w[i.id]; return `<button class="vgtile" data-item="${esc(i.id)}" data-von="${esc(von)}"><h3>${esc(i.title)}</h3>${c ? `<span class="meta">${esc(c.name)}</span>` : ""}</button>`; }).join("")}</div>
+    <div class="grid tgrid pgrid">${l.map(i => { const c = catOf(i.cat); return `<button class="vgtile" data-item="${esc(i.id)}" data-von="${esc(von)}"><h3>${esc(i.title)}</h3>${c ? `<span class="meta">${esc(c.name)}</span>` : ""}</button>`; }).join("")}</div>
+    <h2 class="pbh">Bist du dabei?</h2>
+    <div class="anwrow" role="group" aria-label="Anwesenheit"><button class="btn${p.meinStatus === "ja" ? " red" : ""}" data-g-anw="ja" aria-pressed="${p.meinStatus === "ja"}">Ich bin dabei</button><button class="btn${p.meinStatus === "nein" ? " red" : ""}" data-g-anw="nein" aria-pressed="${p.meinStatus === "nein"}">Ich kann nicht</button></div>
+    <p class="anwlist"><b>Dabei (${p.anw.ja.length}):</b> ${namen(p.anw.ja)}<br><b>Kann nicht (${p.anw.nein.length}):</b> ${namen(p.anw.nein)}</p>
     <h2 class="pbh">Wünsche für diese Probe</h2>
-    ${wl.length ? `<div class="gwliste">${wl.map(id => { const i = ITEMS.find(x => x.id === id), n = p.w[id], meine = p.meine.includes(id); return `<div class="gwrow"><div><button class="linkbtn" data-item="${esc(id)}" data-von="${esc(von)}">${esc(i.title)}</button><span class="meta">${n} ${n === 1 ? "Wunsch" : "Wünsche"}${meine ? " · auch von dir" : ""}</span></div>${leiter ? `<button class="btn" data-g-uebernehmen="${esc(id)}">In die Probe</button>` : ""}</div>`; }).join("")}</div>` : `<div class="empty">Noch keine Wünsche.</div>`}
+    ${wl.length ? `<div class="gwliste">${wl.map(id => { const i = ITEMS.find(x => x.id === id), von_ = p.wn[id]; return `<div class="gwrow"><div><button class="linkbtn" data-item="${esc(id)}" data-von="${esc(von)}">${esc(i.title)}</button><span class="meta">Gewünscht von ${von_.map(esc).join(", ")}</span></div>${leiter ? `<button class="btn" data-g-uebernehmen="${esc(id)}">In die Probe</button>` : ""}</div>`; }).join("")}</div>` : `<div class="empty">Noch keine Wünsche.</div>`}
     <div class="row"><button class="btn red" data-g-wunsch="${esc(p.id)}">Übungen wünschen</button></div>
     ${leiter ? `<div class="row"><button class="btn" data-g-edit="${esc(gid + "|" + p.id)}">Übungen ändern</button><button class="btn del" data-g-del="${esc(gid + "|" + p.id)}">Probe löschen</button></div>` : ""}
     <div class="row"><button class="btn" data-g-aktual="${esc(gid)}">Aktualisieren</button></div>`;
@@ -1170,6 +1177,8 @@ function gladen() { return (window.GL_ = window.GL_ || {}); }
 function gruppenLesen() {
   try { const l = JSON.parse(localStorage.getItem("fundus-gruppen-v1") || "[]"); return Array.isArray(l) ? l.filter(g => g && g.id && g.code) : []; } catch (e) { return []; }
 }
+function vornameLesen() { try { return localStorage.getItem("fundus-vorname-v1") || ""; } catch (e) { return ""; } }
+function vornameMerken(n) { try { localStorage.setItem("fundus-vorname-v1", n); } catch (e) {} }
 function gruppenSchreiben(l) { try { localStorage.setItem("fundus-gruppen-v1", JSON.stringify(l)); } catch (e) {} }
 function gruppeMerken(gr, code, extra) {
   const l = gruppenLesen().filter(x => x.id !== gr.id), alt = gruppenLesen().find(x => x.id === gr.id) || {};
@@ -1204,9 +1213,18 @@ function gWartenHTML(gid, e) {
 function gCodeFormHTML(gid) {
   return `<form id="gform" data-gid="${esc(gid || "")}" novalidate autocomplete="off">
     <div class="field"><label for="gcode">Zugangscode</label><input id="gcode" maxlength="20" autocapitalize="off" autocorrect="off" autocomplete="off" inputmode="text"></div>
+    <div class="field"><label for="gvn">Dein Vorname</label><input id="gvn" maxlength="30" autocomplete="given-name" value="${esc(vornameLesen())}"></div>
     <p class="err" id="gerr" hidden></p>
     <button class="btn red block" type="submit">Öffnen</button>
   </form>`;
+}
+function gNameFormHTML(gid, e) {
+  return `<div class="pagehead"><h1>${esc(e.name)}</h1><p>Wie heißt du? Dein Vorname steht bei deinen Wünschen und bei der Anwesenheit.</p></div>
+    <form id="gname" data-gid="${esc(gid)}" novalidate autocomplete="off">
+      <div class="field"><label for="gvn2">Dein Vorname</label><input id="gvn2" maxlength="30" autocomplete="given-name" value="${esc(vornameLesen())}"></div>
+      <p class="err" id="gnerr" hidden></p>
+      <button class="btn red block" type="submit">Weiter</button>
+    </form>`;
 }
 /* Wenn eine Übung aus einer Probe geöffnet wurde: Krümelpfad für oben */
 function vonInfo() {
@@ -1233,31 +1251,39 @@ function gwHTML() {
     <div class="gwlist">${gr}</div><p class="err" id="gwErr" hidden></p>
     <div class="row"><button class="btn red" data-g-wsenden="1">Wünsche speichern</button><button class="btn" data-dlg-close>Abbrechen</button></div>`;
 }
-async function gCodeSenden(gid, code, fehlerEl, knopf) {
-  code = String(code || "").trim();
+async function gCodeSenden(gid, code, vorname, fehlerEl, knopf) {
+  code = String(code || "").trim(); vorname = String(vorname || "").trim().slice(0, 30);
   if (code.length < 4) { fehlerEl.textContent = "Bitte gib deinen Zugangscode ein."; fehlerEl.hidden = false; return; }
+  if (!vorname) { fehlerEl.textContent = "Bitte gib deinen Vornamen ein."; fehlerEl.hidden = false; return; }
   fehlerEl.hidden = true; if (knopf) knopf.disabled = true;
   const r = await gApi("gruppeLesen", { code, gruppe: gid || "" });
   if (knopf) knopf.disabled = false;
   if (!r.ok) { fehlerEl.textContent = r.msg || "Das hat nicht geklappt."; fehlerEl.hidden = false; return; }
-  gruppeMerken(r.gruppe, code); gd()[r.gruppe.id] = r; delete gladen()[r.gruppe.id];
+  vornameMerken(vorname); gruppeMerken(r.gruppe, code, { vorname }); gd()[r.gruppe.id] = r; delete gladen()[r.gruppe.id];
   if (gid && S.view === "gprobe") { render(); return; }
   go("gruppe", { gid: r.gruppe.id });
 }
 document.addEventListener("submit", async e => {
   const f = e.target;
-  if (f.id === "gform") { e.preventDefault(); await gCodeSenden(f.dataset.gid, $("#gcode").value, $("#gerr"), f.querySelector("button")); }
+  if (f.id === "gform") { e.preventDefault(); await gCodeSenden(f.dataset.gid, $("#gcode").value, $("#gvn").value, $("#gerr"), f.querySelector("button")); }
+  else if (f.id === "gname") {
+    e.preventDefault();
+    const n = $("#gvn2").value.trim().slice(0, 30), gid = f.dataset.gid, e2 = gruppenLesen().find(x => x.id === gid);
+    if (!n) { $("#gnerr").textContent = "Bitte gib deinen Vornamen ein."; $("#gnerr").hidden = false; return; }
+    if (e2) { vornameMerken(n); gruppeMerken({ id: e2.id, name: e2.name, rolle: e2.rolle }, e2.code, { vorname: n }); render(); }
+  }
   else if (f.id === "gnform") {
     e.preventDefault();
-    const err = $("#gn-err"), knopf = f.querySelector("button"), name = $("#gn-name").value.trim(), lc = $("#gn-lc").value.trim(), gc = $("#gn-gc").value.trim();
+    const err = $("#gn-err"), knopf = f.querySelector("button"), name = $("#gn-name").value.trim(), vn = $("#gn-vn").value.trim().slice(0, 30), lc = $("#gn-lc").value.trim(), gc = $("#gn-gc").value.trim();
     const zeig = t => { err.textContent = t; err.hidden = false; };
     if (name.length < 2) return zeig("Bitte gib der Gruppe einen Namen.");
+    if (!vn) return zeig("Bitte gib deinen Vornamen ein.");
     if (lc.length < 4 || gc.length < 4) return zeig("Beide Codes brauchen mindestens 4 Zeichen.");
     if (lc.toLowerCase() === gc.toLowerCase()) return zeig("Leiter-Code und Gruppen-Code müssen verschieden sein.");
     err.hidden = true; knopf.disabled = true; knopf.textContent = "Lege an …";
     const r = await gApi("gruppeNeu", { name, leiterCode: lc, gruppenCode: gc });
     if (!r.ok) { knopf.disabled = false; knopf.textContent = "Gruppe anlegen"; return zeig(r.msg || "Das hat nicht geklappt."); }
-    gruppeMerken(r.gruppe, lc, { gruppenCode: gc }); gd()[r.gruppe.id] = r;
+    vornameMerken(vn); gruppeMerken(r.gruppe, lc, { gruppenCode: gc, vorname: vn }); gd()[r.gruppe.id] = r;
     go("gruppe", { gid: r.gruppe.id });
   }
 });
@@ -1285,6 +1311,17 @@ async function gKlick(d, knopf) {
     if (!r.ok) { knopf.disabled = false; alert(r.msg || "Das hat nicht geklappt."); return true; }
     gd()[gid] = r; go("gruppe", { gid }, true); return true;
   }
+  if (d.gAnw !== undefined) {
+    const e = gruppenLesen().find(x => x.id === S.gid), dd = gd()[S.gid], p = dd && dd.proben.find(x => x.id === S.pid); if (!e || !p) return true;
+    knopf.disabled = true;
+    const r = await gApi("gruppeAnwesend", { code: e.code, gruppe: S.gid, probe: p.id, name: e.vorname, status: p.meinStatus === d.gAnw ? "" : d.gAnw });
+    if (!r.ok) { knopf.disabled = false; alert(r.msg || "Das hat nicht geklappt."); return true; }
+    gd()[S.gid] = r; const y = window.scrollY; render(); window.scrollTo(0, y); return true;
+  }
+  if (d.gName !== undefined) {
+    const e = gruppenLesen().find(x => x.id === d.gName); if (!e) return true;
+    gruppeMerken({ id: e.id, name: e.name, rolle: e.rolle }, e.code, { vorname: "" }); render(); return true;
+  }
   if (d.gAktual !== undefined) { delete gd()[d.gAktual]; delete gladen()[d.gAktual]; render(); gLaden(d.gAktual, true); return true; }
   if (d.gVergessen !== undefined) {
     const e = gruppenLesen().find(x => x.id === d.gVergessen); if (!e) return true;
@@ -1299,7 +1336,7 @@ async function gKlick(d, knopf) {
   if (d.gWsenden !== undefined) {
     const w = window.GW_, e = w && gruppenLesen().find(x => x.id === w.gid); if (!e) return true;
     knopf.disabled = true; knopf.textContent = "Speichere …";
-    const r = await gApi("gruppeWuensche", { code: e.code, gruppe: w.gid, probe: w.pid, uebungen: w.sel });
+    const r = await gApi("gruppeWuensche", { code: e.code, gruppe: w.gid, probe: w.pid, uebungen: w.sel, name: e.vorname });
     if (!r.ok) { knopf.disabled = false; knopf.textContent = "Wünsche speichern"; const f = $("#gwErr"); if (f) { f.textContent = r.msg || "Das hat nicht geklappt."; f.hidden = false; } return true; }
     gd()[w.gid] = r; window.GW_ = null; closeDlg(); render(); return true;
   }
@@ -1317,7 +1354,7 @@ document.addEventListener("click", e => {
   const d = k.dataset;
   if (d.gruppe !== undefined) { e.preventDefault(); go("gruppe", { gid: d.gruppe }); return; }
   if (d.gprobe !== undefined) { e.preventDefault(); const g = String(d.gprobe).split("|"); go("gprobe", { gid: g[0], pid: g[1] }); return; }
-  if (["gNeu", "gEdit", "gDel", "gAktual", "gVergessen", "gWunsch", "gWsenden", "gUebernehmen"].some(x => d[x] !== undefined)) { e.preventDefault(); gKlick(d, k); }
+  if (["gNeu", "gEdit", "gDel", "gAktual", "gVergessen", "gWunsch", "gWsenden", "gUebernehmen", "gAnw", "gName"].some(x => d[x] !== undefined)) { e.preventDefault(); gKlick(d, k); }
 });
 
 /* ===== Eine Übung teilen: als Link oder als ganzer Text (wie in der Spielliste) ===== */
