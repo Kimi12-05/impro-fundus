@@ -295,6 +295,7 @@ const V = {
     <article class="detail"><div class="pagehead"><span><span class="pill red">${esc(c.name)}</span></span><h1>${esc(i.title)}</h1></div>
     <div class="facts"><div class="fact"><span>Dauer</span><strong>${esc(i.dauer || "–")}</strong></div><div class="fact"><span>Niveau</span><strong>${esc(i.level || "–")}</strong></div></div>
     ${i.eig.length ? `<div class="taglist">${i.eig.map(e => `<span>${esc(e)}</span>`).join("")}</div>` : ""}
+    <div class="row sharerow"><button class="btn" data-share="${esc(i.id)}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg> Teilen</button></div>
     ${i.ab ? `<section class="prose"><h2>So geht's</h2>${prose(i.ab)}</section>` : `<div class="tip"><strong>Hier fehlt noch eine Beschreibung.</strong> Du kennst das Spiel? <button class="linkbtn" data-go="einreichen">Beschreibung einreichen</button></div>`}
     </article>
     <div class="row"><button class="btn" data-cat="${esc(c.id)}">← Zurück zur Liste</button></div>`;
@@ -617,6 +618,9 @@ document.addEventListener("click", e => {
     S.sp.danke = true; render(); window.scrollTo(0, 0); return;
   }
   if (d.level !== undefined) { S.level = S.level === d.level ? "alle" : d.level; render(); return; }
+  if (d.share !== undefined) { teilenOeffnen(d.share); return; }
+  if (d.shArt !== undefined) { TEILEN.art = d.shArt; $("#dlgBox").innerHTML = teilenHTML(); return; }
+  if (d.shDo !== undefined) { teilenTun(d.shDo); return; }
   if (d.pdf !== undefined) { pdfDialog(); return; }
   if (d.go) { if (d.kind) S.kind = d.kind; go(d.go); return; }
   if (d.cat !== undefined) { go("kat", { cat: d.cat }); return; }
@@ -924,6 +928,54 @@ function openDlg(html) {
 function closeDlg() { S.diceOpen = false; $("#dlg").hidden = true; $("#dlgBox").innerHTML = ""; }
 
 const dicePop = () => `<div class="dicepop"><h2 style="margin:0 0 10px;font-size:20px">Szenenwürfel</h2>${genHTML()}</div>`;
+/* ===== Eine Übung teilen: als Link oder als ganzer Text (wie in der Spielliste) ===== */
+const TEILEN = { id: null, art: "link" };
+const personenText = tn => tn ? tn + (String(tn).trim() === "1" ? " Person" : " Personen") : "";
+function teilenInhalt(i, art) {
+  const c = catOf(i.cat), url = BASIS_URL + pfadFuer({ view: "item", id: i.id });
+  if (art === "link") {
+    const text = `${i.title} – Impro-Übung aus dem Impro-Fundus`;
+    return { url, text, voll: `${text}:\n${url}` };
+  }
+  const info = [c ? c.name : "", personenText(i.tn), i.dauer, i.level].filter(Boolean).join(" · ");
+  const text = `${i.title}\n${info ? info + "\n" : ""}\n${(i.ab || "Beschreibung folgt.").trim()}`;
+  return { url, text, voll: `${text}\n\nAus dem Impro-Fundus: ${url}` };
+}
+function teilenHTML() {
+  const i = ITEMS.find(x => x.id === TEILEN.id);
+  if (!i) return "";
+  const t = teilenInhalt(i, TEILEN.art), nativ = !!navigator.share;
+  return `<h2>Übung teilen</h2>
+    <p class="meta">${esc(i.title)}</p>
+    <div class="shseg" role="group" aria-label="Was möchtest du teilen?"><button data-sh-art="link" aria-pressed="${TEILEN.art === "link"}">Link</button><button data-sh-art="text" aria-pressed="${TEILEN.art === "text"}">Ganzer Text</button></div>
+    <pre class="shprev">${esc(t.voll)}</pre>
+    <div class="shbtns">${nativ ? `<button class="btn red" data-sh-do="nativ">Teilen …</button>` : ""}<button class="btn${nativ ? "" : " red"}" data-sh-do="wa">WhatsApp</button><button class="btn" data-sh-do="tg">Telegram</button><button class="btn" data-sh-do="mail">E-Mail</button><button class="btn" data-sh-do="kopie">Kopieren</button></div>
+    <p class="meta" id="shMsg" role="status"></p>
+    <div class="row"><button class="btn" data-dlg-close>Schließen</button></div>`;
+}
+function teilenOeffnen(id) { TEILEN.id = id; TEILEN.art = "link"; openDlg(teilenHTML()); }
+async function teilenTun(aktion) {
+  const i = ITEMS.find(x => x.id === TEILEN.id);
+  if (!i) return;
+  const t = teilenInhalt(i, TEILEN.art), enc = encodeURIComponent, melden = x => { const m = $("#shMsg"); if (m) m.textContent = x; };
+  if (aktion === "wa") window.open("https://wa.me/?text=" + enc(t.voll), "_blank", "noopener");
+  else if (aktion === "tg") window.open("https://t.me/share/url?url=" + enc(t.url) + "&text=" + enc(t.text), "_blank", "noopener");
+  else if (aktion === "mail") location.href = "mailto:?subject=" + enc(i.title + " – Impro-Fundus") + "&body=" + enc(t.voll);
+  else if (aktion === "nativ") {
+    try { await navigator.share(TEILEN.art === "link" ? { title: i.title, text: t.text, url: t.url } : { title: i.title, text: t.voll }); } catch (e) { /* abgebrochen */ }
+  } else if (aktion === "kopie") {
+    let ok = false;
+    try { await navigator.clipboard.writeText(t.voll); ok = true; }
+    catch (e) {
+      const ta = document.createElement("textarea");
+      ta.value = t.voll; ta.style.cssText = "position:fixed;opacity:0"; document.body.append(ta); ta.select();
+      try { ok = document.execCommand("copy"); } catch (e2) {}
+      ta.remove();
+    }
+    melden(ok ? (TEILEN.art === "link" ? "Link kopiert." : "Text kopiert.") : "Das Kopieren hat nicht geklappt. Markiere den Text oben und kopiere ihn von Hand.");
+  }
+}
+
 function pdfDialog() {
   const grp = (name, cnt, rows) => `<details class="pdfgrp"><summary>${esc(name)} <span class="meta" data-cnt data-max="${cnt}">0 von ${cnt}</span></summary><label class="check pdfall"><input type="checkbox" data-all> <b>Alle auswählen</b></label>${rows}</details>`;
   const ue = CATS.map(c => {
