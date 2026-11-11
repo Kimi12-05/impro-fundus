@@ -506,3 +506,33 @@ a.card,a.tile,a.vgtile{display:block;box-sizing:border-box}
 .shprev{margin:0 0 14px;padding:12px 14px;max-height:200px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-family:inherit;font-size:14px;line-height:1.45;background:var(--bg);border:1px solid var(--line);border-radius:14px}
 .shbtns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .shbtns .btn:first-child:nth-last-child(5){grid-column:1/-1}
+
+/* Eigene Proben */
+.probekachel{display:none}
+@media (max-width:899px){
+  .home .probekachel{display:block;order:4}
+  .home .probekachel .tile{min-height:0;padding:clamp(8px,1.6vh,14px) 16px;gap:2px;border-color:var(--red)}
+  .home .probekachel .tile h3{font-size:22px}
+  .home .probekachel .tile p{font-size:15px}
+}
+.pbh{margin:22px 0 10px;font-size:22px}
+.pbneu{border-color:var(--red)}
+.pblist{display:flex;flex-direction:column;gap:10px}
+.pbgrp{border:1px solid var(--line);border-radius:16px;background:var(--card);padding:2px 14px;margin-bottom:10px}
+.pbgrp[hidden]{display:none}
+.pbgrp>summary{cursor:pointer;font-weight:700;padding:14px 0;display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:19px}
+.pbrow{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:17px;min-height:48px}
+.pbrow[hidden]{display:none}
+.pbrow input{width:22px;height:22px;flex:none;accent-color:var(--red)}
+.pbbar{position:sticky;bottom:calc(var(--barb) + 8px + env(safe-area-inset-bottom,0px));display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px 12px 10px 18px;box-shadow:0 6px 18px rgba(0,0,0,.14);margin-top:14px;z-index:5;font-weight:700}
+.pbbar .btn:disabled{opacity:.45}
+.pbsum{margin:0 0 18px;padding-left:22px;line-height:1.7}
+.pbrow2{margin-top:8px}
+.pgrid .vgtile{display:flex;flex-direction:column;gap:4px;justify-content:center;align-items:center;text-align:center}
+.pgrid .vgtile h3{font-size:20px}
+.pbvorg{margin:16px 0}
+.tgrid.pgrid .vgtile{min-height:92px;padding:12px 10px}
+.tgrid.pgrid .vgtile h3{font-size:19px;line-height:1.15;hyphens:auto;overflow-wrap:anywhere}
+html body .pgrid .vgtile h3{font-size:19px!important;line-height:1.15!important;hyphens:auto;overflow-wrap:anywhere}
+html body .pgrid .vgtile .meta{font-size:14px!important}
+html body .pbsum li{color:var(--fg)!important;text-decoration:none!important;font-weight:400!important;font-family:inherit!important}

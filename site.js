@@ -66,7 +66,8 @@ const slug = s => String(s ?? "").toLowerCase().replace(/ä/g, "ae").replace(/ö
 const SEITEN = {
   start: "/", kats: "/uebungen/", alle: "/alle-uebungen/", vorgaben: "/vorgaben/", impro: "/was-ist-impro/",
   ueber: "/ueber-den-fundus/", kontakt: "/kontakt/", spenden: "/spenden/", einreichen: "/vorschlag-einreichen/",
-  impressum: "/impressum/", datenschutz: "/datenschutz/", nutzung: "/nutzungsbedingungen/", suche: "/suche/"
+  impressum: "/impressum/", datenschutz: "/datenschutz/", nutzung: "/nutzungsbedingungen/", suche: "/suche/",
+  proben: "/proben/", probeNeu: "/proben/neu/"
 };
 let ITEM_SLUG = {};
 function slugsBauen() {
@@ -84,6 +85,7 @@ function pfadFuer(s = S) {
     case "item": return ITEM_SLUG[s.id] ? "/uebung/" + ITEM_SLUG[s.id] + "/" : "/uebungen/";
     case "vorgaben": return s.vcat ? "/vorgaben/" + slug(s.vcat) + "/" : "/vorgaben/";
     case "suche": return "/suche/" + (s.q ? "?q=" + encodeURIComponent(s.q) : "");
+    case "probe": return s.pid ? "/proben/" + encodeURIComponent(s.pid) + "/" : "/proben/";
     default: return SEITEN[s.view] || "/";
   }
 }
@@ -92,11 +94,13 @@ let WARTET = null;
 function pfadAnwenden(pfad, query) {
   const t = String(pfad || "/").split("/").filter(x => x && x !== "index.html");
   const pn = "/" + t.join("/") + (t.length ? "/" : "");
-  const neu = { view: "start", cat: null, id: null, vcat: null, q: "" };
+  const neu = { view: "start", cat: null, id: null, vcat: null, q: "", pid: null, von: null };
   const fest = Object.keys(SEITEN).find(k => SEITEN[k] === pn);
   if (fest) {
     neu.view = fest;
     if (fest === "suche") neu.q = (new URLSearchParams(query || "").get("q") || "").trim();
+  } else if (t[0] === "proben" && t.length === 2) {
+    neu.view = "probe"; neu.pid = decodeURIComponent(t[1]);
   } else if (t.length === 2 && ["uebungen", "uebung", "vorgaben"].includes(t[0])) {
     if (!LOADED) return false;
     neu.view = "nichtda";
@@ -116,14 +120,14 @@ function nachDatenAnwenden() {
     if (S.view !== "nichtda" && location.pathname + (S.view === "suche" ? location.search : "") !== kanon) history.replaceState(history.state, "", kanon);
   } catch (e) {}
 }
-function go(view, o = {}) {
+function go(view, o = {}, ersetzen = false) {
   const vorher = pfadFuer();
-  Object.assign(S, { view, cat: null, id: null, vcat: view === "vorgaben" ? null : S.vcat }, o);
+  Object.assign(S, { view, cat: null, id: null, pid: null, von: null, vcat: view === "vorgaben" ? null : S.vcat }, o);
   const neu = pfadFuer();
   if (neu !== vorher) {
     try {
       const n = (history.state && history.state.n) || 0;
-      if (vorher.startsWith("/suche/") && neu.startsWith("/suche/")) history.replaceState({ n }, "", neu);
+      if (ersetzen || (vorher.startsWith("/suche/") && neu.startsWith("/suche/"))) history.replaceState({ n }, "", neu);
       else { history.replaceState({ n, y: window.scrollY }, ""); history.pushState({ n: n + 1 }, "", neu); }
     } catch (e) {}
   }
@@ -268,6 +272,7 @@ const V = {
       <button class="tile" data-cat="Kennenlernspiele"><h3>Kennenlernen</h3><p>Spiele für neue Gruppen</p></button>
       <button class="tile" data-go="vorgaben"><h3>Vorgaben</h3><p>Orte, Gefühle, Berufe und mehr</p></button>
     </div>
+    <div class="probekachel"><button class="tile" data-go="proben"><h3>Eigene Probe zusammenstellen</h3><p>Übungen für deine nächste Probe auswählen und speichern</p></button></div>
     ${genHTML()}
     <div class="startbtns">
       <button class="tile" data-go="impro"><h3>Was ist Impro?</h3><p>Eine kurze Einführung.</p></button>
@@ -291,14 +296,15 @@ const V = {
 
   item() {
     const i = ITEMS.find(x => x.id === S.id), c = catOf(i.cat);
-    return `<div class="crumb"><button data-go="kats">Übungen</button><span>›</span><button data-cat="${esc(c.id)}">${esc(c.name)}</button></div>
+    const pr = S.von ? probenLesen().find(x => x.id === S.von) : null;
+    return `${pr ? `<div class="crumb"><button data-go="proben">Meine Proben</button><span>›</span><button data-probe="${esc(pr.id)}">${esc(pr.name)}</button></div>` : `<div class="crumb"><button data-go="kats">Übungen</button><span>›</span><button data-cat="${esc(c.id)}">${esc(c.name)}</button></div>`}
     <article class="detail"><div class="pagehead"><span><span class="pill red">${esc(c.name)}</span></span><h1>${esc(i.title)}</h1></div>
     <div class="facts"><div class="fact"><span>Dauer</span><strong>${esc(i.dauer || "–")}</strong></div><div class="fact"><span>Niveau</span><strong>${esc(i.level || "–")}</strong></div></div>
     ${i.eig.length ? `<div class="taglist">${i.eig.map(e => `<span>${esc(e)}</span>`).join("")}</div>` : ""}
     <div class="row sharerow"><button class="btn" data-share="${esc(i.id)}"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg> Teilen</button></div>
     ${i.ab ? `<section class="prose"><h2>So geht's</h2>${prose(i.ab)}</section>` : `<div class="tip"><strong>Hier fehlt noch eine Beschreibung.</strong> Du kennst das Spiel? <button class="linkbtn" data-go="einreichen">Beschreibung einreichen</button></div>`}
     </article>
-    <div class="row"><button class="btn" data-cat="${esc(c.id)}">← Zurück zur Liste</button></div>`;
+    <div class="row">${pr ? `<button class="btn" data-probe-back="${esc(pr.id)}">← Zurück zur Probe</button>` : `<button class="btn" data-cat="${esc(c.id)}">← Zurück zur Liste</button>`}</div>`;
   },
 
   vorgaben() {
@@ -310,6 +316,53 @@ const V = {
     <div class="pagehead"><h1>${esc(S.vcat)}</h1></div>
     <div class="chips mob" role="group" aria-label="Vorgaben-Bereich">${Object.keys(VORG).map(k => `<button class="chip" aria-pressed="${S.vcat === k}" data-v="${esc(k)}">${esc(k)}</button>`).join("")}</div>
     <div class="vcols">${list.map(v => `<div class="vitem">${esc(v.t)}${v.h ? `<br><span class="meta">${esc(v.h)}</span>` : ""}</div>`).join("")}</div>`;
+  },
+
+  proben() {
+    const l = probenLesen().slice().sort((a, b) => String(b.datum).localeCompare(String(a.datum)));
+    return `<div class="pagehead"><h1>Meine Proben</h1><p>Stell für deine nächste Probe Übungen zusammen und speichere sie. Die Vorgaben sind immer alle mit dabei.</p></div>
+    <button class="tile pbneu" data-go="probeNeu"><h3>Neue Probe zusammenstellen</h3><p>Übungen auswählen und speichern</p></button>
+    <h2 class="pbh">Gespeicherte Proben</h2>
+    ${l.length ? `<div class="pblist">${l.map(p => `<button class="tile" data-probe="${esc(p.id)}"><h3>${esc(p.name)}</h3><p>${esc(datumDe(p.datum))} · ${p.ids.filter(id => ITEMS.some(i => i.id === id)).length} Übungen</p></button>`).join("")}</div>` : `<div class="empty">Noch keine Probe gespeichert.</div>`}
+    <p class="note">Deine Proben werden nur auf diesem Gerät gespeichert.</p>`;
+  },
+
+  probeNeu() {
+    if (!S.pb) S.pb = { step: 1, sel: [], name: "", edit: null, q: "" };
+    const b = S.pb, sel = new Set(b.sel);
+    if (b.step === 2) {
+      const l = ITEMS.filter(i => sel.has(i.id));
+      return `<div class="pagehead"><h1>Probe speichern</h1></div>
+      <div class="field"><label for="pbname">Name der Probe</label><input id="pbname" value="${esc(b.name || ("Probe am " + datumDe(heuteIso())))}" maxlength="60" autocomplete="off"></div>
+      <h2 class="pbh">${l.length} ${l.length === 1 ? "Übung" : "Übungen"}</h2>
+      <ul class="pbsum">${l.map(i => `<li>${esc(i.title)}</li>`).join("")}</ul>
+      <div class="row pbrow2"><button class="btn" data-pb-zurueck="1">← Übungen ändern</button><button class="btn red" data-pb-speichern="1">Speichern</button></div>`;
+    }
+    const q = (b.q || "").toLowerCase();
+    const gr = CATS.map(c => {
+      const l = ITEMS.filter(i => i.cat === c.id && !i.draft);
+      if (!l.length) return "";
+      const n = l.filter(i => sel.has(i.id)).length;
+      return `<details class="pbgrp" data-pbg="${esc(c.id)}"${q ? " open" : ""}><summary>${esc(c.name)} <span class="meta" data-pbc="${esc(c.id)}">${n} von ${l.length}</span></summary>
+        <label class="pbrow"><input type="checkbox" data-pb-all="${esc(c.id)}"${n === l.length ? " checked" : ""}> <b>Alle auswählen</b></label>
+        ${l.map(i => `<label class="pbrow" data-t="${esc(i.title.toLowerCase())}"><input type="checkbox" data-pb="${esc(i.id)}"${sel.has(i.id) ? " checked" : ""}> <span>${esc(i.title)}${i.level ? ` <span class="meta">${esc(i.level)}</span>` : ""}</span></label>`).join("")}
+      </details>`;
+    }).join("");
+    return `<div class="pagehead"><h1>${b.edit ? "Übungen ändern" : "Übungen auswählen"}</h1><p>Wähle die Übungen für deine Probe aus. Die Vorgaben sind immer alle dabei.</p></div>
+    <div class="field"><input id="pbq" type="search" placeholder="Übung suchen …" value="${esc(b.q || "")}" autocomplete="off"></div>
+    <div id="pbliste">${gr}</div>
+    <div class="pbbar"><span id="pbN">${sel.size} ausgewählt</span><button class="btn red" id="pbWeiter" data-pb-weiter="1"${sel.size ? "" : " disabled"}>Weiter</button></div>`;
+  },
+
+  probe() {
+    const p = probenLesen().find(x => x.id === S.pid);
+    if (!p) return `<div class="pagehead"><h1>Diese Probe gibt es nicht</h1><p>Proben werden nur auf dem Gerät gespeichert, auf dem sie erstellt wurden.</p></div><div class="row"><button class="btn red" data-go="proben">Meine Proben</button></div>`;
+    const l = p.ids.map(id => ITEMS.find(i => i.id === id)).filter(Boolean);
+    return `<div class="crumb"><button data-go="proben">Meine Proben</button><span>›</span><span>${esc(p.name)}</span></div>
+    <div class="pagehead"><h1>${esc(p.name)}</h1><p>${esc(datumDe(p.datum))} · ${l.length} ${l.length === 1 ? "Übung" : "Übungen"}</p></div>
+    <div class="grid tgrid pgrid">${l.map(i => { const c = catOf(i.cat); return `<button class="vgtile" data-item="${esc(i.id)}" data-von="${esc(p.id)}"><h3>${esc(i.title)}</h3>${c ? `<span class="meta">${esc(c.name)}</span>` : ""}</button>`; }).join("")}</div>
+    <button class="tile pbvorg" data-go="vorgaben"><h3>Vorgaben</h3><p>Orte, Gefühle, Berufe und mehr. Alle sind immer dabei.</p></button>
+    <div class="row"><button class="btn" data-probe-edit="${esc(p.id)}">Übungen ändern</button><button class="btn del" data-probe-del="${esc(p.id)}">Probe löschen</button></div>`;
   },
 
   kontakt() {
@@ -622,9 +675,24 @@ document.addEventListener("click", e => {
   if (d.shArt !== undefined) { TEILEN.art = d.shArt; $("#dlgBox").innerHTML = teilenHTML(); return; }
   if (d.shDo !== undefined) { teilenTun(d.shDo); return; }
   if (d.pdf !== undefined) { pdfDialog(); return; }
-  if (d.go) { if (d.kind) S.kind = d.kind; go(d.go); return; }
+  if (d.probe !== undefined) { go("probe", { pid: d.probe }); return; }
+  if (d.probeBack !== undefined) { if (history.state && history.state.n > 0) history.back(); else go("probe", { pid: d.probeBack }); return; }
+  if (d.probeEdit !== undefined) {
+    const p = probenLesen().find(x => x.id === d.probeEdit); if (!p) return;
+    S.pb = { step: 1, sel: p.ids.filter(id => ITEMS.some(i => i.id === id)), name: p.name, edit: p.id, q: "" };
+    go("probeNeu"); return;
+  }
+  if (d.probeDel !== undefined) {
+    const p = probenLesen().find(x => x.id === d.probeDel); if (!p) return;
+    if (!confirm("Die Probe „" + p.name + "“ wirklich löschen?")) return;
+    probenSchreiben(probenLesen().filter(x => x.id !== p.id)); go("proben", {}, true); return;
+  }
+  if (d.pbWeiter !== undefined) { if (S.pb && S.pb.sel.length) { S.pb.step = 2; render(); window.scrollTo(0, 0); } return; }
+  if (d.pbZurueck !== undefined) { if (S.pb) { S.pb.name = ($("#pbname") || {}).value || S.pb.name; S.pb.step = 1; render(); window.scrollTo(0, 0); } return; }
+  if (d.pbSpeichern !== undefined) { probeSpeichern(); return; }
+  if (d.go) { if (d.kind) S.kind = d.kind; if (d.go === "probeNeu") S.pb = null; go(d.go); return; }
   if (d.cat !== undefined) { go("kat", { cat: d.cat }); return; }
-  if (d.item) { go("item", { id: d.item }); return; }
+  if (d.item) { go("item", { id: d.item, von: d.von || null }); return; }
   if (d.v) { go("vorgaben", { vcat: d.v, vprop: "alle" }); return; }
   if (d.vp) { S.vprop = d.vp; render(); return; }
   if (d.dicedlg !== undefined) {
@@ -754,7 +822,7 @@ window.addEventListener("resize", suggHide);
 let ZULETZT_GEZAEHLT = null;
 function zaehlen() {
   if (S.view === "nichtda") return;
-  const pfad = pfadFuer().split("?")[0];
+  const pfad = pfadFuer().split("?")[0].replace(/^\/proben\/(?!neu\/)[^/]+\/$/, "/proben/probe/");
   if (pfad === ZULETZT_GEZAEHLT) return;
   const art = ZULETZT_GEZAEHLT === null ? "besuch" : "aufruf";
   ZULETZT_GEZAEHLT = pfad;
@@ -822,6 +890,9 @@ function seiteInfo(s = S) {
     case "impressum": titel = "Impressum – " + N; beschr = "Impressum und Anbieterkennzeichnung des Impro-Fundus."; break;
     case "datenschutz": titel = "Datenschutzerklärung – " + N; beschr = "Datenschutzerklärung des Impro-Fundus: Welche Daten beim Besuch und beim Einreichen von Vorschlägen verarbeitet werden."; break;
     case "nutzung": titel = "Nutzungsbedingungen – " + N; beschr = "Nutzungsbedingungen für die Website impro-fundus.de."; break;
+    case "proben": titel = "Meine Proben – " + N; beschr = "Stelle Übungen für deine nächste Impro-Probe zusammen und speichere sie."; robots = "noindex,follow"; break;
+    case "probeNeu": titel = "Neue Probe zusammenstellen – " + N; beschr = "Wähle die Übungen für deine nächste Impro-Probe aus."; robots = "noindex,follow"; break;
+    case "probe": titel = "Probe – " + N; beschr = "Die Übungen deiner Probe."; robots = "noindex,follow"; break;
     case "suche": titel = (s.q ? `Suche: ${s.q} – ` : "Suche – ") + N; beschr = "Suche im Impro-Fundus nach Improtheater-Übungen und Vorgaben."; robots = "noindex,follow"; break;
     default: titel = "Seite nicht gefunden – " + N; beschr = "Diese Seite gibt es nicht."; robots = "noindex,follow";
   }
@@ -928,6 +999,65 @@ function openDlg(html) {
 function closeDlg() { S.diceOpen = false; $("#dlg").hidden = true; $("#dlgBox").innerHTML = ""; }
 
 const dicePop = () => `<div class="dicepop"><h2 style="margin:0 0 10px;font-size:20px">Szenenwürfel</h2>${genHTML()}</div>`;
+/* ===== Eigene Proben (werden nur auf diesem Gerät gespeichert) ===== */
+function probenLesen() {
+  try { const l = JSON.parse(localStorage.getItem("fundus-proben-v1") || "[]"); return Array.isArray(l) ? l.filter(p => p && p.id && Array.isArray(p.ids)) : []; } catch (e) { return []; }
+}
+function probenSchreiben(l) { try { localStorage.setItem("fundus-proben-v1", JSON.stringify(l)); return true; } catch (e) { return false; } }
+function heuteIso() { return new Date().toISOString().slice(0, 10); }
+function datumDe(iso) { const m = String(iso || "").match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? `${m[3]}.${m[2]}.${m[1]}` : ""; }
+function pbAktualisieren() {
+  const sel = new Set(S.pb.sel), n = sel.size;
+  const z = $("#pbN"); if (z) z.textContent = n + " ausgewählt";
+  const w = $("#pbWeiter"); if (w) w.disabled = !n;
+  CATS.forEach(c => {
+    const l = ITEMS.filter(i => i.cat === c.id && !i.draft), k = l.filter(i => sel.has(i.id)).length;
+    const el = document.querySelector(`[data-pbc="${CSS.escape(c.id)}"]`); if (el) el.textContent = `${k} von ${l.length}`;
+    const all = document.querySelector(`[data-pb-all="${CSS.escape(c.id)}"]`); if (all) all.checked = l.length > 0 && k === l.length;
+  });
+}
+function pbFiltern() {
+  const q = (S.pb.q || "").trim().toLowerCase();
+  document.querySelectorAll("#pbliste .pbgrp").forEach(g => {
+    let sichtbar = 0;
+    g.querySelectorAll("label[data-t]").forEach(r => { const ok = !q || r.dataset.t.includes(q); r.hidden = !ok; if (ok) sichtbar++; });
+    g.hidden = !sichtbar;
+    const alle = g.querySelector("[data-pb-all]"); if (alle) alle.closest("label").hidden = !!q;
+    if (q) g.open = true;
+  });
+}
+document.addEventListener("change", e => {
+  const el = e.target;
+  if (!S.pb || !el.dataset) return;
+  if (el.dataset.pb !== undefined) {
+    const s = new Set(S.pb.sel);
+    if (el.checked) s.add(el.dataset.pb); else s.delete(el.dataset.pb);
+    S.pb.sel = [...s]; pbAktualisieren();
+  } else if (el.dataset.pbAll !== undefined) {
+    const s = new Set(S.pb.sel);
+    ITEMS.filter(i => i.cat === el.dataset.pbAll && !i.draft).forEach(i => { if (el.checked) s.add(i.id); else s.delete(i.id); });
+    S.pb.sel = [...s];
+    el.closest("details").querySelectorAll("[data-pb]").forEach(c => { c.checked = s.has(c.dataset.pb); });
+    pbAktualisieren();
+  }
+});
+document.addEventListener("input", e => {
+  if (!S.pb) return;
+  if (e.target.id === "pbq") { S.pb.q = e.target.value; pbFiltern(); }
+  else if (e.target.id === "pbname") S.pb.name = e.target.value;
+});
+function probeSpeichern() {
+  const b = S.pb, name = (($("#pbname") || {}).value || "").trim() || ("Probe am " + datumDe(heuteIso()));
+  const l = probenLesen();
+  const reihe = ITEMS.filter(i => b.sel.includes(i.id)).map(i => i.id);
+  let id = b.edit;
+  if (id && l.some(p => p.id === id)) l.forEach(p => { if (p.id === id) { p.name = name; p.ids = reihe; } });
+  else { id = "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); l.push({ id, name, datum: heuteIso(), ids: reihe }); }
+  if (!probenSchreiben(l)) { alert("Die Probe konnte auf diesem Gerät nicht gespeichert werden. Eventuell ist der private Modus eingeschaltet."); return; }
+  S.pb = null;
+  go("probe", { pid: id }, true);
+}
+
 /* ===== Eine Übung teilen: als Link oder als ganzer Text (wie in der Spielliste) ===== */
 const TEILEN = { id: null, art: "link" };
 const personenText = tn => tn ? tn + (String(tn).trim() === "1" ? " Person" : " Personen") : "";
