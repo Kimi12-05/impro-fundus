@@ -15,7 +15,8 @@ const TABELLEN = {
   Zugriffe:    ['tag','pfad','art'],
   FundusGruppen:  ['id','name','leiterHash','gruppeHash','erstellt'],
   FundusGrProben: ['id','gruppe','name','datum','ids','geaendert'],
-  FundusWuensche: ['probe','uebung','geraet','zeit']
+  FundusWuensche: ['probe','uebung','geraet','zeit','name'],
+  FundusAnwesenheit: ['probe','geraet','name','status','zeit']
 };
 const LEITER_MAIL = 'eckervogt@outlook.de';
 // ADMIN-ZUGANG FÜR DIE FUNDUS-SEITE: hier dein Passwort eintragen, dann Funktion adminEinrichten ausführen
@@ -333,7 +334,7 @@ function doGet(e){
     if(!t){ t = JSON.stringify(fundusDaten()); fundusCacheSchreiben(t); }
     return ContentService.createTextOutput(t).setMimeType(ContentService.MimeType.JSON);
   }
-  return ContentService.createTextOutput('Impro-Gruppe läuft – Version 18').setMimeType(ContentService.MimeType.TEXT);
+  return ContentService.createTextOutput('Impro-Gruppe läuft – Version 19').setMimeType(ContentService.MimeType.TEXT);
 }
 
 // Öffentlich lesbar (ohne PIN): nur Übungen und Vorgaben, keine Mitgliederdaten.
@@ -388,7 +389,8 @@ function handle(req){
       case 'gruppeLesen':
       case 'gruppeProbe':
       case 'gruppeProbeLoeschen':
-      case 'gruppeWuensche': return gruppenAktion(req);
+      case 'gruppeWuensche':
+      case 'gruppeAnwesend': return gruppenAktion(req);
       case 'fundusAdmin':
         if(CacheService.getScriptCache().get('adm_' + String(req.token || '')) !== '1') return {ok:false, msg:'Bitte melde dich erneut als Admin an.'};
         { const d = fundusDaten(true); d.ideen = alle('Ideen').reverse(); return d; }
@@ -1148,13 +1150,21 @@ function gFinden(code){
   return {ok:false, msg:'Diesen Zugangscode kenne ich nicht.'};
 }
 function gZustand(g, rolle, geraet){
-  const w = alle('FundusWuensche'), zaehl = {}, meine = {};
-  w.forEach(x => {
-    (zaehl[x.probe] = zaehl[x.probe] || {})[x.uebung] = ((zaehl[x.probe] || {})[x.uebung] || 0) + 1;
+  const wn = {}, meine = {}, anw = {}, mein = {};
+  alle('FundusWuensche').forEach(x => {
+    const p = wn[x.probe] = wn[x.probe] || {};
+    (p[x.uebung] = p[x.uebung] || []).push(x.name || 'Jemand');
     if(geraet && x.geraet === geraet) (meine[x.probe] = meine[x.probe] || []).push(x.uebung);
   });
+  alle('FundusAnwesenheit').forEach(x => {
+    if(x.status !== 'ja' && x.status !== 'nein') return;
+    const a = anw[x.probe] = anw[x.probe] || {ja:[], nein:[]};
+    a[x.status].push(x.name || 'Jemand');
+    if(geraet && x.geraet === geraet) mein[x.probe] = x.status;
+  });
   const proben = alle('FundusGrProben').filter(p => p.gruppe === g.id).map(p => ({
-    id:p.id, name:p.name, datum:p.datum, ids:liste(p.ids), w:zaehl[p.id] || {}, meine:meine[p.id] || []
+    id:p.id, name:p.name, datum:p.datum, ids:liste(p.ids), wn:wn[p.id] || {}, meine:meine[p.id] || [],
+    anw:anw[p.id] || {ja:[], nein:[]}, meinStatus:mein[p.id] || ''
   }));
   return {ok:true, gruppe:{id:g.id, name:g.name, rolle:rolle}, proben:proben};
 }
@@ -1179,14 +1189,27 @@ function gruppenAktion(req){
   const g = f.g, rolle = f.rolle;
   if(req.gruppe && String(req.gruppe) !== g.id) return {ok:false, msg:'Dieser Code gehört zu einer anderen Gruppe.'};
   if(req.action === 'gruppeLesen') return gZustand(g, rolle, geraet);
-  if(req.action === 'gruppeWuensche'){
+  if(req.action === 'gruppeWuensche' || req.action === 'gruppeAnwesend'){
     const probe = alle('FundusGrProben').find(p => p.id === String(req.probe) && p.gruppe === g.id);
     if(!probe) return {ok:false, msg:'Diese Probe gibt es nicht mehr.'};
     if(!geraet) return {ok:false, msg:'Bitte lade die Seite neu.'};
-    const neu = gIds(req.uebungen).slice(0, 15), jetzt = Utilities.formatDate(new Date(), 'Europe/Berlin', 'yyyy-MM-dd HH:mm');
-    const w = alle('FundusWuensche').filter(x => !(x.probe === probe.id && x.geraet === geraet));
-    neu.forEach(u => w.push({probe:probe.id, uebung:u, geraet:geraet, zeit:jetzt}));
-    schreibe('FundusWuensche', w);
+    const name = gKurz(req.name, 30);
+    if(!name) return {ok:false, msg:'Bitte gib deinen Vornamen an.'};
+    const jetzt = Utilities.formatDate(new Date(), 'Europe/Berlin', 'yyyy-MM-dd HH:mm');
+    // Ändert jemand seinen Namen, gilt der neue Name überall
+    let w = alle('FundusWuensche'), an = alle('FundusAnwesenheit');
+    w.forEach(x => { if(x.geraet === geraet) x.name = name; });
+    an.forEach(x => { if(x.geraet === geraet) x.name = name; });
+    if(req.action === 'gruppeWuensche'){
+      const neu = gIds(req.uebungen).slice(0, 15);
+      w = w.filter(x => !(x.probe === probe.id && x.geraet === geraet));
+      neu.forEach(u => w.push({probe:probe.id, uebung:u, geraet:geraet, zeit:jetzt, name:name}));
+    } else {
+      const st = String(req.status || '');
+      an = an.filter(x => !(x.probe === probe.id && x.geraet === geraet));
+      if(st === 'ja' || st === 'nein') an.push({probe:probe.id, geraet:geraet, name:name, status:st, zeit:jetzt});
+    }
+    schreibe('FundusWuensche', w); schreibe('FundusAnwesenheit', an);
     return gZustand(g, rolle, geraet);
   }
   if(rolle !== 'leiter') return {ok:false, msg:'Das darf nur, wer den Leiter-Code kennt.'};
@@ -1208,6 +1231,7 @@ function gruppenAktion(req){
     const id = String(req.id || '');
     schreibe('FundusGrProben', alle('FundusGrProben').filter(p => !(p.id === id && p.gruppe === g.id)));
     schreibe('FundusWuensche', alle('FundusWuensche').filter(x => x.probe !== id));
+    schreibe('FundusAnwesenheit', alle('FundusAnwesenheit').filter(x => x.probe !== id));
     return gZustand(g, rolle, geraet);
   }
   return {ok:false, msg:'Unbekannte Aktion.'};
