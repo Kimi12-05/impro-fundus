@@ -28,7 +28,7 @@
 <link rel="preconnect" href="https://script.google.com">
 <link rel="preconnect" href="https://script.googleusercontent.com">
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;700&family=Indie+Flower&family=Architects+Daughter&family=Coming+Soon&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/site.css?v=af2c29a429">
+<link rel="stylesheet" href="/site.css?v=e15cb9f011">
 </head>
 <body>
 <div class="topwrap">
@@ -53,6 +53,9 @@
     <article class="detail"><div class="pagehead"><span><span class="pill red"><a data-cat="Gruppenübungen" class="linkbtn" href="/uebungen/gruppenuebungen/">Gruppenübungen</a></span></span><h1>Tod in einer Minute</h1></div>
     <div class="facts"><div class="fact"><span>Dauer</span><strong>–</strong></div><div class="fact"><span>Niveau</span><strong>Fortgeschritten</strong></div></div>
     
+    <section class="timer" aria-label="Timer"><div class="tmzeit" id="tmzeit" role="timer" aria-live="off">Bereit</div>
+    <div class="tmbtns"><button class="btn" data-timer="60">60 s</button><button class="btn" data-timer="30">30 s</button><button class="btn" data-timer="15">15 s</button><button class="btn" data-timer="10">10 s</button><button class="btn" data-timer="5">5 s</button><button class="btn" data-timer="1">1 s</button></div>
+    <button class="btn del tmstop" data-timer-stop="1" hidden="">Stopp</button></section>
     <div class="row sharerow"><button class="btn" data-share="u7"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"></path><path d="m7 8 5-5 5 5"></path><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"></path></svg> Teilen</button></div>
     <section class="prose"><h2>So geht's</h2><p>Zwei Spieler beginnen eine Szene (gern mit Vorgaben aus dem Publikum), in der innerhalb einer Minute eine der beiden Figuren sterben muss.</p><p>Danach wird dieselbe Szene noch einmal gespielt, aber nur noch 30 Sekunden lang. Es folgen 15 Sekunden, 10 Sekunden, 5 Sekunden und zum Schluss 1 Sekunde.</p><p>Die Szene wird also sechsmal gespielt: in 1 Minute, in 30, 15, 10, 5 und 1 Sekunde.</p></section>
     </article>
@@ -64,6 +67,6 @@
 <nav class="bottom" id="bottom" aria-label="Schnellmenü"></nav>
 <div class="dlg" id="dlg" hidden><div class="dlg-box" id="dlgBox" role="dialog" aria-modal="true"></div></div>
 
-<script src="/site.js?v=af2c29a429"></script>
+<script src="/site.js?v=e15cb9f011"></script>
 </body>
 </html>
