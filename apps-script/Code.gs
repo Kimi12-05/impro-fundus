@@ -14,7 +14,7 @@ const TABELLEN = {
   Ideen:       ['id','art','titel','kat','tn','level','text','nameNennen','name','mail','datum'],
   Zugriffe:    ['tag','pfad','art'],
   FundusGruppen:  ['id','name','leiterHash','gruppeHash','erstellt'],
-  FundusGrProben: ['id','gruppe','name','datum','ids','geaendert'],
+  FundusGrProben: ['id','gruppe','name','datum','ids','geaendert','erledigt','notizen'],
   FundusWuensche: ['probe','uebung','geraet','zeit','name'],
   FundusAnwesenheit: ['probe','geraet','name','status','zeit'],
   FundusTeilnehmer: ['id','gruppe','name']
@@ -335,7 +335,7 @@ function doGet(e){
     if(!t){ t = JSON.stringify(fundusDaten()); fundusCacheSchreiben(t); }
     return ContentService.createTextOutput(t).setMimeType(ContentService.MimeType.JSON);
   }
-  return ContentService.createTextOutput('Impro-Gruppe läuft – Version 21').setMimeType(ContentService.MimeType.TEXT);
+  return ContentService.createTextOutput('Impro-Gruppe läuft – Version 22').setMimeType(ContentService.MimeType.TEXT);
 }
 
 // Öffentlich lesbar (ohne PIN): nur Übungen und Vorgaben, keine Mitgliederdaten.
@@ -410,7 +410,11 @@ function handle(req){
       case 'adminGruppen':
       case 'adminGruppeSpeichern':
       case 'adminGruppeLoeschen':
-      case 'adminTeilnehmer': return adminAktion(req);
+      case 'adminTeilnehmer':
+      case 'adminProben':
+      case 'adminProbeSpeichern':
+      case 'adminProbeLoeschen':
+      case 'adminProbeLauf': return adminAktion(req);
       case 'adminListe':
       case 'adminHinzufuegen':
       case 'adminEntfernen': return adminVerwaltung(req);
@@ -539,6 +543,10 @@ function adminAktion(req){
   if(req.action === 'adminGruppeSpeichern') return adminGruppeSpeichern(req);
   if(req.action === 'adminGruppeLoeschen') return adminGruppeLoeschen(req);
   if(req.action === 'adminTeilnehmer') return adminTeilnehmer(req);
+  if(req.action === 'adminProben') return adminProbenListe(req);
+  if(req.action === 'adminProbeSpeichern') return adminProbeSpeichern(req);
+  if(req.action === 'adminProbeLoeschen') return adminProbeLoeschen(req);
+  if(req.action === 'adminProbeLauf') return adminProbeLauf(req);
   const f = req.eintrag || {};
   if(!String(f.titel || '').trim()) return {ok:false, msg:'Bitte einen Titel eingeben.'};
   if(!String(f.kat || '').trim()) return {ok:false, msg:'Bitte eine Kategorie wählen.'};
@@ -1330,6 +1338,12 @@ function adminTeilnehmer(req){
   const l = alle('FundusTeilnehmer');
   if(req.op === 'del'){
     schreibe('FundusTeilnehmer', l.filter(x => !(x.id === String(req.id || '') && x.gruppe === gid)));
+  } else if(req.op === 'rename'){
+    const t = l.find(x => x.id === String(req.id || '') && x.gruppe === gid), n = gKurz(req.name, 30);
+    if(!t) return {ok:false, msg:'Diesen Teilnehmer gibt es nicht mehr.'};
+    if(!n) return {ok:false, msg:'Bitte gib einen Namen ein.'};
+    if(l.some(x => x.gruppe === gid && x.id !== t.id && x.name.toLowerCase() === n.toLowerCase())) return {ok:false, msg:'Diesen Namen gibt es in der Gruppe schon.'};
+    t.name = n; schreibe('FundusTeilnehmer', l);
   } else {
     const neu = String(req.namen || '').split(/[\n,;]+/).map(x => gKurz(x, 30)).filter(x => x);
     if(!neu.length) return {ok:false, msg:'Bitte gib mindestens einen Namen ein.'};
@@ -1341,4 +1355,64 @@ function adminTeilnehmer(req){
     schreibe('FundusTeilnehmer', l);
   }
   return adminGruppenListe();
+}
+
+/* ---------- Proben planen und durchführen in der Verwaltung (Version 22) ---------- */
+// ids = Reihenfolge der Übungen, erledigt = abgehakte Übungen, notizen = Notiz je Übung (JSON)
+function pNotizen(p){ try { const o = JSON.parse(p.notizen || '{}'); return (o && typeof o === 'object') ? o : {}; } catch(e){ return {}; } }
+function pAus(p){
+  return {id:p.id, name:p.name, datum:p.datum, ids:liste(p.ids), erledigt:liste(p.erledigt), notizen:pNotizen(p), geaendert:p.geaendert};
+}
+function pListe(gid){
+  return {ok:true, gruppe:gid, proben:alle('FundusGrProben').filter(p => p.gruppe === gid).map(pAus)
+    .sort((a, b) => String(b.datum).localeCompare(String(a.datum)))};
+}
+function pGruppe(req){
+  const gid = String(req.gruppe || '');
+  return alle('FundusGruppen').some(g => g.id === gid) ? gid : '';
+}
+function adminProbenListe(req){
+  const gid = pGruppe(req); if(!gid) return {ok:false, msg:'Diese Gruppe gibt es nicht mehr.'};
+  return pListe(gid);
+}
+function pDatum(t, std){ return /^\d{4}-\d{2}-\d{2}$/.test(String(t || '')) ? String(t) : std; }
+function adminProbeSpeichern(req){
+  const gid = pGruppe(req); if(!gid) return {ok:false, msg:'Diese Gruppe gibt es nicht mehr.'};
+  const l = alle('FundusGrProben');
+  const name = gKurz(req.name, 60) || ('Probe am ' + datumDe()), ids = gIds(req.ids).slice(0, 200);
+  let id = String(req.id || ''), p = l.find(x => x.id === id && x.gruppe === gid);
+  if(p){
+    p.name = name; p.datum = pDatum(req.datum, p.datum); p.ids = ids.join(','); p.geaendert = heuteIso();
+    p.erledigt = liste(p.erledigt).filter(x => ids.indexOf(x) >= 0).join(',');
+    const n = pNotizen(p), n2 = {}; Object.keys(n).forEach(k => { if(ids.indexOf(k) >= 0) n2[k] = n[k]; });
+    p.notizen = JSON.stringify(n2);
+  } else {
+    if(l.filter(x => x.gruppe === gid).length >= 100) return {ok:false, msg:'Pro Gruppe können höchstens 100 Proben gespeichert werden.'};
+    id = gId('gp'); l.push({id:id, gruppe:gid, name:name, datum:pDatum(req.datum, heuteIso()), ids:ids.join(','), geaendert:heuteIso(), erledigt:'', notizen:'{}'});
+  }
+  schreibe('FundusGrProben', l);
+  const r = pListe(gid); r.probeId = id; return r;
+}
+function adminProbeLoeschen(req){
+  const gid = pGruppe(req); if(!gid) return {ok:false, msg:'Diese Gruppe gibt es nicht mehr.'};
+  const id = String(req.id || '');
+  schreibe('FundusGrProben', alle('FundusGrProben').filter(p => !(p.id === id && p.gruppe === gid)));
+  schreibe('FundusWuensche', alle('FundusWuensche').filter(x => x.probe !== id));
+  schreibe('FundusAnwesenheit', alle('FundusAnwesenheit').filter(x => x.probe !== id));
+  return pListe(gid);
+}
+// Während der Probe: Haken und Notizen speichern (die Reihenfolge der Übungen ändert sich dabei nicht)
+function adminProbeLauf(req){
+  const gid = pGruppe(req); if(!gid) return {ok:false, msg:'Diese Gruppe gibt es nicht mehr.'};
+  const l = alle('FundusGrProben'), p = l.find(x => x.id === String(req.id || '') && x.gruppe === gid);
+  if(!p) return {ok:false, msg:'Diese Probe gibt es nicht mehr.'};
+  const ids = liste(p.ids);
+  p.erledigt = gIds(req.erledigt).filter(x => ids.indexOf(x) >= 0).join(',');
+  const n = {}, q = (req.notizen && typeof req.notizen === 'object') ? req.notizen : {};
+  Object.keys(q).forEach(k => { const t = String(q[k] == null ? '' : q[k]).slice(0, 2000); if(ids.indexOf(k) >= 0 && t.trim()) n[k] = t; });
+  let js = JSON.stringify(n);
+  if(js.length > 45000) return {ok:false, msg:'Die Notizen sind zu lang. Bitte kürze sie.'};
+  p.notizen = js; p.geaendert = heuteIso();
+  schreibe('FundusGrProben', l);
+  return {ok:true, probe:pAus(p)};
 }
