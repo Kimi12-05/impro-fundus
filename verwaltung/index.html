@@ -163,9 +163,9 @@ async function aktion(obj, nach) {
 }
 
 /* ---------- Seitengerüst ---------- */
-const TABS = [["ide", "Vorschläge"], ["ueb", "Übungen"], ["vor", "Vorgaben"], ["zit", "Zitate"], ["imp", "Import / Export"], ["sta", "Besucher"], ["adm", "Admins"]];
+const TABS = [["ide", "Vorschläge"], ["ueb", "Übungen"], ["vor", "Vorgaben"], ["zit", "Zitate"], ["imp", "Import / Export"], ["sta", "Besucher"], ["gru", "Gruppen"], ["adm", "Admins"]];
 function seite() {
-  const inhalt = { ide: tabIde, ueb: tabUeb, vor: tabVor, zit: tabZit, imp: tabImp, sta: tabSta, adm: tabAdm }[tab]();
+  const inhalt = { ide: tabIde, ueb: tabUeb, vor: tabVor, zit: tabZit, imp: tabImp, sta: tabSta, gru: tabGru, adm: tabAdm }[tab]();
   const alt = $("#suche"), hadFocus = alt && document.activeElement === alt, pos = hadFocus ? alt.selectionStart : 0;
   $("#app").innerHTML = `<div class="top"><div class="wrap"><img src="../logo.png" alt=""><h1>Verwaltung</h1><a class="btn" href="../" style="text-decoration:none">Zur Website</a><button class="btn" id="out">Abmelden</button></div></div>
     <div class="wrap"><div class="tabs" role="tablist">${TABS.map(([k, t]) => `<button role="tab" data-tab="${k}" aria-pressed="${tab === k}">${t}${k === "ide" && IDEEN.length ? ` <span class="pill" style="background:var(--red);color:#fff">${IDEEN.length}</span>` : ""}</button>`).join("")}</div>${inhalt}</div>`;
@@ -433,6 +433,73 @@ async function admListe() {
   } catch (x) { if ($("#admList")) $("#admList").innerHTML = `<p class="msg err">${esc(x.message || "Die Liste konnte nicht geladen werden.")}</p>`; }
 }
 
+/* ---------- Gruppen (Proben-Gruppen mit Zugangscode) ---------- */
+let GRU = null;
+function datumKurz(t) { const m = /^(\d{4})-(\d\d)-(\d\d)/.exec(String(t || "")); return m ? `${m[3]}.${m[2]}.${m[1]}` : ""; }
+function tabGru() {
+  if (!GRU) return `<div class="panel"><h2>Gruppen</h2><p class="hint">Die Gruppen werden geladen …</p></div>`;
+  return `<div class="panel"><h2>Gruppen</h2><p class="hint">Alle Impro-Gruppen, die über „Eigene Probe zusammenstellen“ angelegt wurden. Hier kannst du Gruppen umbenennen, neue Zugangscodes vergeben, Teilnehmer pflegen und Gruppen löschen.</p>
+    <p class="msg" id="gm"></p>
+    ${GRU.length ? GRU.map(g => `<div class="item" style="border:1px solid var(--line);border-radius:10px;margin-bottom:6px;flex-wrap:wrap"><span class="t"><b>${esc(g.name)}</b><br><small class="hint">${g.teilnehmer.length} Teilnehmer · ${g.proben} Proben${g.erstellt ? " · angelegt " + datumKurz(g.erstellt) : ""}</small></span><button class="btn small" data-gedit="${esc(g.id)}">Bearbeiten</button><button class="btn small del" data-gdel="${esc(g.id)}">Löschen</button></div>`).join("") : `<p class="hint">Es gibt noch keine Gruppen.</p>`}</div>`;
+}
+async function gruLaden() {
+  try { const r = await api({ action: "adminGruppen" }); if (!r.ok) throw new Error(r.msg); GRU = r.gruppen; }
+  catch (x) { GRU = null; if (tab === "gru" && $("#gm")) { $("#gm").className = "msg err"; $("#gm").textContent = x.message || "Die Gruppen konnten nicht geladen werden."; } return; }
+  if (tab === "gru") seite();
+}
+function gruDialog(id, hinweis, art) {
+  const g = (GRU || []).find(x => x.id === id); if (!g) { closeDlg(); return; }
+  openDlg(`<h2>Gruppe bearbeiten</h2>
+    <form class="form" id="gform2"><label>Name der Gruppe<input id="gname" maxlength="40" value="${esc(g.name)}" required></label>
+      <label>Neuer Leiter-Code (leer lassen = unverändert)<input id="glc" maxlength="20" autocomplete="off" autocapitalize="none"></label>
+      <label>Neuer Gruppen-Code (leer lassen = unverändert)<input id="ggc" maxlength="20" autocomplete="off" autocapitalize="none"></label>
+      <p class="msg ${art || ""}" id="gm2">${esc(hinweis || "")}</p>
+      <div class="row"><button class="btn red" type="submit">Speichern</button><button class="btn" type="button" id="gzu">Schließen</button></div></form>
+    <h3>Teilnehmer (${g.teilnehmer.length})</h3>
+    ${g.teilnehmer.length ? g.teilnehmer.map(t => `<div class="item" style="border:1px solid var(--line);border-radius:10px;margin-bottom:6px"><span class="t">${esc(t.name)}</span><button class="btn small del" data-gtdel="${esc(t.id)}">entfernen</button></div>`).join("") : `<p class="hint">Noch keine Teilnehmer.</p>`}
+    <form class="form" id="gtf"><label>Namen hinzufügen (mehrere mit Komma oder Zeilenumbruch trennen)<textarea id="gtn" rows="2" placeholder="Anna, Ben, Cleo"></textarea></label>
+      <div class="row"><button class="btn" type="submit">Hinzufügen</button></div></form>`);
+  $("#gzu").onclick = closeDlg;
+  $("#gform2").onsubmit = async e => {
+    e.preventDefault(); const m = $("#gm2"); m.className = "msg"; m.textContent = "Einen Moment …";
+    try {
+      const r = await api({ action: "adminGruppeSpeichern", id, name: $("#gname").value, leiterCode: $("#glc").value, gruppenCode: $("#ggc").value });
+      if (!r.ok) throw new Error(r.msg || "Das hat nicht geklappt.");
+      GRU = r.gruppen; seite(); gruDialog(id, "Gespeichert.", "ok");
+    } catch (x) { m.className = "msg err"; m.textContent = x.message; }
+  };
+  $("#gtf").onsubmit = async e => {
+    e.preventDefault(); const m = $("#gm2");
+    try {
+      const r = await api({ action: "adminTeilnehmer", gruppe: id, op: "add", namen: $("#gtn").value });
+      if (!r.ok) throw new Error(r.msg || "Das hat nicht geklappt.");
+      GRU = r.gruppen; seite(); gruDialog(id);
+    } catch (x) { m.className = "msg err"; m.textContent = x.message; }
+  };
+  document.querySelectorAll("[data-gtdel]").forEach(b => b.onclick = async () => {
+    const t = g.teilnehmer.find(x => x.id === b.dataset.gtdel);
+    if (!confirm(`„${t ? t.name : ""}“ aus der Gruppe entfernen?`)) return;
+    try {
+      const r = await api({ action: "adminTeilnehmer", gruppe: id, op: "del", id: b.dataset.gtdel });
+      if (!r.ok) throw new Error(r.msg || "Das hat nicht geklappt.");
+      GRU = r.gruppen; seite(); gruDialog(id);
+    } catch (x) { $("#gm2").className = "msg err"; $("#gm2").textContent = x.message; }
+  });
+}
+function bindGru() {
+  if (!GRU) { gruLaden(); return; }
+  document.querySelectorAll("[data-gedit]").forEach(b => b.onclick = () => gruDialog(b.dataset.gedit));
+  document.querySelectorAll("[data-gdel]").forEach(b => b.onclick = async () => {
+    const g = GRU.find(x => x.id === b.dataset.gdel); if (!g) return;
+    if (!confirm(`Die Gruppe „${g.name}“ mit allen Teilnehmern, Proben, Wünschen und Anwesenheiten endgültig löschen? Das kann nicht rückgängig gemacht werden.`)) return;
+    try {
+      const r = await api({ action: "adminGruppeLoeschen", id: g.id });
+      if (!r.ok) throw new Error(r.msg || "Das hat nicht geklappt.");
+      GRU = r.gruppen; seite();
+    } catch (x) { $("#gm").className = "msg err"; $("#gm").textContent = x.message; }
+  });
+}
+
 /* ---------- Bearbeiten-Fenster ---------- */
 function openDlg(h) { $("#dlgBox").innerHTML = h; $("#dlg").hidden = false; }
 function closeDlg() { $("#dlg").hidden = true; $("#dlgBox").innerHTML = ""; }
@@ -511,6 +578,7 @@ function bindTab() {
   if (tab === "imp") bindImp();
   if (tab === "adm") bindAdm();
   if (tab === "sta") bindSta();
+  if (tab === "gru") bindGru();
 }
 function bindZit() {
   const msg = (t, c) => { const m = $("#zMsg"); if (m) { m.className = "msg " + (c || ""); m.textContent = t; } };
