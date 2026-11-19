@@ -335,7 +335,7 @@ function doGet(e){
     if(!t){ t = JSON.stringify(fundusDaten()); fundusCacheSchreiben(t); }
     return ContentService.createTextOutput(t).setMimeType(ContentService.MimeType.JSON);
   }
-  return ContentService.createTextOutput('Impro-Gruppe läuft – Version 20').setMimeType(ContentService.MimeType.TEXT);
+  return ContentService.createTextOutput('Impro-Gruppe läuft – Version 21').setMimeType(ContentService.MimeType.TEXT);
 }
 
 // Öffentlich lesbar (ohne PIN): nur Übungen und Vorgaben, keine Mitgliederdaten.
@@ -406,7 +406,11 @@ function handle(req){
       case 'adminImport':
       case 'adminVerschieben':
       case 'adminStatistik':
-      case 'adminWidgetSchluessel': return adminAktion(req);
+      case 'adminWidgetSchluessel':
+      case 'adminGruppen':
+      case 'adminGruppeSpeichern':
+      case 'adminGruppeLoeschen':
+      case 'adminTeilnehmer': return adminAktion(req);
       case 'adminListe':
       case 'adminHinzufuegen':
       case 'adminEntfernen': return adminVerwaltung(req);
@@ -531,6 +535,10 @@ function adminAktion(req){
   if(req.action === 'adminStatistik') return statistikLesen(true);
   if(req.action === 'adminWidgetSchluessel') return widgetSchluessel(req);
   if(req.action === 'adminVerschieben') return adminVerschieben(req);
+  if(req.action === 'adminGruppen') return adminGruppenListe();
+  if(req.action === 'adminGruppeSpeichern') return adminGruppeSpeichern(req);
+  if(req.action === 'adminGruppeLoeschen') return adminGruppeLoeschen(req);
+  if(req.action === 'adminTeilnehmer') return adminTeilnehmer(req);
   const f = req.eintrag || {};
   if(!String(f.titel || '').trim()) return {ok:false, msg:'Bitte einen Titel eingeben.'};
   if(!String(f.kat || '').trim()) return {ok:false, msg:'Bitte eine Kategorie wählen.'};
@@ -1281,4 +1289,56 @@ function gruppenAktion(req){
     return gZustand(g, rolle, geraet, person);
   }
   return {ok:false, msg:'Unbekannte Aktion.'};
+}
+
+/* ---------- Gruppen in der Verwaltung (Version 21) ---------- */
+function adminGruppenListe(){
+  const tn = alle('FundusTeilnehmer'), pr = alle('FundusGrProben');
+  return {ok:true, gruppen:alle('FundusGruppen').map(g => ({
+    id:g.id, name:g.name, erstellt:g.erstellt,
+    teilnehmer:tn.filter(t => t.gruppe === g.id).map(t => ({id:t.id, name:t.name})),
+    proben:pr.filter(p => p.gruppe === g.id).length
+  }))};
+}
+function adminGruppeSpeichern(req){
+  const l = alle('FundusGruppen'), g = l.find(x => x.id === String(req.id || ''));
+  if(!g) return {ok:false, msg:'Diese Gruppe gibt es nicht mehr.'};
+  const name = gKurz(req.name, 40);
+  if(name.length < 2) return {ok:false, msg:'Bitte gib der Gruppe einen Namen.'};
+  const lc = String(req.leiterCode || '').trim(), gc = String(req.gruppenCode || '').trim();
+  const neuL = lc ? gHash(lc) : g.leiterHash, neuG = gc ? gHash(gc) : g.gruppeHash;
+  if((lc && (lc.length < 4 || lc.length > 20)) || (gc && (gc.length < 4 || gc.length > 20))) return {ok:false, msg:'Die Zugangscodes müssen zwischen 4 und 20 Zeichen lang sein.'};
+  if(neuL === neuG) return {ok:false, msg:'Leiter-Code und Gruppen-Code müssen verschieden sein.'};
+  if(l.some(x => x.id !== g.id && [x.leiterHash, x.gruppeHash].some(h => h === neuL || h === neuG))) return {ok:false, msg:'Einer der Codes wird schon von einer anderen Gruppe verwendet.'};
+  g.name = name; g.leiterHash = neuL; g.gruppeHash = neuG;
+  schreibe('FundusGruppen', l);
+  return adminGruppenListe();
+}
+function adminGruppeLoeschen(req){
+  const id = String(req.id || '');
+  const proben = alle('FundusGrProben').filter(p => p.gruppe === id).map(p => p.id);
+  schreibe('FundusGruppen', alle('FundusGruppen').filter(g => g.id !== id));
+  schreibe('FundusGrProben', alle('FundusGrProben').filter(p => p.gruppe !== id));
+  schreibe('FundusTeilnehmer', alle('FundusTeilnehmer').filter(t => t.gruppe !== id));
+  schreibe('FundusWuensche', alle('FundusWuensche').filter(x => proben.indexOf(x.probe) < 0));
+  schreibe('FundusAnwesenheit', alle('FundusAnwesenheit').filter(x => proben.indexOf(x.probe) < 0));
+  return adminGruppenListe();
+}
+function adminTeilnehmer(req){
+  const gid = String(req.gruppe || '');
+  if(!alle('FundusGruppen').some(g => g.id === gid)) return {ok:false, msg:'Diese Gruppe gibt es nicht mehr.'};
+  const l = alle('FundusTeilnehmer');
+  if(req.op === 'del'){
+    schreibe('FundusTeilnehmer', l.filter(x => !(x.id === String(req.id || '') && x.gruppe === gid)));
+  } else {
+    const neu = String(req.namen || '').split(/[\n,;]+/).map(x => gKurz(x, 30)).filter(x => x);
+    if(!neu.length) return {ok:false, msg:'Bitte gib mindestens einen Namen ein.'};
+    const hier = l.filter(x => x.gruppe === gid);
+    neu.forEach(n => {
+      if(hier.length >= 60 || hier.some(x => x.name.toLowerCase() === n.toLowerCase())) return;
+      const t = {id:gId('t'), gruppe:gid, name:n}; l.push(t); hier.push(t);
+    });
+    schreibe('FundusTeilnehmer', l);
+  }
+  return adminGruppenListe();
 }
