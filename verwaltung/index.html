@@ -163,9 +163,9 @@ async function aktion(obj, nach) {
 }
 
 /* ---------- Seitengerüst ---------- */
-const TABS = [["ide", "Vorschläge"], ["ueb", "Übungen"], ["vor", "Vorgaben"], ["zit", "Zitate"], ["imp", "Import / Export"], ["sta", "Besucher"], ["gru", "Gruppen"], ["adm", "Admins"]];
+const TABS = [["ide", "Vorschläge"], ["ueb", "Übungen"], ["vor", "Vorgaben"], ["zit", "Zitate"], ["imp", "Import / Export"], ["sta", "Besucher"], ["gru", "Gruppen"], ["pro", "Proben"], ["adm", "Admins"]];
 function seite() {
-  const inhalt = { ide: tabIde, ueb: tabUeb, vor: tabVor, zit: tabZit, imp: tabImp, sta: tabSta, gru: tabGru, adm: tabAdm }[tab]();
+  const inhalt = { ide: tabIde, ueb: tabUeb, vor: tabVor, zit: tabZit, imp: tabImp, sta: tabSta, gru: tabGru, pro: tabPro, adm: tabAdm }[tab]();
   const alt = $("#suche"), hadFocus = alt && document.activeElement === alt, pos = hadFocus ? alt.selectionStart : 0;
   $("#app").innerHTML = `<div class="top"><div class="wrap"><img src="../logo.png" alt=""><h1>Verwaltung</h1><a class="btn" href="../" style="text-decoration:none">Zur Website</a><button class="btn" id="out">Abmelden</button></div></div>
     <div class="wrap"><div class="tabs" role="tablist">${TABS.map(([k, t]) => `<button role="tab" data-tab="${k}" aria-pressed="${tab === k}">${t}${k === "ide" && IDEEN.length ? ` <span class="pill" style="background:var(--red);color:#fff">${IDEEN.length}</span>` : ""}</button>`).join("")}</div>${inhalt}</div>`;
@@ -440,12 +440,12 @@ function tabGru() {
   if (!GRU) return `<div class="panel"><h2>Gruppen</h2><p class="hint">Die Gruppen werden geladen …</p></div>`;
   return `<div class="panel"><h2>Gruppen</h2><p class="hint">Alle Impro-Gruppen, die über „Eigene Probe zusammenstellen“ angelegt wurden. Hier kannst du Gruppen umbenennen, neue Zugangscodes vergeben, Teilnehmer pflegen und Gruppen löschen.</p>
     <p class="msg" id="gm"></p>
-    ${GRU.length ? GRU.map(g => `<div class="item" style="border:1px solid var(--line);border-radius:10px;margin-bottom:6px;flex-wrap:wrap"><span class="t"><b>${esc(g.name)}</b><br><small class="hint">${g.teilnehmer.length} Teilnehmer · ${g.proben} Proben${g.erstellt ? " · angelegt " + datumKurz(g.erstellt) : ""}</small></span><button class="btn small" data-gedit="${esc(g.id)}">Bearbeiten</button><button class="btn small del" data-gdel="${esc(g.id)}">Löschen</button></div>`).join("") : `<p class="hint">Es gibt noch keine Gruppen.</p>`}</div>`;
+    ${GRU.length ? GRU.map(g => `<div class="item" style="border:1px solid var(--line);border-radius:10px;margin-bottom:6px;flex-wrap:wrap"><span class="t"><b>${esc(g.name)}</b><br><small class="hint">${g.teilnehmer.length} Teilnehmer · ${g.proben} Proben${g.erstellt ? " · angelegt " + datumKurz(g.erstellt) : ""}</small>${g.teilnehmer.length ? `<br><small class="hint" style="margin:0">${esc(g.teilnehmer.map(t => t.name).join(", "))}</small>` : ""}</span><button class="btn small red" data-gpro="${esc(g.id)}">Proben</button><button class="btn small" data-gedit="${esc(g.id)}">Teilnehmer / Bearbeiten</button><button class="btn small del" data-gdel="${esc(g.id)}">Löschen</button></div>`).join("") : `<p class="hint">Es gibt noch keine Gruppen.</p>`}</div>`;
 }
 async function gruLaden() {
   try { const r = await api({ action: "adminGruppen" }); if (!r.ok) throw new Error(r.msg); GRU = r.gruppen; }
   catch (x) { GRU = null; if (tab === "gru" && $("#gm")) { $("#gm").className = "msg err"; $("#gm").textContent = x.message || "Die Gruppen konnten nicht geladen werden."; } return; }
-  if (tab === "gru") seite();
+  if (tab === "gru" || tab === "pro") seite();
 }
 function gruDialog(id, hinweis, art) {
   const g = (GRU || []).find(x => x.id === id); if (!g) { closeDlg(); return; }
@@ -456,7 +456,7 @@ function gruDialog(id, hinweis, art) {
       <p class="msg ${art || ""}" id="gm2">${esc(hinweis || "")}</p>
       <div class="row"><button class="btn red" type="submit">Speichern</button><button class="btn" type="button" id="gzu">Schließen</button></div></form>
     <h3>Teilnehmer (${g.teilnehmer.length})</h3>
-    ${g.teilnehmer.length ? g.teilnehmer.map(t => `<div class="item" style="border:1px solid var(--line);border-radius:10px;margin-bottom:6px"><span class="t">${esc(t.name)}</span><button class="btn small del" data-gtdel="${esc(t.id)}">entfernen</button></div>`).join("") : `<p class="hint">Noch keine Teilnehmer.</p>`}
+    ${g.teilnehmer.length ? g.teilnehmer.map(t => `<div class="item" style="border:1px solid var(--line);border-radius:10px;margin-bottom:6px"><span class="t">${esc(t.name)}</span><button class="btn small" data-gtren="${esc(t.id)}">umbenennen</button><button class="btn small del" data-gtdel="${esc(t.id)}">entfernen</button></div>`).join("") : `<p class="hint">Noch keine Teilnehmer.</p>`}
     <form class="form" id="gtf"><label>Namen hinzufügen (mehrere mit Komma oder Zeilenumbruch trennen)<textarea id="gtn" rows="2" placeholder="Anna, Ben, Cleo"></textarea></label>
       <div class="row"><button class="btn" type="submit">Hinzufügen</button></div></form>`);
   $("#gzu").onclick = closeDlg;
@@ -476,6 +476,15 @@ function gruDialog(id, hinweis, art) {
       GRU = r.gruppen; seite(); gruDialog(id);
     } catch (x) { m.className = "msg err"; m.textContent = x.message; }
   };
+  document.querySelectorAll("[data-gtren]").forEach(b => b.onclick = async () => {
+    const t = g.teilnehmer.find(x => x.id === b.dataset.gtren); if (!t) return;
+    const n = prompt("Neuer Name für „" + t.name + "“:", t.name); if (!n || !n.trim() || n.trim() === t.name) return;
+    try {
+      const r = await api({ action: "adminTeilnehmer", gruppe: id, op: "rename", id: t.id, name: n.trim() });
+      if (!r.ok) throw new Error(r.msg || "Das hat nicht geklappt.");
+      GRU = r.gruppen; seite(); gruDialog(id);
+    } catch (x) { $("#gm2").className = "msg err"; $("#gm2").textContent = x.message; }
+  });
   document.querySelectorAll("[data-gtdel]").forEach(b => b.onclick = async () => {
     const t = g.teilnehmer.find(x => x.id === b.dataset.gtdel);
     if (!confirm(`„${t ? t.name : ""}“ aus der Gruppe entfernen?`)) return;
@@ -489,6 +498,7 @@ function gruDialog(id, hinweis, art) {
 function bindGru() {
   if (!GRU) { gruLaden(); return; }
   document.querySelectorAll("[data-gedit]").forEach(b => b.onclick = () => gruDialog(b.dataset.gedit));
+  document.querySelectorAll("[data-gpro]").forEach(b => b.onclick = () => { tab = "pro"; PE = null; PG = b.dataset.gpro; PL = null; seite(); window.scrollTo(0, 0); });
   document.querySelectorAll("[data-gdel]").forEach(b => b.onclick = async () => {
     const g = GRU.find(x => x.id === b.dataset.gdel); if (!g) return;
     if (!confirm(`Die Gruppe „${g.name}“ mit allen Teilnehmern, Proben, Wünschen und Anwesenheiten endgültig löschen? Das kann nicht rückgängig gemacht werden.`)) return;
@@ -499,6 +509,151 @@ function bindGru() {
     } catch (x) { $("#gm").className = "msg err"; $("#gm").textContent = x.message; }
   });
 }
+
+/* ---------- Proben planen und durchführen ---------- */
+// PG = gewählte Gruppe, PL = Proben dieser Gruppe, PE = geöffnete Probe (Arbeitskopie), PM = "plan" oder "lauf"
+let PG = null, PL = null, PE = null, PM = "plan", PSUCHE = "", PNOTIZOFFEN = {}, PFOKUS = null, PSTATUS = "", PTIMER = null, PKETTE = Promise.resolve(), PWAKE = null;
+const uebungVon = id => ITEMS.find(i => i.id === id);
+const probeKopie = p => ({ id: p.id, name: p.name, datum: p.datum, ids: p.ids.slice(), erledigt: p.erledigt.slice(), notizen: Object.assign({}, p.notizen), dirty: false });
+async function probenLaden(gid) {
+  PG = gid; PL = null; PE = null; seite();
+  try { const r = await api({ action: "adminProben", gruppe: gid }); if (!r.ok) throw new Error(r.msg || "Die Proben konnten nicht geladen werden."); if (PG === gid) { PL = r.proben; seite(); } }
+  catch (x) { if (PG === gid) { PL = []; seite(); const m = $("#pm"); if (m) { m.className = "msg err"; m.textContent = x.message; } } }
+}
+function tabPro() {
+  if (!GRU) return `<div class="panel"><h2>Proben</h2><p class="hint">Die Gruppen werden geladen …</p></div>`;
+  if (!GRU.length) return `<div class="panel"><h2>Proben</h2><p class="hint">Es gibt noch keine Gruppe. Gruppen entstehen auf der Website über „Eigene Probe zusammenstellen“.</p></div>`;
+  if (!PG || !GRU.some(g => g.id === PG)) { PG = GRU[0].id; PL = null; PE = null; setTimeout(() => probenLaden(PG), 0); }
+  const chips = `<div class="chips">${GRU.map(g => `<button data-pg="${esc(g.id)}" aria-pressed="${g.id === PG}">${esc(g.name)}</button>`).join("")}</div>`;
+  if (PE) return `<div class="panel">${chips}${PM === "lauf" ? probeLauf() : probePlan()}</div>`;
+  const g = GRU.find(x => x.id === PG);
+  return `<div class="panel"><h2>Proben</h2>${chips}<p class="msg" id="pm"></p>
+    ${PL === null ? `<p class="hint">Die Proben werden geladen …</p>` : `
+    <div class="row" style="margin-bottom:10px"><button class="btn red" data-pneu>+ Neue Probe planen</button></div>
+    ${PL.length ? PL.map(p => `<div class="item" style="border:1px solid var(--line);border-radius:10px;margin-bottom:6px;flex-wrap:wrap"><span class="t"><b>${esc(p.name)}</b><br><small class="hint">${esc(datumKurz(p.datum))} · ${p.ids.length} Übungen${p.erledigt.length ? ` · ${p.erledigt.length} erledigt` : ""}</small></span>
+      <button class="btn small red" data-plauf="${esc(p.id)}">Starten</button><button class="btn small" data-pplan="${esc(p.id)}">Planen</button><button class="btn small del" data-pdel="${esc(p.id)}">Löschen</button></div>`).join("") : `<p class="hint">In „${esc(g ? g.name : "")}“ gibt es noch keine Proben.</p>`}`}</div>`;
+}
+function probePlan() {
+  const e = PE, q = PSUCHE.trim().toLowerCase();
+  const frei = ITEMS.filter(i => !i.draft && !e.ids.includes(i.id) && (!q || (i.title + " " + i.cat).toLowerCase().includes(q))).slice(0, 40);
+  return `<div class="row" style="justify-content:space-between"><button class="btn small" data-pzurueck>← Alle Proben</button><span class="msg ${PSTATUS === "Gespeichert." ? "ok" : ""}" id="pm">${esc(PSTATUS)}</span></div>
+    <h2 style="margin-top:12px">${e.id ? "Probe planen" : "Neue Probe"}</h2>
+    <div class="grid2"><label>Name<input id="pn" maxlength="60" value="${esc(e.name)}" placeholder="z. B. Probe am Donnerstag"></label><label>Datum<input id="pd" type="date" value="${esc(e.datum)}"></label></div>
+    <h3>Ablauf (${e.ids.length} Übungen)</h3>
+    ${e.ids.length ? e.ids.map((id, n) => { const u = uebungVon(id); return `<div class="item" style="border:1px solid var(--line);border-radius:10px;margin-bottom:6px"><span class="m" style="width:22px;text-align:right">${n + 1}</span><span class="t">${u ? esc(u.title) : "<i>(Übung nicht mehr vorhanden)</i>"}${u ? `<div class="m">${esc([u.cat, u.tn ? u.tn + " Pers." : "", u.dauer].filter(Boolean).join(" · "))}</div>` : ""}</span>
+      <button class="btn small" data-pmove="${n}" data-dir="-1" ${n === 0 ? "disabled" : ""} title="nach oben">↑</button><button class="btn small" data-pmove="${n}" data-dir="1" ${n === e.ids.length - 1 ? "disabled" : ""} title="nach unten">↓</button><button class="btn small del" data-prem="${n}" title="entfernen">✕</button></div>`; }).join("") : `<p class="hint">Noch keine Übungen. Wähle unten Übungen aus.</p>`}
+    <h3>Übung hinzufügen</h3>
+    <input id="ps" type="search" placeholder="Übung oder Kategorie suchen …" value="${esc(PSUCHE)}" autocomplete="off">
+    <div style="margin-top:8px">${frei.map(i => `<div class="item" style="border:1px solid var(--line);border-radius:10px;margin-bottom:6px"><span class="t">${esc(i.title)}<div class="m">${esc([i.cat, i.tn ? i.tn + " Pers." : "", i.dauer].filter(Boolean).join(" · "))}</div></span><button class="btn small" data-padd="${esc(i.id)}">+ hinzufügen</button></div>`).join("") || `<p class="hint">Nichts gefunden.</p>`}</div>
+    <div class="row" style="margin-top:14px;position:sticky;bottom:0;background:var(--card);padding:10px 0"><button class="btn red" data-psave>Speichern</button>${e.id ? `<button class="btn" data-pstart>Speichern und Probe starten</button>` : ""}</div>`;
+}
+function probeLauf() {
+  const e = PE, offen = e.ids.filter(i => !e.erledigt.includes(i)), fertig = e.ids.filter(i => e.erledigt.includes(i));
+  const zeile = (id, fokus) => {
+    const u = uebungVon(id), done = e.erledigt.includes(id), notiz = e.notizen[id] || "", auf = PNOTIZOFFEN[id] === true;
+    const titel = u ? u.title : "(Übung nicht mehr vorhanden)";
+    return `<div class="lz ${fokus ? "fokus" : ""} ${done ? "fertig" : ""}" data-lz="${esc(id)}">
+      <div class="lk"><label class="check" style="flex:1;min-width:0"><input type="checkbox" data-phak="${esc(id)}" ${done ? "checked" : ""}><span class="lt">${esc(titel)}</span></label>
+        <button class="btn small" data-pnotiz="${esc(id)}">${auf ? "weniger" : fokus ? "Ablauf" : "Notiz"}</button></div>
+      ${fokus ? `<div class="m">${esc(u ? [u.cat, u.tn ? u.tn + " Pers." : "", u.dauer, u.level].filter(Boolean).join(" · ") : "")}</div>` : ""}
+      ${auf ? `${u && u.ab ? `<div class="ablauf">${esc(u.ab)}</div>` : ""}` : ""}
+      ${(fokus || auf || notiz) ? `<textarea class="pn" data-pnotizt="${esc(id)}" placeholder="Notizen zu dieser Übung …" rows="${fokus || auf ? 3 : 2}">${esc(notiz)}</textarea>` : ""}</div>`;
+  };
+  const bar = `<div class="lbar"><div class="lpr"><i style="width:${e.ids.length ? Math.round(fertig.length / e.ids.length * 100) : 0}%"></i></div><span class="m">${fertig.length} von ${e.ids.length} erledigt</span></div>`;
+  return `<style>
+    .lz{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:var(--card)}
+    .lz.fokus{border:2px solid var(--red);padding:14px;margin-bottom:14px}
+    .lz.fokus .lt{font-size:22px;font-weight:700;line-height:1.25}
+    .lz.fertig{opacity:.62;background:var(--bg)}.lz.fertig .lt{text-decoration:line-through}
+    .lk{display:flex;gap:8px;align-items:center}.lt{overflow-wrap:anywhere}
+    .lz input[type=checkbox]{width:26px;height:26px;accent-color:var(--red)}
+    .lz label.check{gap:12px;font-size:17px}
+    .ablauf{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--bg);border-radius:10px;padding:10px;margin:8px 0;max-height:260px;overflow:auto;font-size:15px}
+    .pn{min-height:64px;margin-top:8px}
+    .lbar{display:flex;align-items:center;gap:10px;margin:6px 0 12px}.lpr{flex:1;height:8px;border-radius:99px;background:var(--chip);overflow:hidden}.lpr i{display:block;height:100%;background:var(--ok)}
+    .lsec{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px}
+  </style>
+  <div class="row" style="justify-content:space-between"><button class="btn small" data-pzurueck>← Alle Proben</button><span class="msg ${PSTATUS === "Gespeichert." ? "ok" : PSTATUS.startsWith("Das") || PSTATUS.startsWith("Fehler") ? "err" : ""}" id="pm">${esc(PSTATUS)}</span></div>
+  <h2 style="margin-top:12px">${esc(e.name)} <span class="m" style="font-weight:400">${esc(datumKurz(e.datum))}</span></h2>${bar}
+  ${offen.length ? `<div class="lsec">Als Nächstes</div>${zeile(offen[0], true)}${offen.length > 1 ? `<div class="lsec">Danach (${offen.length - 1})</div>${offen.slice(1).map(i => zeile(i, false)).join("")}` : ""}` : `<p class="msg ok" style="font-size:17px;margin:14px 0">Alle Übungen sind erledigt. 🎉</p>`}
+  ${fertig.length ? `<div class="lsec">Erledigt (${fertig.length})</div>${fertig.map(i => zeile(i, false)).join("")}` : ""}
+  <div class="row" style="margin-top:14px"><button class="btn small" data-pplan="${esc(e.id)}">Reihenfolge ändern</button>${fertig.length ? `<button class="btn small" data-preset>Alle Haken zurücksetzen</button>` : ""}</div>`;
+}
+// Haken und Notizen speichern: immer der aktuelle Stand, nacheinander (damit sich Speichervorgänge nicht überholen)
+function laufSpeichern(sofort) {
+  clearTimeout(PTIMER);
+  const tu = () => {
+    const e = PE; if (!e || !e.id) return;
+    const stand = { erledigt: e.erledigt.slice(), notizen: Object.assign({}, e.notizen) };
+    PSTATUS = "Speichern …"; const m = $("#pm"); if (m) { m.className = "msg"; m.textContent = PSTATUS; }
+    PKETTE = PKETTE.then(async () => {
+      try {
+        const r = await api({ action: "adminProbeLauf", gruppe: PG, id: e.id, erledigt: stand.erledigt, notizen: stand.notizen });
+        if (!r.ok) throw new Error(r.msg || "Das hat nicht geklappt.");
+        if (PL) { const p = PL.find(x => x.id === e.id); if (p) { p.erledigt = r.probe.erledigt; p.notizen = r.probe.notizen; } }
+        PSTATUS = "Gespeichert.";
+      } catch (x) { PSTATUS = "Das Speichern hat nicht geklappt: " + (x.message || "keine Verbindung") + " – wird beim nächsten Haken oder bei der nächsten Notiz erneut versucht."; }
+      const m2 = $("#pm"); if (m2 && PE && PM === "lauf") { m2.className = "msg " + (PSTATUS === "Gespeichert." ? "ok" : "err"); m2.textContent = PSTATUS; }
+    });
+  };
+  if (sofort) tu(); else { PSTATUS = "Notiz wird gespeichert …"; PTIMER = setTimeout(tu, 900); }
+}
+async function wachHalten(an) {
+  try { if (an && navigator.wakeLock && !PWAKE) { PWAKE = await navigator.wakeLock.request("screen"); PWAKE.addEventListener("release", () => { PWAKE = null; }); } else if (!an && PWAKE) { await PWAKE.release(); PWAKE = null; } } catch (x) {}
+}
+function probeOeffnen(id, modus) {
+  const p = id ? (PL || []).find(x => x.id === id) : null;
+  PE = p ? probeKopie(p) : { id: "", name: "", datum: new Date().toISOString().slice(0, 10), ids: [], erledigt: [], notizen: {}, dirty: false };
+  PM = modus; PSTATUS = ""; PSUCHE = ""; PNOTIZOFFEN = {}; wachHalten(modus === "lauf"); seite(); window.scrollTo(0, 0);
+}
+async function probeSpeichern() {
+  const e = PE; e.name = ($("#pn") ? $("#pn").value : e.name); e.datum = ($("#pd") ? $("#pd").value : e.datum);
+  PSTATUS = "Speichern …"; const m = $("#pm"); if (m) { m.className = "msg"; m.textContent = PSTATUS; }
+  const r = await api({ action: "adminProbeSpeichern", gruppe: PG, id: e.id, name: e.name, datum: e.datum, ids: e.ids });
+  if (!r.ok) throw new Error(r.msg || "Das hat nicht geklappt.");
+  PL = r.proben; const p = PL.find(x => x.id === r.probeId); if (p) { PE = probeKopie(p); PE.dirty = false; }
+  PSTATUS = "Gespeichert.";
+}
+function bindPro() {
+  if (!GRU) { gruLaden(); return; }
+  document.querySelectorAll("[data-pg]").forEach(b => b.onclick = () => { wachHalten(false); PE = null; probenLaden(b.dataset.pg); });
+  const fehlerAnzeige = x => { const m = $("#pm"); if (m) { m.className = "msg err"; m.textContent = x.message || "Das hat nicht geklappt."; } else fehler(x); };
+  const zurueck = $("[data-pzurueck]");
+  if (zurueck) zurueck.onclick = () => { clearTimeout(PTIMER); const e = PE; if (PM === "lauf" && e && e.id) laufSpeichern(true); wachHalten(false); PE = null; PSTATUS = ""; seite(); window.scrollTo(0, 0); };
+  const neu = $("[data-pneu]"); if (neu) neu.onclick = () => probeOeffnen("", "plan");
+  document.querySelectorAll("[data-pplan]").forEach(b => b.onclick = () => { if (PE && PM === "lauf") { clearTimeout(PTIMER); laufSpeichern(true); } probeOeffnen(b.dataset.pplan, "plan"); });
+  document.querySelectorAll("[data-plauf]").forEach(b => b.onclick = () => probeOeffnen(b.dataset.plauf, "lauf"));
+  document.querySelectorAll("[data-pdel]").forEach(b => b.onclick = async () => {
+    const p = (PL || []).find(x => x.id === b.dataset.pdel); if (!p) return;
+    if (!confirm(`Die Probe „${p.name}“ mit allen Notizen endgültig löschen?`)) return;
+    try { const r = await api({ action: "adminProbeLoeschen", gruppe: PG, id: p.id }); if (!r.ok) throw new Error(r.msg); PL = r.proben; seite(); } catch (x) { fehlerAnzeige(x); }
+  });
+  if (!PE) return;
+  if (PM === "plan") {
+    const keep = () => { PE.name = $("#pn").value; PE.datum = $("#pd").value; };
+    const neuZeichnen = () => { keep(); const y = window.scrollY; seite(); window.scrollTo(0, y); };
+    document.querySelectorAll("[data-pmove]").forEach(b => b.onclick = () => { const n = +b.dataset.pmove, d = +b.dataset.dir, a = PE.ids; if (n + d < 0 || n + d >= a.length) return; [a[n], a[n + d]] = [a[n + d], a[n]]; PE.dirty = true; PSTATUS = "Nicht gespeichert."; neuZeichnen(); });
+    document.querySelectorAll("[data-prem]").forEach(b => b.onclick = () => { PE.ids.splice(+b.dataset.prem, 1); PE.dirty = true; PSTATUS = "Nicht gespeichert."; neuZeichnen(); });
+    document.querySelectorAll("[data-padd]").forEach(b => b.onclick = () => { PE.ids.push(b.dataset.padd); PE.dirty = true; PSTATUS = "Nicht gespeichert."; neuZeichnen(); });
+    const s = $("#ps"); if (s) s.oninput = () => { keep(); PSUCHE = s.value; const y = window.scrollY; seite(); const n = $("#ps"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); window.scrollTo(0, y); };
+    $("[data-psave]").onclick = async () => { try { keep(); await probeSpeichern(); seite(); } catch (x) { fehlerAnzeige(x); } };
+    const st = $("[data-pstart]"); if (st) st.onclick = async () => { try { keep(); await probeSpeichern(); probeOeffnen(PE.id, "lauf"); } catch (x) { fehlerAnzeige(x); } };
+  } else {
+    const neuZeichnen = () => { const y = window.scrollY; seite(); window.scrollTo(0, y); };
+    document.querySelectorAll("[data-phak]").forEach(c => c.onchange = () => {
+      const id = c.dataset.phak, e = PE;
+      if (c.checked) { if (!e.erledigt.includes(id)) e.erledigt.push(id); } else e.erledigt = e.erledigt.filter(x => x !== id);
+      laufSpeichern(true); neuZeichnen();
+    });
+    document.querySelectorAll("[data-pnotiz]").forEach(b => b.onclick = () => { const id = b.dataset.pnotiz; PNOTIZOFFEN[id] = PNOTIZOFFEN[id] !== true; neuZeichnen(); });
+    document.querySelectorAll("[data-pnotizt]").forEach(t => {
+      t.oninput = () => { const id = t.dataset.pnotizt; if (t.value.trim()) PE.notizen[id] = t.value; else delete PE.notizen[id]; laufSpeichern(false); const m = $("#pm"); if (m) { m.className = "msg"; m.textContent = PSTATUS; } };
+      t.onblur = () => { if (PTIMER) { clearTimeout(PTIMER); PTIMER = null; laufSpeichern(true); } };
+    });
+    const rs = $("[data-preset]"); if (rs) rs.onclick = () => { if (!confirm("Alle Haken dieser Probe zurücksetzen? Die Notizen bleiben erhalten.")) return; PE.erledigt = []; laufSpeichern(true); neuZeichnen(); };
+  }
+}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && PE && PM === "lauf") wachHalten(true); });
 
 /* ---------- Bearbeiten-Fenster ---------- */
 function openDlg(h) { $("#dlgBox").innerHTML = h; $("#dlg").hidden = false; }
@@ -579,6 +734,7 @@ function bindTab() {
   if (tab === "adm") bindAdm();
   if (tab === "sta") bindSta();
   if (tab === "gru") bindGru();
+  if (tab === "pro") bindPro();
 }
 function bindZit() {
   const msg = (t, c) => { const m = $("#zMsg"); if (m) { m.className = "msg " + (c || ""); m.textContent = t; } };
